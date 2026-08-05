@@ -1,0 +1,5 @@
+pyyaml
+ruamel.yaml
+numpy
+python-osc
+pygame

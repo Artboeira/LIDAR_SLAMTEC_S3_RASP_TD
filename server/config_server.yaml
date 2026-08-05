@@ -1,0 +1,57 @@
+# LidarMapper — configuração do servidor (relay + calibrador).
+# §5.2 item 9 do guia. Alvo: Windows (paths, sem systemd).
+
+# Porta única onde o relay recebe V2 dos nós Pi.
+listen_port: 5555
+
+# Mapa de painéis atendidos por este servidor.
+# Cada painel:
+#   out_port      — porta localhost onde o relay envia V1 pro TD
+#   display_index — monitor onde `calibrate.py --target-source local` abre
+#                   fullscreen (usado só pela calibração local; o relay ignora)
+#   calib_file    — path (relativo à raiz do server/) do JSON de calibração;
+#                   se o arquivo não existir, o painel não é repassado (§5.2)
+panels:
+  1:
+    out_port: 6001
+    display_index: 1
+    calib_file: calib_p1.json
+  2:
+    out_port: 6002
+    display_index: 2
+    calib_file: calib_p2.json
+  3:
+    out_port: 6003
+    display_index: 3
+    calib_file: calib_p3.json
+  4:
+    out_port: 6004
+    display_index: 4
+    calib_file: calib_p4.json
+
+# OSC pro Max/MSP (§3.2). O relay envia /touch/<panel_id> ao detectar down.
+osc:
+  host: 127.0.0.1
+  port: 7500
+  # timeout_s para derivar up de um track ausente (reservado — o patch atual
+  # só consome down, o release é interno).
+  timeout_s: 0.18
+
+# Envio pro TouchDesigner (localhost).
+td:
+  host: 127.0.0.1
+  # descarte de pontos fora de [0..1] após homografia (segunda linha de defesa
+  # contra o LIDAR ver o painel vizinho — §2 do guia).
+  clip_out_of_range: true
+
+# Parâmetros de coleta da calibração (server/calibrate.py).
+calibration:
+  # duração da mediana por canto (§7 do guia)
+  collect_s: 2.0
+  # tamanho da região de interesse (raio, em mm) ao redor do primeiro toque
+  # aceitável, pra descartar outliers na mediana
+  window_mm: 250
+  # mínimo de pontos foreground no janela pra aceitar o canto
+  min_pts: 30
+  # insets dos alvos em relação à borda da tela (§7 — igual ao legacy)
+  target_insets: [0.06, 0.94]
