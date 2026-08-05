@@ -1,0 +1,1774 @@
+lidar_reader.pyc (Python 3.13)
+[Code]
+    File Name: lidar_reader.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 5
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'logging'
+        'threading'
+        'time'
+        'collections'
+        'deque'
+        'dataclasses'
+        'dataclass'
+        'Measurement'
+        'find_lidar_port'
+        'LidarReader'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — Etapa 1: leitura do RPLIDAR S3.\n\nConecta o sensor via serial USB e roda a varredura num thread separado.\nExpõe medidas ao consumidor (drain), estatísticas (medidas/s, scans/s) e\num campo de status legível pra debug.\n\nA interface foi pensada pra ser estável nas etapas seguintes — o que\nmuda à frente é o que se faz com as medidas (filtragem, homografia,\nclustering, publicação ZMQ), não como elas são lidas.\n\nQuirks do S3 já tratados aqui:\n  - Sessão anterior mal encerrada deixa lixo no buffer → stop()+clean_input()\n    antes de get_info(); se ainda assim get_info() falhar, reset() + sleep + retry.\n  - O logger interno do `rplidar` fala muito a 1 Mbps ("Too many bytes") e\n    rouba throughput do hot loop. Silenciamos pra ERROR.\n  - O thread de leitura NUNCA morre: soft recover nas primeiras desyncs e\n    hard reconnect (recria RPLidar) se persistir. Só sai com stop().\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'deque'
+        )
+        (
+            'dataclass'
+        )
+        [Code]
+            File Name: lidar_reader.py
+            Object Name: Measurement
+            Qualified Name: Measurement
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__doc__'
+                '__annotations__'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'Measurement'
+                29
+                'Uma medida polar do sensor.'
+                'float'
+                'angle'
+                'distance'
+                'int'
+                'quality'
+                'bool'
+                'new_scan'
+                'timestamp'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'Measurement'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 29
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 'Uma medida polar do sensor.'
+                18      STORE_NAME                      4: __doc__
+                20      LOAD_CONST                      3: 'float'
+                22      LOAD_NAME                       5: __annotations__
+                24      LOAD_CONST                      4: 'angle'
+                26      STORE_SUBSCR                    
+                30      LOAD_CONST                      3: 'float'
+                32      LOAD_NAME                       5: __annotations__
+                34      LOAD_CONST                      5: 'distance'
+                36      STORE_SUBSCR                    
+                40      LOAD_CONST                      6: 'int'
+                42      LOAD_NAME                       5: __annotations__
+                44      LOAD_CONST                      7: 'quality'
+                46      STORE_SUBSCR                    
+                50      LOAD_CONST                      8: 'bool'
+                52      LOAD_NAME                       5: __annotations__
+                54      LOAD_CONST                      9: 'new_scan'
+                56      STORE_SUBSCR                    
+                60      LOAD_CONST                      3: 'float'
+                62      LOAD_NAME                       5: __annotations__
+                64      LOAD_CONST                      10: 'timestamp'
+                66      STORE_SUBSCR                    
+                70      LOAD_CONST                      11: ()
+                72      STORE_NAME                      6: __static_attributes__
+                74      RETURN_CONST                    12: None
+            [Exception Table]
+        'Measurement'
+        [Code]
+            File Name: lidar_reader.py
+            Object Name: find_lidar_port
+            Qualified Name: find_lidar_port
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 4
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'serial.tools.list_ports'
+                'tools'
+                'list_ports'
+                'ImportError'
+                'comports'
+                'vid'
+                'pid'
+                'device'
+            [Locals+Names]
+                'list_ports'
+                'p'
+            [Constants]
+                'Acha a porta do S3 pelo chip CP210x (VID 0x10C4 / PID 0xEA60).'
+                0
+                None
+                (
+                    4292
+                    60000
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       NOP                             
+                4       LOAD_CONST                      1: 0
+                6       LOAD_CONST                      2: None
+                8       IMPORT_NAME                     0: serial.tools.list_ports
+                10      IMPORT_FROM                     1: tools
+                12      SWAP                            2
+                14      POP_TOP                         
+                16      IMPORT_FROM                     2: list_ports
+                18      STORE_FAST                      0: list_ports
+                20      POP_TOP                         
+                22      LOAD_FAST                       0: list_ports
+                24      LOAD_ATTR                       9: comports
+                44      CALL                            0
+                52      GET_ITER                        
+                54      FOR_ITER                        45 (to 146)
+                58      STORE_FAST                      1: p
+                60      LOAD_FAST                       1: p
+                62      LOAD_ATTR                       10: vid
+                82      LOAD_FAST                       1: p
+                84      LOAD_ATTR                       12: pid
+                104     BUILD_TUPLE                     2
+                106     LOAD_CONST                      3: (4292, 60000)
+                108     COMPARE_OP                      88 (==)
+                112     POP_JUMP_IF_TRUE                2 (to 118)
+                116     JUMP_BACKWARD                   33 (to 52)
+                120     LOAD_FAST                       1: p
+                122     LOAD_ATTR                       14: device
+                142     SWAP                            2
+                144     POP_TOP                         
+                146     RETURN_VALUE                    
+                148     END_FOR                         
+                150     POP_TOP                         
+                152     RETURN_CONST                    2: None
+                154     PUSH_EXC_INFO                   
+                156     LOAD_GLOBAL                     6: ImportError
+                166     CHECK_EXC_MATCH                 
+                168     POP_JUMP_IF_FALSE               3 (to 176)
+                172     POP_TOP                         
+                174     POP_EXCEPT                      
+                176     RETURN_CONST                    2: None
+                178     RERAISE                         0
+                180     COPY                            3
+                182     POP_EXCEPT                      
+                184     RERAISE                         1
+            [Exception Table]
+                4 to 22 -> 154 [0] 
+                154 to 174 -> 180 [1] lasti
+                178 to 180 -> 180 [1] lasti
+        [Code]
+            File Name: lidar_reader.py
+            Object Name: LidarReader
+            Qualified Name: LidarReader
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__doc__'
+                '__init__'
+                'start'
+                'stop'
+                '_connect_clean'
+                '_safe_disconnect'
+                '_reader_loop'
+                '_soft_recover'
+                '_hard_reconnect'
+                '_on_measure'
+                'drain'
+                'property'
+                'meas_per_sec'
+                'scans_per_sec'
+                'status'
+                'reconnects'
+                'desyncs'
+                'port'
+                'connected'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'LidarReader'
+                51
+                'Lê o RPLIDAR S3 em thread separada e entrega medidas ao consumidor.\n\nUso:\n    rdr = LidarReader()      # port=None → auto-detecta\n    if not rdr.start():\n        raise SystemExit(rdr.status)\n    try:\n        while True:\n            for m in rdr.drain():\n                ...\n            time.sleep(0.01)\n    finally:\n        rdr.stop()\n'
+                None
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: __init__
+                    Qualified Name: LidarReader.__init__
+                    Arg Count: 5
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_port_hint'
+                        '_baud'
+                        '_max_buf_meas'
+                        '_lidar'
+                        '_port'
+                        '_thread'
+                        '_running'
+                        'threading'
+                        'Lock'
+                        '_lock'
+                        'deque'
+                        '_queue'
+                        '_meas_count'
+                        '_scan_count'
+                        'time'
+                        'monotonic'
+                        '_stats_t0'
+                        '_meas_rate'
+                        '_scan_rate'
+                        '_last_meas_t'
+                        '_reconnects'
+                        '_desyncs'
+                        '_status'
+                    [Locals+Names]
+                        'self'
+                        'port'
+                        'baud'
+                        'max_buf_meas'
+                        'queue_size'
+                    [Constants]
+                        None
+                        False
+                        (
+                            'maxlen'
+                        )
+                        0
+                        0
+                        'parado'
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST_LOAD_FAST             16: port, self
+                        4       STORE_ATTR                      0: _port_hint
+                        14      LOAD_FAST_LOAD_FAST             32: baud, self
+                        16      STORE_ATTR                      1: _baud
+                        26      LOAD_FAST_LOAD_FAST             48: max_buf_meas, self
+                        28      STORE_ATTR                      2: _max_buf_meas
+                        38      LOAD_CONST                      0: None
+                        40      LOAD_FAST                       0: self
+                        42      STORE_ATTR                      3: _lidar
+                        52      LOAD_CONST                      0: None
+                        54      LOAD_FAST                       0: self
+                        56      STORE_ATTR                      4: _port
+                        66      LOAD_CONST                      0: None
+                        68      LOAD_FAST                       0: self
+                        70      STORE_ATTR                      5: _thread
+                        80      LOAD_CONST                      1: False
+                        82      LOAD_FAST                       0: self
+                        84      STORE_ATTR                      6: _running
+                        94      LOAD_GLOBAL                     14: threading
+                        104     LOAD_ATTR                       16: Lock
+                        124     PUSH_NULL                       
+                        126     CALL                            0
+                        134     LOAD_FAST                       0: self
+                        136     STORE_ATTR                      9: _lock
+                        146     LOAD_GLOBAL                     21: NULL + deque
+                        156     LOAD_FAST                       4: queue_size
+                        158     LOAD_CONST                      2: ('maxlen',)
+                        160     CALL_KW                         1
+                        162     LOAD_FAST                       0: self
+                        164     STORE_ATTR                      11: _queue
+                        174     LOAD_CONST                      3: 0
+                        176     LOAD_FAST                       0: self
+                        178     STORE_ATTR                      12: _meas_count
+                        188     LOAD_CONST                      3: 0
+                        190     LOAD_FAST                       0: self
+                        192     STORE_ATTR                      13: _scan_count
+                        202     LOAD_GLOBAL                     28: time
+                        212     LOAD_ATTR                       30: monotonic
+                        232     PUSH_NULL                       
+                        234     CALL                            0
+                        242     LOAD_FAST                       0: self
+                        244     STORE_ATTR                      16: _stats_t0
+                        254     LOAD_CONST                      4: 0
+                        256     LOAD_FAST                       0: self
+                        258     STORE_ATTR                      17: _meas_rate
+                        268     LOAD_CONST                      4: 0
+                        270     LOAD_FAST                       0: self
+                        272     STORE_ATTR                      18: _scan_rate
+                        282     LOAD_CONST                      4: 0
+                        284     LOAD_FAST                       0: self
+                        286     STORE_ATTR                      19: _last_meas_t
+                        296     LOAD_CONST                      3: 0
+                        298     LOAD_FAST                       0: self
+                        300     STORE_ATTR                      20: _reconnects
+                        310     LOAD_CONST                      3: 0
+                        312     LOAD_FAST                       0: self
+                        314     STORE_ATTR                      21: _desyncs
+                        324     LOAD_CONST                      5: 'parado'
+                        326     LOAD_FAST                       0: self
+                        328     STORE_ATTR                      22: _status
+                        338     RETURN_CONST                    0: None
+                    [Exception Table]
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: start
+                    Qualified Name: LidarReader.start
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 6
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_port_hint'
+                        'find_lidar_port'
+                        '_status'
+                        '_port'
+                        'rplidar'
+                        'RPLidar'
+                        'ImportError'
+                        '_baud'
+                        '_lidar'
+                        'logger'
+                        'setLevel'
+                        'logging'
+                        'ERROR'
+                        '_connect_clean'
+                        'Exception'
+                        '_safe_disconnect'
+                        '_running'
+                        'time'
+                        'monotonic'
+                        '_stats_t0'
+                        'threading'
+                        'Thread'
+                        '_reader_loop'
+                        '_thread'
+                        'start'
+                    [Locals+Names]
+                        'self'
+                        'port'
+                        'RPLidar'
+                        'info'
+                        'health'
+                        'exc'
+                    [Constants]
+                        'Conecta o sensor e dispara o thread. Retorna True em sucesso.'
+                        "porta não encontrada (driver CP210x instalado? S3 deve aparecer como 'Silicon Labs CP210x ... (COMx)')"
+                        False
+                        0
+                        (
+                            'RPLidar'
+                        )
+                        'rplidar-roboticia não instalado (pip install rplidar-roboticia)'
+                        3
+                        (
+                            'baudrate'
+                            'timeout'
+                        )
+                        'conectado @ '
+                        ' | info='
+                        ' health='
+                        'falha ao conectar em '
+                        ': '
+                        None
+                        True
+                        (
+                            'target'
+                            'daemon'
+                        )
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _port_hint
+                        24      COPY                            1
+                        26      TO_BOOL                         
+                        34      POP_JUMP_IF_TRUE                10 (to 56)
+                        38      POP_TOP                         
+                        40      LOAD_GLOBAL                     3: NULL + find_lidar_port
+                        50      CALL                            0
+                        58      STORE_FAST                      1: port
+                        60      LOAD_FAST                       1: port
+                        62      TO_BOOL                         
+                        70      POP_JUMP_IF_TRUE                8 (to 88)
+                        74      LOAD_CONST                      1: "porta não encontrada (driver CP210x instalado? S3 deve aparecer como 'Silicon Labs CP210x ... (COMx)')"
+                        76      LOAD_FAST                       0: self
+                        78      STORE_ATTR                      2: _status
+                        88      RETURN_CONST                    2: False
+                        90      LOAD_FAST_LOAD_FAST             16: port, self
+                        92      STORE_ATTR                      3: _port
+                        102     NOP                             
+                        104     LOAD_CONST                      3: 0
+                        106     LOAD_CONST                      4: ('RPLidar',)
+                        108     IMPORT_NAME                     4: rplidar
+                        110     IMPORT_FROM                     5: RPLidar
+                        112     STORE_FAST                      2: RPLidar
+                        114     POP_TOP                         
+                        116     NOP                             
+                        118     LOAD_FAST                       2: RPLidar
+                        120     PUSH_NULL                       
+                        122     LOAD_FAST_LOAD_FAST             16: port, self
+                        124     LOAD_ATTR                       14: _baud
+                        144     LOAD_CONST                      6: 3
+                        146     LOAD_CONST                      7: ('baudrate', 'timeout')
+                        148     CALL_KW                         3
+                        150     LOAD_FAST                       0: self
+                        152     STORE_ATTR                      8: _lidar
+                        162     LOAD_FAST                       0: self
+                        164     LOAD_ATTR                       16: _lidar
+                        184     LOAD_ATTR                       18: logger
+                        204     LOAD_ATTR                       21: setLevel
+                        224     LOAD_GLOBAL                     22: logging
+                        234     LOAD_ATTR                       24: ERROR
+                        254     CALL                            1
+                        262     POP_TOP                         
+                        264     LOAD_FAST                       0: self
+                        266     LOAD_ATTR                       27: _connect_clean
+                        286     CALL                            0
+                        294     UNPACK_SEQUENCE                 2
+                        298     STORE_FAST_STORE_FAST           52: info, health
+                        300     LOAD_CONST                      8: 'conectado @ '
+                        302     LOAD_FAST                       1: port
+                        304     FORMAT_SIMPLE                   
+                        306     LOAD_CONST                      9: ' | info='
+                        308     LOAD_FAST                       3: info
+                        310     FORMAT_SIMPLE                   
+                        312     LOAD_CONST                      10: ' health='
+                        314     LOAD_FAST                       4: health
+                        316     FORMAT_SIMPLE                   
+                        318     BUILD_STRING                    6
+                        320     LOAD_FAST                       0: self
+                        322     STORE_ATTR                      2: _status
+                        332     LOAD_CONST                      14: True
+                        334     LOAD_FAST                       0: self
+                        336     STORE_ATTR                      16: _running
+                        346     LOAD_GLOBAL                     34: time
+                        356     LOAD_ATTR                       36: monotonic
+                        376     PUSH_NULL                       
+                        378     CALL                            0
+                        386     LOAD_FAST                       0: self
+                        388     STORE_ATTR                      19: _stats_t0
+                        398     LOAD_GLOBAL                     40: threading
+                        408     LOAD_ATTR                       42: Thread
+                        428     PUSH_NULL                       
+                        430     LOAD_FAST                       0: self
+                        432     LOAD_ATTR                       44: _reader_loop
+                        452     LOAD_CONST                      14: True
+                        454     LOAD_CONST                      15: ('target', 'daemon')
+                        456     CALL_KW                         2
+                        458     LOAD_FAST                       0: self
+                        460     STORE_ATTR                      23: _thread
+                        470     LOAD_FAST                       0: self
+                        472     LOAD_ATTR                       46: _thread
+                        492     LOAD_ATTR                       49: start
+                        512     CALL                            0
+                        520     POP_TOP                         
+                        522     RETURN_CONST                    14: True
+                        524     PUSH_EXC_INFO                   
+                        526     LOAD_GLOBAL                     12: ImportError
+                        536     CHECK_EXC_MATCH                 
+                        538     POP_JUMP_IF_FALSE               10 (to 560)
+                        542     POP_TOP                         
+                        544     LOAD_CONST                      5: 'rplidar-roboticia não instalado (pip install rplidar-roboticia)'
+                        546     LOAD_FAST                       0: self
+                        548     STORE_ATTR                      2: _status
+                        558     POP_EXCEPT                      
+                        560     RETURN_CONST                    2: False
+                        562     RERAISE                         0
+                        564     COPY                            3
+                        566     POP_EXCEPT                      
+                        568     RERAISE                         1
+                        570     PUSH_EXC_INFO                   
+                        572     LOAD_GLOBAL                     28: Exception
+                        582     CHECK_EXC_MATCH                 
+                        584     POP_JUMP_IF_FALSE               39 (to 664)
+                        588     STORE_FAST                      5: exc
+                        590     LOAD_CONST                      11: 'falha ao conectar em '
+                        592     LOAD_FAST                       1: port
+                        594     FORMAT_SIMPLE                   
+                        596     LOAD_CONST                      12: ': '
+                        598     LOAD_FAST                       5: exc
+                        600     FORMAT_SIMPLE                   
+                        602     BUILD_STRING                    4
+                        604     LOAD_FAST                       0: self
+                        606     STORE_ATTR                      2: _status
+                        616     LOAD_FAST                       0: self
+                        618     LOAD_ATTR                       31: _safe_disconnect
+                        638     CALL                            0
+                        646     POP_TOP                         
+                        648     POP_EXCEPT                      
+                        650     LOAD_CONST                      13: None
+                        652     STORE_FAST                      5: exc
+                        654     DELETE_FAST                     5: exc
+                        656     RETURN_CONST                    2: False
+                        658     LOAD_CONST                      13: None
+                        660     STORE_FAST                      5: exc
+                        662     DELETE_FAST                     5: exc
+                        664     RERAISE                         1
+                        666     RERAISE                         0
+                        668     COPY                            3
+                        670     POP_EXCEPT                      
+                        672     RERAISE                         1
+                    [Exception Table]
+                        104 to 116 -> 524 [0] 
+                        118 to 332 -> 570 [0] 
+                        524 to 558 -> 564 [1] lasti
+                        562 to 564 -> 564 [1] lasti
+                        570 to 590 -> 668 [1] lasti
+                        590 to 648 -> 658 [1] lasti
+                        658 to 668 -> 668 [1] lasti
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: stop
+                    Qualified Name: LidarReader.stop
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_running'
+                        '_thread'
+                        'join'
+                        '_safe_disconnect'
+                        '_status'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                        False
+                        2
+                        (
+                            'timeout'
+                        )
+                        'parado'
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_CONST                      1: False
+                        4       LOAD_FAST                       0: self
+                        6       STORE_ATTR                      0: _running
+                        16      LOAD_FAST                       0: self
+                        18      LOAD_ATTR                       2: _thread
+                        38      POP_JUMP_IF_NONE                32 (to 104)
+                        42      LOAD_FAST                       0: self
+                        44      LOAD_ATTR                       2: _thread
+                        64      LOAD_ATTR                       5: join
+                        84      LOAD_CONST                      2: 2
+                        86      LOAD_CONST                      3: ('timeout',)
+                        88      CALL_KW                         1
+                        90      POP_TOP                         
+                        92      LOAD_CONST                      0: None
+                        94      LOAD_FAST                       0: self
+                        96      STORE_ATTR                      1: _thread
+                        106     LOAD_FAST                       0: self
+                        108     LOAD_ATTR                       7: _safe_disconnect
+                        128     CALL                            0
+                        136     POP_TOP                         
+                        138     LOAD_CONST                      4: 'parado'
+                        140     LOAD_FAST                       0: self
+                        142     STORE_ATTR                      4: _status
+                        152     RETURN_CONST                    0: None
+                    [Exception Table]
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: _connect_clean
+                    Qualified Name: LidarReader._connect_clean
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_lidar'
+                        'stop'
+                        'clean_input'
+                        'Exception'
+                        'get_info'
+                        'reset'
+                        'time'
+                        'sleep'
+                        'get_health'
+                    [Locals+Names]
+                        'self'
+                        'info'
+                        'health'
+                    [Constants]
+                        'stop()+clean_input() antes de get_info(); se o info vier corrompido\n(lixo de scan anterior), reset() + sleep + retry.'
+                        2
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       NOP                             
+                        4       LOAD_FAST                       0: self
+                        6       LOAD_ATTR                       0: _lidar
+                        26      LOAD_ATTR                       3: stop
+                        46      CALL                            0
+                        54      POP_TOP                         
+                        56      LOAD_FAST                       0: self
+                        58      LOAD_ATTR                       0: _lidar
+                        78      LOAD_ATTR                       5: clean_input
+                        98      CALL                            0
+                        106     POP_TOP                         
+                        108     NOP                             
+                        110     LOAD_FAST                       0: self
+                        112     LOAD_ATTR                       0: _lidar
+                        132     LOAD_ATTR                       9: get_info
+                        152     CALL                            0
+                        160     STORE_FAST                      1: info
+                        162     LOAD_FAST                       0: self
+                        164     LOAD_ATTR                       0: _lidar
+                        184     LOAD_ATTR                       17: get_health
+                        204     CALL                            0
+                        212     STORE_FAST                      2: health
+                        214     LOAD_FAST_LOAD_FAST             18: info, health
+                        216     BUILD_TUPLE                     2
+                        218     RETURN_VALUE                    
+                        220     PUSH_EXC_INFO                   
+                        222     LOAD_GLOBAL                     6: Exception
+                        232     CHECK_EXC_MATCH                 
+                        234     POP_JUMP_IF_FALSE               3 (to 242)
+                        238     POP_TOP                         
+                        240     POP_EXCEPT                      
+                        242     JUMP_BACKWARD_NO_INTERRUPT      68 (to 108)
+                        244     RERAISE                         0
+                        246     COPY                            3
+                        248     POP_EXCEPT                      
+                        250     RERAISE                         1
+                        252     PUSH_EXC_INFO                   
+                        254     LOAD_GLOBAL                     6: Exception
+                        264     CHECK_EXC_MATCH                 
+                        266     POP_JUMP_IF_FALSE               103 (to 474)
+                        270     POP_TOP                         
+                        272     LOAD_FAST                       0: self
+                        274     LOAD_ATTR                       0: _lidar
+                        294     LOAD_ATTR                       11: reset
+                        314     CALL                            0
+                        322     POP_TOP                         
+                        324     LOAD_GLOBAL                     12: time
+                        334     LOAD_ATTR                       14: sleep
+                        354     PUSH_NULL                       
+                        356     LOAD_CONST                      1: 2
+                        358     CALL                            1
+                        366     POP_TOP                         
+                        368     LOAD_FAST                       0: self
+                        370     LOAD_ATTR                       0: _lidar
+                        390     LOAD_ATTR                       5: clean_input
+                        410     CALL                            0
+                        418     POP_TOP                         
+                        420     LOAD_FAST                       0: self
+                        422     LOAD_ATTR                       0: _lidar
+                        442     LOAD_ATTR                       9: get_info
+                        462     CALL                            0
+                        470     STORE_FAST                      1: info
+                        472     POP_EXCEPT                      
+                        474     JUMP_BACKWARD_NO_INTERRUPT      157 (to 162)
+                        476     RERAISE                         0
+                        478     COPY                            3
+                        480     POP_EXCEPT                      
+                        482     RERAISE                         1
+                    [Exception Table]
+                        4 to 108 -> 220 [0] 
+                        110 to 162 -> 252 [0] 
+                        220 to 240 -> 246 [1] lasti
+                        244 to 246 -> 246 [1] lasti
+                        252 to 472 -> 478 [1] lasti
+                        476 to 478 -> 478 [1] lasti
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: _safe_disconnect
+                    Qualified Name: LidarReader._safe_disconnect
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_lidar'
+                        'stop'
+                        'stop_motor'
+                        'disconnect'
+                        'Exception'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _lidar
+                        24      POP_JUMP_IF_NONE                87 (to 200)
+                        28      NOP                             
+                        30      LOAD_FAST                       0: self
+                        32      LOAD_ATTR                       0: _lidar
+                        52      LOAD_ATTR                       3: stop
+                        72      CALL                            0
+                        80      POP_TOP                         
+                        82      LOAD_FAST                       0: self
+                        84      LOAD_ATTR                       0: _lidar
+                        104     LOAD_ATTR                       5: stop_motor
+                        124     CALL                            0
+                        132     POP_TOP                         
+                        134     LOAD_FAST                       0: self
+                        136     LOAD_ATTR                       0: _lidar
+                        156     LOAD_ATTR                       7: disconnect
+                        176     CALL                            0
+                        184     POP_TOP                         
+                        186     LOAD_CONST                      0: None
+                        188     LOAD_FAST                       0: self
+                        190     STORE_ATTR                      0: _lidar
+                        200     RETURN_CONST                    0: None
+                        202     RETURN_CONST                    0: None
+                        204     PUSH_EXC_INFO                   
+                        206     LOAD_GLOBAL                     8: Exception
+                        216     CHECK_EXC_MATCH                 
+                        218     POP_JUMP_IF_FALSE               3 (to 226)
+                        222     POP_TOP                         
+                        224     POP_EXCEPT                      
+                        226     JUMP_BACKWARD_NO_INTERRUPT      21 (to 186)
+                        228     RERAISE                         0
+                        230     COPY                            3
+                        232     POP_EXCEPT                      
+                        234     RERAISE                         1
+                    [Exception Table]
+                        30 to 186 -> 204 [0] 
+                        204 to 224 -> 230 [1] lasti
+                        228 to 230 -> 230 [1] lasti
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: _reader_loop
+                    Qualified Name: LidarReader._reader_loop
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 6
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_running'
+                        '_lidar'
+                        '_hard_reconnect'
+                        'iter_measures'
+                        '_max_buf_meas'
+                        '_on_measure'
+                        'Exception'
+                        '_desyncs'
+                        '_status'
+                        '_soft_recover'
+                        'time'
+                        'sleep'
+                        '_reconnects'
+                    [Locals+Names]
+                        'self'
+                        'fails'
+                        'lidar'
+                        'meas'
+                        'exc'
+                    [Constants]
+                        'Loop resiliente: soft recover nas primeiras desyncs, hard reconnect\nse persistir. Só sai quando stop() é chamado.'
+                        0
+                        None
+                        (
+                            'max_buf_meas'
+                        )
+                        1
+                        3
+                        'desync; recuperando ('
+                        ')'
+                        0.05
+                        'desync persistente ('
+                        '); reconectando (#'
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_CONST                      1: 0
+                        4       STORE_FAST                      1: fails
+                        6       LOAD_FAST                       0: self
+                        8       LOAD_ATTR                       0: _running
+                        28      TO_BOOL                         
+                        36      POP_JUMP_IF_FALSE               125 (to 288)
+                        40      NOP                             
+                        42      LOAD_FAST                       0: self
+                        44      LOAD_ATTR                       2: _lidar
+                        64      STORE_FAST                      2: lidar
+                        66      LOAD_FAST                       2: lidar
+                        68      POP_JUMP_IF_NOT_NONE            18 (to 106)
+                        72      LOAD_FAST                       0: self
+                        74      LOAD_ATTR                       5: _hard_reconnect
+                        94      CALL                            0
+                        102     POP_TOP                         
+                        104     JUMP_BACKWARD                   51 (to 4)
+                        108     LOAD_FAST                       2: lidar
+                        110     LOAD_ATTR                       7: iter_measures
+                        130     LOAD_FAST                       0: self
+                        132     LOAD_ATTR                       8: _max_buf_meas
+                        152     LOAD_CONST                      3: ('max_buf_meas',)
+                        154     CALL_KW                         1
+                        156     GET_ITER                        
+                        158     FOR_ITER                        41 (to 242)
+                        162     STORE_FAST                      3: meas
+                        164     LOAD_FAST                       0: self
+                        166     LOAD_ATTR                       0: _running
+                        186     TO_BOOL                         
+                        194     POP_JUMP_IF_TRUE                2 (to 200)
+                        198     POP_TOP                         
+                        200     JUMP_FORWARD                    24 (to 250)
+                        202     LOAD_CONST                      1: 0
+                        204     STORE_FAST                      1: fails
+                        206     LOAD_FAST                       0: self
+                        208     LOAD_ATTR                       11: _on_measure
+                        228     LOAD_FAST                       3: meas
+                        230     CALL                            1
+                        238     POP_TOP                         
+                        240     JUMP_BACKWARD                   43 (to 156)
+                        244     END_FOR                         
+                        246     POP_TOP                         
+                        248     NOP                             
+                        250     LOAD_FAST                       0: self
+                        252     LOAD_ATTR                       0: _running
+                        272     TO_BOOL                         
+                        280     POP_JUMP_IF_FALSE               2 (to 286)
+                        284     JUMP_BACKWARD                   124 (to 38)
+                        288     RETURN_CONST                    2: None
+                        290     RETURN_CONST                    2: None
+                        292     PUSH_EXC_INFO                   
+                        294     LOAD_GLOBAL                     12: Exception
+                        304     CHECK_EXC_MATCH                 
+                        306     POP_JUMP_IF_FALSE               181 (to 670)
+                        310     STORE_FAST                      4: exc
+                        312     LOAD_FAST                       0: self
+                        314     LOAD_ATTR                       0: _running
+                        334     TO_BOOL                         
+                        342     POP_JUMP_IF_TRUE                5 (to 354)
+                        346     POP_EXCEPT                      
+                        348     LOAD_CONST                      2: None
+                        350     STORE_FAST                      4: exc
+                        352     DELETE_FAST                     4: exc
+                        354     RETURN_CONST                    2: None
+                        356     LOAD_FAST                       1: fails
+                        358     LOAD_CONST                      4: 1
+                        360     BINARY_OP                       13 (+=)
+                        364     STORE_FAST                      1: fails
+                        366     LOAD_FAST                       0: self
+                        368     COPY                            1
+                        370     LOAD_ATTR                       14: _desyncs
+                        390     LOAD_CONST                      4: 1
+                        392     BINARY_OP                       13 (+=)
+                        396     SWAP                            2
+                        398     STORE_ATTR                      7: _desyncs
+                        408     LOAD_FAST                       1: fails
+                        410     LOAD_CONST                      5: 3
+                        412     COMPARE_OP                      58 (<=)
+                        416     POP_JUMP_IF_FALSE               54 (to 526)
+                        420     LOAD_CONST                      6: 'desync; recuperando ('
+                        422     LOAD_FAST                       1: fails
+                        424     FORMAT_SIMPLE                   
+                        426     LOAD_CONST                      7: ')'
+                        428     BUILD_STRING                    3
+                        430     LOAD_FAST                       0: self
+                        432     STORE_ATTR                      8: _status
+                        442     LOAD_FAST                       0: self
+                        444     LOAD_ATTR                       19: _soft_recover
+                        464     CALL                            0
+                        472     POP_TOP                         
+                        474     LOAD_GLOBAL                     20: time
+                        484     LOAD_ATTR                       22: sleep
+                        504     PUSH_NULL                       
+                        506     LOAD_CONST                      8: 0.05
+                        508     CALL                            1
+                        516     POP_TOP                         
+                        518     POP_EXCEPT                      
+                        520     LOAD_CONST                      2: None
+                        522     STORE_FAST                      4: exc
+                        524     DELETE_FAST                     4: exc
+                        526     JUMP_BACKWARD_NO_INTERRUPT      139 (to 250)
+                        528     LOAD_FAST                       0: self
+                        530     COPY                            1
+                        532     LOAD_ATTR                       24: _reconnects
+                        552     LOAD_CONST                      4: 1
+                        554     BINARY_OP                       13 (+=)
+                        558     SWAP                            2
+                        560     STORE_ATTR                      12: _reconnects
+                        570     LOAD_CONST                      9: 'desync persistente ('
+                        572     LOAD_FAST                       4: exc
+                        574     FORMAT_SIMPLE                   
+                        576     LOAD_CONST                      10: '); reconectando (#'
+                        578     LOAD_FAST                       0: self
+                        580     LOAD_ATTR                       24: _reconnects
+                        600     FORMAT_SIMPLE                   
+                        602     LOAD_CONST                      7: ')'
+                        604     BUILD_STRING                    5
+                        606     LOAD_FAST                       0: self
+                        608     STORE_ATTR                      8: _status
+                        618     LOAD_FAST                       0: self
+                        620     LOAD_ATTR                       5: _hard_reconnect
+                        640     CALL                            0
+                        648     POP_TOP                         
+                        650     LOAD_CONST                      1: 0
+                        652     STORE_FAST                      1: fails
+                        654     POP_EXCEPT                      
+                        656     LOAD_CONST                      2: None
+                        658     STORE_FAST                      4: exc
+                        660     DELETE_FAST                     4: exc
+                        662     JUMP_BACKWARD_NO_INTERRUPT      207 (to 250)
+                        664     LOAD_CONST                      2: None
+                        666     STORE_FAST                      4: exc
+                        668     DELETE_FAST                     4: exc
+                        670     RERAISE                         1
+                        672     RERAISE                         0
+                        674     COPY                            3
+                        676     POP_EXCEPT                      
+                        678     RERAISE                         1
+                    [Exception Table]
+                        42 to 104 -> 292 [0] 
+                        108 to 200 -> 292 [0] 
+                        202 to 248 -> 292 [0] 
+                        292 to 312 -> 674 [1] lasti
+                        312 to 346 -> 664 [1] lasti
+                        356 to 518 -> 664 [1] lasti
+                        528 to 654 -> 664 [1] lasti
+                        664 to 674 -> 674 [1] lasti
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: _soft_recover
+                    Qualified Name: LidarReader._soft_recover
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_lidar'
+                        'stop'
+                        'clean_input'
+                        'Exception'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       NOP                             
+                        4       LOAD_FAST                       0: self
+                        6       LOAD_ATTR                       0: _lidar
+                        26      LOAD_ATTR                       3: stop
+                        46      CALL                            0
+                        54      POP_TOP                         
+                        56      LOAD_FAST                       0: self
+                        58      LOAD_ATTR                       0: _lidar
+                        78      LOAD_ATTR                       5: clean_input
+                        98      CALL                            0
+                        106     POP_TOP                         
+                        108     RETURN_CONST                    0: None
+                        110     PUSH_EXC_INFO                   
+                        112     LOAD_GLOBAL                     6: Exception
+                        122     CHECK_EXC_MATCH                 
+                        124     POP_JUMP_IF_FALSE               3 (to 132)
+                        128     POP_TOP                         
+                        130     POP_EXCEPT                      
+                        132     RETURN_CONST                    0: None
+                        134     RERAISE                         0
+                        136     COPY                            3
+                        138     POP_EXCEPT                      
+                        140     RERAISE                         1
+                    [Exception Table]
+                        4 to 108 -> 110 [0] 
+                        110 to 130 -> 136 [1] lasti
+                        134 to 136 -> 136 [1] lasti
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: _hard_reconnect
+                    Qualified Name: LidarReader._hard_reconnect
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 6
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_safe_disconnect'
+                        'time'
+                        'sleep'
+                        '_running'
+                        '_port'
+                        'rplidar'
+                        'RPLidar'
+                        '_baud'
+                        '_lidar'
+                        'logger'
+                        'setLevel'
+                        'logging'
+                        'ERROR'
+                        '_connect_clean'
+                        '_reconnects'
+                        '_status'
+                        'Exception'
+                    [Locals+Names]
+                        'self'
+                        'RPLidar'
+                        'exc'
+                    [Constants]
+                        None
+                        0.5
+                        0
+                        (
+                            'RPLidar'
+                        )
+                        3
+                        (
+                            'baudrate'
+                            'timeout'
+                        )
+                        'reconectado @ '
+                        ' (#'
+                        ')'
+                        'falha ao reconectar: '
+                        1
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       1: _safe_disconnect
+                        24      CALL                            0
+                        32      POP_TOP                         
+                        34      LOAD_GLOBAL                     2: time
+                        44      LOAD_ATTR                       4: sleep
+                        64      PUSH_NULL                       
+                        66      LOAD_CONST                      1: 0.5
+                        68      CALL                            1
+                        76      POP_TOP                         
+                        78      LOAD_FAST                       0: self
+                        80      LOAD_ATTR                       6: _running
+                        100     TO_BOOL                         
+                        108     POP_JUMP_IF_FALSE               17 (to 144)
+                        112     LOAD_FAST                       0: self
+                        114     LOAD_ATTR                       8: _port
+                        134     TO_BOOL                         
+                        142     POP_JUMP_IF_TRUE                1 (to 146)
+                        146     RETURN_CONST                    0: None
+                        148     NOP                             
+                        150     LOAD_CONST                      2: 0
+                        152     LOAD_CONST                      3: ('RPLidar',)
+                        154     IMPORT_NAME                     5: rplidar
+                        156     IMPORT_FROM                     6: RPLidar
+                        158     STORE_FAST                      1: RPLidar
+                        160     POP_TOP                         
+                        162     LOAD_FAST                       1: RPLidar
+                        164     PUSH_NULL                       
+                        166     LOAD_FAST                       0: self
+                        168     LOAD_ATTR                       8: _port
+                        188     LOAD_FAST                       0: self
+                        190     LOAD_ATTR                       14: _baud
+                        210     LOAD_CONST                      4: 3
+                        212     LOAD_CONST                      5: ('baudrate', 'timeout')
+                        214     CALL_KW                         3
+                        216     LOAD_FAST                       0: self
+                        218     STORE_ATTR                      8: _lidar
+                        228     LOAD_FAST                       0: self
+                        230     LOAD_ATTR                       16: _lidar
+                        250     LOAD_ATTR                       18: logger
+                        270     LOAD_ATTR                       21: setLevel
+                        290     LOAD_GLOBAL                     22: logging
+                        300     LOAD_ATTR                       24: ERROR
+                        320     CALL                            1
+                        328     POP_TOP                         
+                        330     LOAD_FAST                       0: self
+                        332     LOAD_ATTR                       27: _connect_clean
+                        352     CALL                            0
+                        360     POP_TOP                         
+                        362     LOAD_CONST                      6: 'reconectado @ '
+                        364     LOAD_FAST                       0: self
+                        366     LOAD_ATTR                       8: _port
+                        386     FORMAT_SIMPLE                   
+                        388     LOAD_CONST                      7: ' (#'
+                        390     LOAD_FAST                       0: self
+                        392     LOAD_ATTR                       28: _reconnects
+                        412     FORMAT_SIMPLE                   
+                        414     LOAD_CONST                      8: ')'
+                        416     BUILD_STRING                    5
+                        418     LOAD_FAST                       0: self
+                        420     STORE_ATTR                      15: _status
+                        430     RETURN_CONST                    0: None
+                        432     PUSH_EXC_INFO                   
+                        434     LOAD_GLOBAL                     32: Exception
+                        444     CHECK_EXC_MATCH                 
+                        446     POP_JUMP_IF_FALSE               42 (to 532)
+                        450     STORE_FAST                      2: exc
+                        452     LOAD_CONST                      9: 'falha ao reconectar: '
+                        454     LOAD_FAST                       2: exc
+                        456     FORMAT_SIMPLE                   
+                        458     BUILD_STRING                    2
+                        460     LOAD_FAST                       0: self
+                        462     STORE_ATTR                      15: _status
+                        472     LOAD_GLOBAL                     2: time
+                        482     LOAD_ATTR                       4: sleep
+                        502     PUSH_NULL                       
+                        504     LOAD_CONST                      10: 1
+                        506     CALL                            1
+                        514     POP_TOP                         
+                        516     POP_EXCEPT                      
+                        518     LOAD_CONST                      0: None
+                        520     STORE_FAST                      2: exc
+                        522     DELETE_FAST                     2: exc
+                        524     RETURN_CONST                    0: None
+                        526     LOAD_CONST                      0: None
+                        528     STORE_FAST                      2: exc
+                        530     DELETE_FAST                     2: exc
+                        532     RERAISE                         1
+                        534     RERAISE                         0
+                        536     COPY                            3
+                        538     POP_EXCEPT                      
+                        540     RERAISE                         1
+                    [Exception Table]
+                        150 to 430 -> 432 [0] 
+                        432 to 452 -> 536 [1] lasti
+                        452 to 516 -> 526 [1] lasti
+                        526 to 536 -> 536 [1] lasti
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: _on_measure
+                    Qualified Name: LidarReader._on_measure
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 11
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'time'
+                        'monotonic'
+                        '_last_meas_t'
+                        '_meas_count'
+                        '_scan_count'
+                        '_lock'
+                        '_queue'
+                        'append'
+                        'Measurement'
+                        'float'
+                        'int'
+                        'bool'
+                        '_stats_t0'
+                        '_meas_rate'
+                        '_scan_rate'
+                    [Locals+Names]
+                        'self'
+                        'meas'
+                        'new_scan'
+                        'quality'
+                        'angle'
+                        'distance'
+                        'now'
+                        'elapsed'
+                    [Constants]
+                        None
+                        1
+                        (
+                            'angle'
+                            'distance'
+                            'quality'
+                            'new_scan'
+                            'timestamp'
+                        )
+                        0.5
+                        0
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       1: meas
+                        4       UNPACK_SEQUENCE                 4
+                        8       STORE_FAST_STORE_FAST           35: new_scan, quality
+                        10      STORE_FAST_STORE_FAST           69: angle, distance
+                        12      LOAD_GLOBAL                     0: time
+                        22      LOAD_ATTR                       2: monotonic
+                        42      PUSH_NULL                       
+                        44      CALL                            0
+                        52      STORE_FAST                      6: now
+                        54      LOAD_FAST_LOAD_FAST             96: now, self
+                        56      STORE_ATTR                      2: _last_meas_t
+                        66      LOAD_FAST                       0: self
+                        68      COPY                            1
+                        70      LOAD_ATTR                       6: _meas_count
+                        90      LOAD_CONST                      1: 1
+                        92      BINARY_OP                       13 (+=)
+                        96      SWAP                            2
+                        98      STORE_ATTR                      3: _meas_count
+                        108     LOAD_FAST                       2: new_scan
+                        110     TO_BOOL                         
+                        118     POP_JUMP_IF_FALSE               21 (to 162)
+                        122     LOAD_FAST                       0: self
+                        124     COPY                            1
+                        126     LOAD_ATTR                       8: _scan_count
+                        146     LOAD_CONST                      1: 1
+                        148     BINARY_OP                       13 (+=)
+                        152     SWAP                            2
+                        154     STORE_ATTR                      4: _scan_count
+                        164     LOAD_FAST                       0: self
+                        166     LOAD_ATTR                       10: _lock
+                        186     BEFORE_WITH                     
+                        188     POP_TOP                         
+                        190     LOAD_FAST                       0: self
+                        192     LOAD_ATTR                       12: _queue
+                        212     LOAD_ATTR                       15: append
+                        232     LOAD_GLOBAL                     17: NULL + Measurement
+                        242     LOAD_GLOBAL                     19: NULL + float
+                        252     LOAD_FAST                       4: angle
+                        254     CALL                            1
+                        262     LOAD_GLOBAL                     19: NULL + float
+                        272     LOAD_FAST                       5: distance
+                        274     CALL                            1
+                        282     LOAD_GLOBAL                     21: NULL + int
+                        292     LOAD_FAST                       3: quality
+                        294     CALL                            1
+                        302     LOAD_GLOBAL                     23: NULL + bool
+                        312     LOAD_FAST                       2: new_scan
+                        314     CALL                            1
+                        322     LOAD_FAST                       6: now
+                        324     LOAD_CONST                      2: ('angle', 'distance', 'quality', 'new_scan', 'timestamp')
+                        326     CALL_KW                         5
+                        328     CALL                            1
+                        336     POP_TOP                         
+                        338     LOAD_CONST                      0: None
+                        340     LOAD_CONST                      0: None
+                        342     LOAD_CONST                      0: None
+                        344     CALL                            2
+                        352     POP_TOP                         
+                        354     LOAD_FAST_LOAD_FAST             96: now, self
+                        356     LOAD_ATTR                       24: _stats_t0
+                        376     BINARY_OP                       10 (-)
+                        380     STORE_FAST                      7: elapsed
+                        382     LOAD_FAST                       7: elapsed
+                        384     LOAD_CONST                      3: 0.5
+                        386     COMPARE_OP                      188 (>=)
+                        390     POP_JUMP_IF_FALSE               61 (to 514)
+                        394     LOAD_FAST                       0: self
+                        396     LOAD_ATTR                       6: _meas_count
+                        416     LOAD_FAST                       7: elapsed
+                        418     BINARY_OP                       11 (/)
+                        422     LOAD_FAST                       0: self
+                        424     STORE_ATTR                      13: _meas_rate
+                        434     LOAD_FAST                       0: self
+                        436     LOAD_ATTR                       8: _scan_count
+                        456     LOAD_FAST                       7: elapsed
+                        458     BINARY_OP                       11 (/)
+                        462     LOAD_FAST                       0: self
+                        464     STORE_ATTR                      14: _scan_rate
+                        474     LOAD_CONST                      4: 0
+                        476     LOAD_FAST                       0: self
+                        478     STORE_ATTR                      3: _meas_count
+                        488     LOAD_CONST                      4: 0
+                        490     LOAD_FAST                       0: self
+                        492     STORE_ATTR                      4: _scan_count
+                        502     LOAD_FAST_LOAD_FAST             96: now, self
+                        504     STORE_ATTR                      12: _stats_t0
+                        514     RETURN_CONST                    0: None
+                        516     RETURN_CONST                    0: None
+                        518     PUSH_EXC_INFO                   
+                        520     WITH_EXCEPT_START               
+                        522     TO_BOOL                         
+                        530     POP_JUMP_IF_TRUE                1 (to 534)
+                        534     RERAISE                         2
+                        536     POP_TOP                         
+                        538     POP_EXCEPT                      
+                        540     POP_TOP                         
+                        542     POP_TOP                         
+                        544     JUMP_BACKWARD_NO_INTERRUPT      96 (to 354)
+                        546     COPY                            3
+                        548     POP_EXCEPT                      
+                        550     RERAISE                         1
+                    [Exception Table]
+                        188 to 338 -> 518 [1] lasti
+                        518 to 538 -> 546 [3] lasti
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: drain
+                    Qualified Name: LidarReader.drain
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 6
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_lock'
+                        'list'
+                        '_queue'
+                        'clear'
+                    [Locals+Names]
+                        'self'
+                        'out'
+                    [Constants]
+                        'Devolve todas as medidas acumuladas e esvazia a fila.'
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _lock
+                        24      BEFORE_WITH                     
+                        26      POP_TOP                         
+                        28      LOAD_GLOBAL                     3: NULL + list
+                        38      LOAD_FAST                       0: self
+                        40      LOAD_ATTR                       4: _queue
+                        60      CALL                            1
+                        68      STORE_FAST                      1: out
+                        70      LOAD_FAST                       0: self
+                        72      LOAD_ATTR                       4: _queue
+                        92      LOAD_ATTR                       7: clear
+                        112     CALL                            0
+                        120     POP_TOP                         
+                        122     LOAD_CONST                      1: None
+                        124     LOAD_CONST                      1: None
+                        126     LOAD_CONST                      1: None
+                        128     CALL                            2
+                        136     POP_TOP                         
+                        138     LOAD_FAST                       1: out
+                        140     RETURN_VALUE                    
+                        142     PUSH_EXC_INFO                   
+                        144     WITH_EXCEPT_START               
+                        146     TO_BOOL                         
+                        154     POP_JUMP_IF_TRUE                1 (to 158)
+                        158     RERAISE                         2
+                        160     POP_TOP                         
+                        162     POP_EXCEPT                      
+                        164     POP_TOP                         
+                        166     POP_TOP                         
+                        168     LOAD_FAST_CHECK                 1: out
+                        170     RETURN_VALUE                    
+                        172     COPY                            3
+                        174     POP_EXCEPT                      
+                        176     RERAISE                         1
+                    [Exception Table]
+                        26 to 122 -> 142 [1] lasti
+                        142 to 162 -> 172 [3] lasti
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: meas_per_sec
+                    Qualified Name: LidarReader.meas_per_sec
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_meas_rate'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _meas_rate
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: scans_per_sec
+                    Qualified Name: LidarReader.scans_per_sec
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_scan_rate'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _scan_rate
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: status
+                    Qualified Name: LidarReader.status
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_status'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _status
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: reconnects
+                    Qualified Name: LidarReader.reconnects
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_reconnects'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _reconnects
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: desyncs
+                    Qualified Name: LidarReader.desyncs
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_desyncs'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _desyncs
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: port
+                    Qualified Name: LidarReader.port
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_port'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _port
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: lidar_reader.py
+                    Object Name: connected
+                    Qualified Name: LidarReader.connected
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 2
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_lidar'
+                        '_running'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _lidar
+                        24      LOAD_CONST                      0: None
+                        26      IS_OP                           1 (is not)
+                        28      COPY                            1
+                        30      TO_BOOL                         
+                        38      POP_JUMP_IF_FALSE               12 (to 64)
+                        42      POP_TOP                         
+                        44      LOAD_FAST                       0: self
+                        46      LOAD_ATTR                       2: _running
+                        66      RETURN_VALUE                    
+                    [Exception Table]
+                (
+                    '_baud'
+                    '_desyncs'
+                    '_last_meas_t'
+                    '_lidar'
+                    '_lock'
+                    '_max_buf_meas'
+                    '_meas_count'
+                    '_meas_rate'
+                    '_port'
+                    '_port_hint'
+                    '_queue'
+                    '_reconnects'
+                    '_running'
+                    '_scan_count'
+                    '_scan_rate'
+                    '_stats_t0'
+                    '_status'
+                    '_thread'
+                )
+                (
+                    None
+                    1000000
+                    8000
+                    16000
+                )
+                (
+                    'port'
+                    'str | None'
+                    'baud'
+                    'int'
+                    'max_buf_meas'
+                    'int'
+                    'queue_size'
+                    'int'
+                    'return'
+                    'None'
+                )
+                (
+                    'return'
+                    'bool'
+                )
+                (
+                    'return'
+                    'None'
+                )
+                (
+                    'meas'
+                    'tuple'
+                    'return'
+                    'None'
+                )
+                (
+                    'return'
+                    'list[Measurement]'
+                )
+                (
+                    'return'
+                    'float'
+                )
+                (
+                    'return'
+                    'str'
+                )
+                (
+                    'return'
+                    'int'
+                )
+                (
+                    'return'
+                    'str | None'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'LidarReader'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 51
+                12      STORE_NAME                      3: __firstlineno__
+                14      LOAD_CONST                      2: 'Lê o RPLIDAR S3 em thread separada e entrega medidas ao consumidor.\n\nUso:\n    rdr = LidarReader()      # port=None → auto-detecta\n    if not rdr.start():\n        raise SystemExit(rdr.status)\n    try:\n        while True:\n            for m in rdr.drain():\n                ...\n            time.sleep(0.01)\n    finally:\n        rdr.stop()\n'
+                16      STORE_NAME                      4: __doc__
+                18      NOP                             
+                20      NOP                             
+                22      NOP                             
+                24      NOP                             
+                26      LOAD_CONST                      22: (None, 1000000, 8000, 16000)
+                28      NOP                             
+                30      NOP                             
+                32      NOP                             
+                34      NOP                             
+                36      NOP                             
+                38      NOP                             
+                40      NOP                             
+                42      NOP                             
+                44      NOP                             
+                46      LOAD_CONST                      23: ('port', 'str | None', 'baud', 'int', 'max_buf_meas', 'int', 'queue_size', 'int', 'return', 'None')
+                48      LOAD_CONST                      4: <CODE> __init__
+                50      MAKE_FUNCTION                   
+                52      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                54      SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+                56      STORE_NAME                      5: __init__
+                58      LOAD_CONST                      24: ('return', 'bool')
+                60      LOAD_CONST                      5: <CODE> start
+                62      MAKE_FUNCTION                   
+                64      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                66      STORE_NAME                      6: start
+                68      LOAD_CONST                      25: ('return', 'None')
+                70      LOAD_CONST                      6: <CODE> stop
+                72      MAKE_FUNCTION                   
+                74      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                76      STORE_NAME                      7: stop
+                78      LOAD_CONST                      7: <CODE> _connect_clean
+                80      MAKE_FUNCTION                   
+                82      STORE_NAME                      8: _connect_clean
+                84      LOAD_CONST                      25: ('return', 'None')
+                86      LOAD_CONST                      8: <CODE> _safe_disconnect
+                88      MAKE_FUNCTION                   
+                90      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                92      STORE_NAME                      9: _safe_disconnect
+                94      LOAD_CONST                      25: ('return', 'None')
+                96      LOAD_CONST                      9: <CODE> _reader_loop
+                98      MAKE_FUNCTION                   
+                100     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                102     STORE_NAME                      10: _reader_loop
+                104     LOAD_CONST                      25: ('return', 'None')
+                106     LOAD_CONST                      10: <CODE> _soft_recover
+                108     MAKE_FUNCTION                   
+                110     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                112     STORE_NAME                      11: _soft_recover
+                114     LOAD_CONST                      25: ('return', 'None')
+                116     LOAD_CONST                      11: <CODE> _hard_reconnect
+                118     MAKE_FUNCTION                   
+                120     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                122     STORE_NAME                      12: _hard_reconnect
+                124     LOAD_CONST                      26: ('meas', 'tuple', 'return', 'None')
+                126     LOAD_CONST                      12: <CODE> _on_measure
+                128     MAKE_FUNCTION                   
+                130     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                132     STORE_NAME                      13: _on_measure
+                134     LOAD_CONST                      27: ('return', 'list[Measurement]')
+                136     LOAD_CONST                      13: <CODE> drain
+                138     MAKE_FUNCTION                   
+                140     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                142     STORE_NAME                      14: drain
+                144     LOAD_NAME                       15: property
+                146     LOAD_CONST                      28: ('return', 'float')
+                148     LOAD_CONST                      14: <CODE> meas_per_sec
+                150     MAKE_FUNCTION                   
+                152     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                154     CALL                            0
+                162     STORE_NAME                      16: meas_per_sec
+                164     LOAD_NAME                       15: property
+                166     LOAD_CONST                      28: ('return', 'float')
+                168     LOAD_CONST                      15: <CODE> scans_per_sec
+                170     MAKE_FUNCTION                   
+                172     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                174     CALL                            0
+                182     STORE_NAME                      17: scans_per_sec
+                184     LOAD_NAME                       15: property
+                186     LOAD_CONST                      29: ('return', 'str')
+                188     LOAD_CONST                      16: <CODE> status
+                190     MAKE_FUNCTION                   
+                192     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                194     CALL                            0
+                202     STORE_NAME                      18: status
+                204     LOAD_NAME                       15: property
+                206     LOAD_CONST                      30: ('return', 'int')
+                208     LOAD_CONST                      17: <CODE> reconnects
+                210     MAKE_FUNCTION                   
+                212     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                214     CALL                            0
+                222     STORE_NAME                      19: reconnects
+                224     LOAD_NAME                       15: property
+                226     LOAD_CONST                      30: ('return', 'int')
+                228     LOAD_CONST                      18: <CODE> desyncs
+                230     MAKE_FUNCTION                   
+                232     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                234     CALL                            0
+                242     STORE_NAME                      20: desyncs
+                244     LOAD_NAME                       15: property
+                246     LOAD_CONST                      31: ('return', 'str | None')
+                248     LOAD_CONST                      19: <CODE> port
+                250     MAKE_FUNCTION                   
+                252     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                254     CALL                            0
+                262     STORE_NAME                      21: port
+                264     LOAD_NAME                       15: property
+                266     LOAD_CONST                      24: ('return', 'bool')
+                268     LOAD_CONST                      20: <CODE> connected
+                270     MAKE_FUNCTION                   
+                272     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                274     CALL                            0
+                282     STORE_NAME                      22: connected
+                284     LOAD_CONST                      21: ('_baud', '_desyncs', '_last_meas_t', '_lidar', '_lock', '_max_buf_meas', '_meas_count', '_meas_rate', '_port', '_port_hint', '_queue', '_reconnects', '_running', '_scan_count', '_scan_rate', '_stats_t0', '_status', '_thread')
+                286     STORE_NAME                      23: __static_attributes__
+                288     RETURN_CONST                    3: None
+            [Exception Table]
+        'LidarReader'
+        (
+            'return'
+            'str | None'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — Etapa 1: leitura do RPLIDAR S3.\n\nConecta o sensor via serial USB e roda a varredura num thread separado.\nExpõe medidas ao consumidor (drain), estatísticas (medidas/s, scans/s) e\num campo de status legível pra debug.\n\nA interface foi pensada pra ser estável nas etapas seguintes — o que\nmuda à frente é o que se faz com as medidas (filtragem, homografia,\nclustering, publicação ZMQ), não como elas são lidas.\n\nQuirks do S3 já tratados aqui:\n  - Sessão anterior mal encerrada deixa lixo no buffer → stop()+clean_input()\n    antes de get_info(); se ainda assim get_info() falhar, reset() + sleep + retry.\n  - O logger interno do `rplidar` fala muito a 1 Mbps ("Too many bytes") e\n    rouba throughput do hot loop. Silenciamos pra ERROR.\n  - O thread de leitura NUNCA morre: soft recover nas primeiras desyncs e\n    hard reconnect (recria RPLidar) se persistir. Só sai com stop().\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: logging
+        24      STORE_NAME                      3: logging
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: threading
+        32      STORE_NAME                      4: threading
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      3: None
+        38      IMPORT_NAME                     5: time
+        40      STORE_NAME                      5: time
+        42      LOAD_CONST                      1: 0
+        44      LOAD_CONST                      4: ('deque',)
+        46      IMPORT_NAME                     6: collections
+        48      IMPORT_FROM                     7: deque
+        50      STORE_NAME                      7: deque
+        52      POP_TOP                         
+        54      LOAD_CONST                      1: 0
+        56      LOAD_CONST                      5: ('dataclass',)
+        58      IMPORT_NAME                     8: dataclasses
+        60      IMPORT_FROM                     9: dataclass
+        62      STORE_NAME                      9: dataclass
+        64      POP_TOP                         
+        66      LOAD_NAME                       9: dataclass
+        68      LOAD_BUILD_CLASS                
+        70      PUSH_NULL                       
+        72      LOAD_CONST                      6: <CODE> Measurement
+        74      MAKE_FUNCTION                   
+        76      LOAD_CONST                      7: 'Measurement'
+        78      CALL                            2
+        86      CALL                            0
+        94      STORE_NAME                      10: Measurement
+        96      LOAD_CONST                      11: ('return', 'str | None')
+        98      LOAD_CONST                      8: <CODE> find_lidar_port
+        100     MAKE_FUNCTION                   
+        102     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        104     STORE_NAME                      11: find_lidar_port
+        106     LOAD_BUILD_CLASS                
+        108     PUSH_NULL                       
+        110     LOAD_CONST                      9: <CODE> LidarReader
+        112     MAKE_FUNCTION                   
+        114     LOAD_CONST                      10: 'LidarReader'
+        116     CALL                            2
+        124     STORE_NAME                      12: LidarReader
+        126     RETURN_CONST                    3: None
+    [Exception Table]

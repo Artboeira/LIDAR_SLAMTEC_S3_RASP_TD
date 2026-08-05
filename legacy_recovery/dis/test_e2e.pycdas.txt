@@ -1,0 +1,1989 @@
+test_e2e.pyc (Python 3.13)
+[Code]
+    File Name: test_e2e.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 4
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'argparse'
+        'math'
+        'socket'
+        'threading'
+        'time'
+        'numpy'
+        'np'
+        'config'
+        'cfg_mod'
+        'TrackerCfg'
+        'homography'
+        'compute_homography'
+        'lidar_reader'
+        'Measurement'
+        'processing'
+        'BackgroundSubtractor'
+        'project_batch'
+        'split_by_roi'
+        'publisher'
+        'RateLimiter'
+        'UdpPublisher'
+        'unpack_frame'
+        '_HEADER'
+        '_POINT'
+        'tracker'
+        'Tracker'
+        'make_world'
+        'cartesian_to_polar'
+        'synth_baseline_measurements'
+        'synth_cursor_blob'
+        'main'
+        '__name__'
+        'SystemExit'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — teste E2E final (sem hardware).\n\nRoda o pipeline completo em memória, sem conectar ao sensor: gera medidas\nsintéticas (2 "objetos" se movendo em círculos), envia via UDP no mesmo\nprocesso, e um receptor local valida que recebeu pacotes coerentes.\n\nCritérios de sucesso:\n  - pelo menos N pacotes recebidos\n  - último pacote tem 2 tracks ativos\n  - IDs estáveis (frames consecutivos compartilham pelo menos um id)\n  - coords (x, y) ∈ [0, 1]\n  - tamanho do datagrama bate com o esperado pelo header\n\nUso:\n    python test_e2e.py\n    python test_e2e.py --duration 3\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'TrackerCfg'
+        )
+        (
+            'compute_homography'
+        )
+        (
+            'Measurement'
+        )
+        (
+            'BackgroundSubtractor'
+            'project_batch'
+            'split_by_roi'
+        )
+        (
+            'RateLimiter'
+            'UdpPublisher'
+            'unpack_frame'
+            '_HEADER'
+            '_POINT'
+        )
+        (
+            'Tracker'
+        )
+        [Code]
+            File Name: test_e2e.py
+            Object Name: make_world
+            Qualified Name: make_world
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 7
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'compute_homography'
+            [Locals+Names]
+                't'
+                'corners'
+                'H'
+                'H_'
+                'W'
+                'cx'
+                'cy'
+            [Constants]
+                "Tela 'virtual' 2m x 1.13m centrada em (1500, 0) mm no plano do sensor."
+                (
+                    2000
+                    1125
+                )
+                (
+                    1500
+                    0
+                )
+                [Code]
+                    File Name: test_e2e.py
+                    Object Name: t
+                    Qualified Name: make_world.<locals>.t
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000013 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        'u'
+                        'v'
+                        'H_'
+                        'W'
+                        'cx'
+                        'cy'
+                    [Constants]
+                        None
+                        0.5
+                    [Disassembly]
+                        0       COPY_FREE_VARS                  4
+                        2       RESUME                          0
+                        4       LOAD_DEREF                      4: cx
+                        6       LOAD_FAST                       0: u
+                        8       LOAD_CONST                      1: 0.5
+                        10      BINARY_OP                       10 (-)
+                        14      LOAD_DEREF                      3: W
+                        16      BINARY_OP                       5 (*)
+                        20      BINARY_OP                       0 (+)
+                        24      LOAD_DEREF                      5: cy
+                        26      LOAD_FAST                       1: v
+                        28      LOAD_CONST                      1: 0.5
+                        30      BINARY_OP                       10 (-)
+                        34      LOAD_DEREF                      2: H_
+                        36      BINARY_OP                       5 (*)
+                        40      BINARY_OP                       0 (+)
+                        44      BUILD_TUPLE                     2
+                        46      RETURN_VALUE                    
+                    [Exception Table]
+                0
+                1
+                (
+                    (
+                        0
+                        0
+                    )
+                    (
+                        1
+                        0
+                    )
+                    (
+                        1
+                        1
+                    )
+                    (
+                        0
+                        1
+                    )
+                )
+            [Disassembly]
+                0       MAKE_CELL                       3: H_
+                2       MAKE_CELL                       4: W
+                4       MAKE_CELL                       5: cx
+                6       MAKE_CELL                       6: cy
+                8       RESUME                          0
+                10      LOAD_CONST                      1: (2000, 1125)
+                12      UNPACK_SEQUENCE                 2
+                16      STORE_DEREF                     4: W
+                18      STORE_DEREF                     3: H_
+                20      LOAD_CONST                      2: (1500, 0)
+                22      UNPACK_SEQUENCE                 2
+                26      STORE_DEREF                     5: cx
+                28      STORE_DEREF                     6: cy
+                30      LOAD_FAST                       3: H_
+                32      LOAD_FAST                       4: W
+                34      LOAD_FAST                       5: cx
+                36      LOAD_FAST                       6: cy
+                38      BUILD_TUPLE                     4
+                40      LOAD_CONST                      3: <CODE> t
+                42      MAKE_FUNCTION                   
+                44      SET_FUNCTION_ATTRIBUTE          8 (MAKE_FUNCTION_CLOSURE)
+                46      STORE_FAST                      0: t
+                48      LOAD_FAST                       0: t
+                50      PUSH_NULL                       
+                52      LOAD_CONST                      4: 0
+                54      LOAD_CONST                      4: 0
+                56      CALL                            2
+                64      LOAD_FAST                       0: t
+                66      PUSH_NULL                       
+                68      LOAD_CONST                      5: 1
+                70      LOAD_CONST                      4: 0
+                72      CALL                            2
+                80      LOAD_FAST                       0: t
+                82      PUSH_NULL                       
+                84      LOAD_CONST                      5: 1
+                86      LOAD_CONST                      5: 1
+                88      CALL                            2
+                96      LOAD_FAST                       0: t
+                98      PUSH_NULL                       
+                100     LOAD_CONST                      4: 0
+                102     LOAD_CONST                      5: 1
+                104     CALL                            2
+                112     BUILD_LIST                      4
+                114     STORE_FAST                      1: corners
+                116     LOAD_GLOBAL                     1: NULL + compute_homography
+                126     LOAD_FAST                       1: corners
+                128     BUILD_LIST                      0
+                130     LOAD_CONST                      6: ((0, 0), (1, 0), (1, 1), (0, 1))
+                132     LIST_EXTEND                     1
+                134     CALL                            2
+                142     STORE_FAST                      2: H
+                144     LOAD_FAST_LOAD_FAST             18: corners, H
+                146     BUILD_TUPLE                     2
+                148     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: test_e2e.py
+            Object Name: cartesian_to_polar
+            Qualified Name: cartesian_to_polar
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 6
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'math'
+                'degrees'
+                'atan2'
+                'hypot'
+            [Locals+Names]
+                'x'
+                'y'
+                'a'
+                'd'
+            [Constants]
+                None
+                360
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     0: math
+                12      LOAD_ATTR                       2: degrees
+                32      PUSH_NULL                       
+                34      LOAD_GLOBAL                     0: math
+                44      LOAD_ATTR                       4: atan2
+                64      PUSH_NULL                       
+                66      LOAD_FAST_LOAD_FAST             16: y, x
+                68      CALL                            2
+                76      CALL                            1
+                84      LOAD_CONST                      1: 360
+                86      BINARY_OP                       6 (%)
+                90      STORE_FAST                      2: a
+                92      LOAD_GLOBAL                     0: math
+                102     LOAD_ATTR                       6: hypot
+                122     PUSH_NULL                       
+                124     LOAD_FAST_LOAD_FAST             1: x, y
+                126     CALL                            2
+                134     STORE_FAST                      3: d
+                136     LOAD_FAST_LOAD_FAST             35: a, d
+                138     BUILD_TUPLE                     2
+                140     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: test_e2e.py
+            Object Name: synth_baseline_measurements
+            Qualified Name: synth_baseline_measurements
+            Arg Count: 1
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 11
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'range'
+                'math'
+                'cos'
+                'radians'
+                'sin'
+                'cartesian_to_polar'
+                'append'
+                'Measurement'
+            [Locals+Names]
+                'now'
+                'out'
+                'a'
+                'ax'
+                'ay'
+                'ang'
+                'dist'
+            [Constants]
+                "Fundo: 'paredes' a 6m em volta do sensor."
+                0
+                360
+                1
+                6000
+                30
+                (
+                    'angle'
+                    'distance'
+                    'quality'
+                    'new_scan'
+                    'timestamp'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       BUILD_LIST                      0
+                4       STORE_FAST                      1: out
+                6       LOAD_GLOBAL                     1: NULL + range
+                16      LOAD_CONST                      1: 0
+                18      LOAD_CONST                      2: 360
+                20      LOAD_CONST                      3: 1
+                22      CALL                            3
+                30      GET_ITER                        
+                32      FOR_ITER                        136 (to 306)
+                36      STORE_FAST                      2: a
+                38      LOAD_CONST                      4: 6000
+                40      LOAD_GLOBAL                     2: math
+                50      LOAD_ATTR                       4: cos
+                70      PUSH_NULL                       
+                72      LOAD_GLOBAL                     2: math
+                82      LOAD_ATTR                       6: radians
+                102     PUSH_NULL                       
+                104     LOAD_FAST                       2: a
+                106     CALL                            1
+                114     CALL                            1
+                122     BINARY_OP                       5 (*)
+                126     STORE_FAST                      3: ax
+                128     LOAD_CONST                      4: 6000
+                130     LOAD_GLOBAL                     2: math
+                140     LOAD_ATTR                       8: sin
+                160     PUSH_NULL                       
+                162     LOAD_GLOBAL                     2: math
+                172     LOAD_ATTR                       6: radians
+                192     PUSH_NULL                       
+                194     LOAD_FAST                       2: a
+                196     CALL                            1
+                204     CALL                            1
+                212     BINARY_OP                       5 (*)
+                216     STORE_FAST                      4: ay
+                218     LOAD_GLOBAL                     11: NULL + cartesian_to_polar
+                228     LOAD_FAST_LOAD_FAST             52: ax, ay
+                230     CALL                            2
+                238     UNPACK_SEQUENCE                 2
+                242     STORE_FAST_STORE_FAST           86: ang, dist
+                244     LOAD_FAST                       1: out
+                246     LOAD_ATTR                       13: append
+                266     LOAD_GLOBAL                     15: NULL + Measurement
+                276     LOAD_FAST_LOAD_FAST             86: ang, dist
+                278     LOAD_CONST                      5: 30
+                280     LOAD_FAST                       2: a
+                282     LOAD_CONST                      1: 0
+                284     COMPARE_OP                      72 (==)
+                288     LOAD_FAST                       0: now
+                290     LOAD_CONST                      6: ('angle', 'distance', 'quality', 'new_scan', 'timestamp')
+                292     CALL_KW                         5
+                294     CALL                            1
+                302     POP_TOP                         
+                304     JUMP_BACKWARD                   138 (to 30)
+                308     END_FOR                         
+                310     POP_TOP                         
+                312     LOAD_FAST                       1: out
+                314     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: test_e2e.py
+            Object Name: synth_cursor_blob
+            Qualified Name: synth_cursor_blob
+            Arg Count: 5
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 11
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'np'
+                'random'
+                'default_rng'
+                'range'
+                'normal'
+                'float'
+                'cartesian_to_polar'
+                'append'
+                'Measurement'
+            [Locals+Names]
+                'center_xy'
+                'n'
+                'now'
+                'jitter_mm'
+                'rng'
+                'out'
+                '_'
+                'dx'
+                'dy'
+                'x'
+                'y'
+                'ang'
+                'dist'
+            [Constants]
+                None
+                0
+                2
+                1
+                30
+                False
+                (
+                    'angle'
+                    'distance'
+                    'quality'
+                    'new_scan'
+                    'timestamp'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       4: rng
+                4       POP_JUMP_IF_NOT_NONE            30 (to 66)
+                8       LOAD_GLOBAL                     0: np
+                18      LOAD_ATTR                       2: random
+                38      LOAD_ATTR                       5: default_rng
+                58      CALL                            0
+                66      STORE_FAST                      4: rng
+                68      BUILD_LIST                      0
+                70      STORE_FAST                      5: out
+                72      LOAD_GLOBAL                     7: NULL + range
+                82      LOAD_FAST                       1: n
+                84      CALL                            1
+                92      GET_ITER                        
+                94      FOR_ITER                        98 (to 292)
+                98      STORE_FAST                      6: _
+                100     LOAD_FAST                       4: rng
+                102     LOAD_ATTR                       9: normal
+                122     LOAD_CONST                      1: 0
+                124     LOAD_FAST                       3: jitter_mm
+                126     LOAD_CONST                      2: 2
+                128     CALL                            3
+                136     UNPACK_SEQUENCE                 2
+                140     STORE_FAST_STORE_FAST           120: dx, dy
+                142     LOAD_FAST                       0: center_xy
+                144     LOAD_CONST                      1: 0
+                146     BINARY_SUBSCR                   
+                150     LOAD_GLOBAL                     11: NULL + float
+                160     LOAD_FAST                       7: dx
+                162     CALL                            1
+                170     BINARY_OP                       0 (+)
+                174     STORE_FAST                      9: x
+                176     LOAD_FAST                       0: center_xy
+                178     LOAD_CONST                      3: 1
+                180     BINARY_SUBSCR                   
+                184     LOAD_GLOBAL                     11: NULL + float
+                194     LOAD_FAST                       8: dy
+                196     CALL                            1
+                204     BINARY_OP                       0 (+)
+                208     STORE_FAST                      10: y
+                210     LOAD_GLOBAL                     13: NULL + cartesian_to_polar
+                220     LOAD_FAST_LOAD_FAST             154: x, y
+                222     CALL                            2
+                230     UNPACK_SEQUENCE                 2
+                234     STORE_FAST_STORE_FAST           188: ang, dist
+                236     LOAD_FAST                       5: out
+                238     LOAD_ATTR                       15: append
+                258     LOAD_GLOBAL                     17: NULL + Measurement
+                268     LOAD_FAST_LOAD_FAST             188: ang, dist
+                270     LOAD_CONST                      4: 30
+                272     LOAD_CONST                      5: False
+                274     LOAD_FAST                       2: now
+                276     LOAD_CONST                      6: ('angle', 'distance', 'quality', 'new_scan', 'timestamp')
+                278     CALL_KW                         5
+                280     CALL                            1
+                288     POP_TOP                         
+                290     JUMP_BACKWARD                   100 (to 92)
+                294     END_FOR                         
+                296     POP_TOP                         
+                298     LOAD_FAST                       5: out
+                300     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: test_e2e.py
+            Object Name: main
+            Qualified Name: main
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 11
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'argparse'
+                'ArgumentParser'
+                'add_argument'
+                'float'
+                'int'
+                'parse_args'
+                'print'
+                'make_world'
+                'round'
+                'socket'
+                'AF_INET'
+                'SOCK_DGRAM'
+                'setsockopt'
+                'SOL_SOCKET'
+                'SO_REUSEADDR'
+                'bind'
+                'port'
+                'settimeout'
+                'threading'
+                'Lock'
+                'Event'
+                'Thread'
+                'start'
+                'UdpPublisher'
+                'endpoint'
+                'BackgroundSubtractor'
+                'begin_baseline'
+                'configure_time'
+                'baseline_s'
+                'TrackerCfg'
+                'Tracker'
+                'cfg_mod'
+                'Config'
+                'np'
+                'random'
+                'default_rng'
+                'ready'
+                'feed'
+                'synth_baseline_measurements'
+                'time'
+                'monotonic'
+                'sleep'
+                'learned_bins'
+                'duration'
+                'RateLimiter'
+                'math'
+                'cos'
+                'sin'
+                'pi'
+                'synth_cursor_blob'
+                'project_batch'
+                'processing'
+                'foreground_points'
+                'split_by_roi'
+                'roi'
+                'array'
+                'x'
+                'y'
+                'zeros'
+                'update'
+                'publish'
+                'set'
+                'join'
+                'close'
+                'list'
+                'len'
+                'all'
+                'intersection'
+                '_HEADER'
+                'size'
+                '_POINT'
+            [Locals+Names]
+                'ap'
+                'args'
+                'corners'
+                'H'
+                'p'
+                'recv_loop'
+                't_sub'
+                'pub'
+                'bg'
+                'trk_cfg'
+                'trk'
+                'cfg'
+                'rng'
+                't_start'
+                'limiter'
+                'now'
+                't'
+                'ax'
+                'ay'
+                'bx'
+                'by'
+                'meas'
+                'points'
+                'fg'
+                'fg_in'
+                '_'
+                'xy'
+                'tracks'
+                'msgs'
+                'expect'
+                'last'
+                'n_last'
+                'all_in'
+                'm'
+                'ids_seq'
+                'common'
+                'confs'
+                'expected_bytes_last'
+                'fails'
+                'received'
+                'received_lock'
+                'sock'
+                'sub_done'
+            [Constants]
+                None
+                '--duration'
+                2
+                (
+                    'type'
+                    'default'
+                )
+                '--port'
+                5599
+                'porta UDP pro teste (não conflita com main 5555)'
+                (
+                    'type'
+                    'default'
+                    'help'
+                )
+                '--baseline-s'
+                0.5
+                '[e2e] montando mundo sintético...'
+                '[e2e] cantos (mm): '
+                0
+                1
+                '127.0.0.1'
+                0.1
+                [Code]
+                    File Name: test_e2e.py
+                    Object Name: recv_loop
+                    Qualified Name: main.<locals>.recv_loop
+                    Arg Count: 0
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 6
+                    Flags: 0x01000013 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'is_set'
+                        'recvfrom'
+                        'socket'
+                        'timeout'
+                        'unpack_frame'
+                        'append'
+                        'ValueError'
+                        'close'
+                    [Locals+Names]
+                        'data'
+                        '_peer'
+                        'pkt'
+                        'received'
+                        'received_lock'
+                        'sock'
+                        'sub_done'
+                    [Constants]
+                        None
+                        8192
+                    [Disassembly]
+                        0       COPY_FREE_VARS                  4
+                        2       RESUME                          0
+                        4       LOAD_DEREF                      6: sub_done
+                        6       LOAD_ATTR                       1: is_set
+                        26      CALL                            0
+                        34      TO_BOOL                         
+                        42      POP_JUMP_IF_TRUE                83 (to 210)
+                        46      NOP                             
+                        48      LOAD_DEREF                      5: sock
+                        50      LOAD_ATTR                       3: recvfrom
+                        70      LOAD_CONST                      1: 8192
+                        72      CALL                            1
+                        80      UNPACK_SEQUENCE                 2
+                        84      STORE_FAST_STORE_FAST           1: data, _peer
+                        86      NOP                             
+                        88      LOAD_GLOBAL                     9: NULL + unpack_frame
+                        98      LOAD_FAST                       0: data
+                        100     CALL                            1
+                        108     STORE_FAST                      2: pkt
+                        110     LOAD_DEREF                      4: received_lock
+                        112     BEFORE_WITH                     
+                        114     POP_TOP                         
+                        116     LOAD_DEREF                      3: received
+                        118     LOAD_ATTR                       11: append
+                        138     LOAD_FAST                       2: pkt
+                        140     CALL                            1
+                        148     POP_TOP                         
+                        150     LOAD_CONST                      0: None
+                        152     LOAD_CONST                      0: None
+                        154     LOAD_CONST                      0: None
+                        156     CALL                            2
+                        164     POP_TOP                         
+                        166     LOAD_DEREF                      6: sub_done
+                        168     LOAD_ATTR                       1: is_set
+                        188     CALL                            0
+                        196     TO_BOOL                         
+                        204     POP_JUMP_IF_TRUE                2 (to 210)
+                        208     JUMP_BACKWARD                   83 (to 44)
+                        212     LOAD_DEREF                      5: sock
+                        214     LOAD_ATTR                       15: close
+                        234     CALL                            0
+                        242     POP_TOP                         
+                        244     RETURN_CONST                    0: None
+                        246     PUSH_EXC_INFO                   
+                        248     LOAD_GLOBAL                     4: socket
+                        258     LOAD_ATTR                       6: timeout
+                        278     CHECK_EXC_MATCH                 
+                        280     POP_JUMP_IF_FALSE               4 (to 290)
+                        284     POP_TOP                         
+                        286     POP_EXCEPT                      
+                        288     JUMP_BACKWARD                   144 (to 2)
+                        292     RERAISE                         0
+                        294     COPY                            3
+                        296     POP_EXCEPT                      
+                        298     RERAISE                         1
+                        300     PUSH_EXC_INFO                   
+                        302     WITH_EXCEPT_START               
+                        304     TO_BOOL                         
+                        312     POP_JUMP_IF_TRUE                1 (to 316)
+                        316     RERAISE                         2
+                        318     POP_TOP                         
+                        320     POP_EXCEPT                      
+                        322     POP_TOP                         
+                        324     POP_TOP                         
+                        326     JUMP_BACKWARD_NO_INTERRUPT      81 (to 166)
+                        328     COPY                            3
+                        330     POP_EXCEPT                      
+                        332     RERAISE                         1
+                        334     PUSH_EXC_INFO                   
+                        336     LOAD_GLOBAL                     12: ValueError
+                        346     CHECK_EXC_MATCH                 
+                        348     POP_JUMP_IF_FALSE               3 (to 356)
+                        352     POP_TOP                         
+                        354     POP_EXCEPT                      
+                        356     JUMP_BACKWARD_NO_INTERRUPT      96 (to 166)
+                        358     RERAISE                         0
+                        360     COPY                            3
+                        362     POP_EXCEPT                      
+                        364     RERAISE                         1
+                    [Exception Table]
+                        48 to 86 -> 246 [0] 
+                        88 to 114 -> 334 [0] 
+                        114 to 150 -> 300 [1] lasti
+                        150 to 166 -> 334 [0] 
+                        246 to 286 -> 294 [1] lasti
+                        292 to 294 -> 294 [1] lasti
+                        300 to 320 -> 328 [3] lasti
+                        320 to 326 -> 334 [0] 
+                        328 to 334 -> 334 [0] 
+                        334 to 354 -> 360 [1] lasti
+                        358 to 360 -> 360 [1] lasti
+                True
+                (
+                    'target'
+                    'daemon'
+                )
+                32
+                (
+                    'host'
+                    'port'
+                    'max_points'
+                )
+                '[e2e] publisher em '
+                720
+                120
+                (
+                    'bins'
+                    'margin_mm'
+                )
+                160
+                4
+                300
+                0.2
+                (
+                    'dbscan_eps_mm'
+                    'dbscan_min_samples'
+                    'match_dist_mm'
+                    'smoothing'
+                )
+                42
+                '[e2e] alimentando baseline...'
+                0.02
+                '[e2e] baseline pronto ('
+                '/720 bins)'
+                '[e2e] rodando '
+                '.1f'
+                's com 2 cursores sintéticos...'
+                60
+                1200
+                400
+                -200
+                1800
+                250
+                1.3
+                3
+                200
+                20
+                (
+                    'rng'
+                )
+                (
+                    'dtype'
+                )
+                (
+                    0
+                    2
+                )
+                0.005
+                1
+                (
+                    'timeout'
+                )
+                '[e2e] recebidos: '
+                ' pacotes'
+                [Code]
+                    File Name: test_e2e.py
+                    Object Name: expect
+                    Qualified Name: main.<locals>.expect
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000013 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'print'
+                    [Locals+Names]
+                        'cond'
+                        'msg'
+                        'fails'
+                    [Constants]
+                        None
+                        '  PASS  '
+                        '  FAIL  '
+                        1
+                    [Disassembly]
+                        0       COPY_FREE_VARS                  1
+                        2       RESUME                          0
+                        4       LOAD_FAST                       0: cond
+                        6       TO_BOOL                         
+                        14      POP_JUMP_IF_FALSE               15 (to 46)
+                        18      LOAD_GLOBAL                     1: NULL + print
+                        28      LOAD_CONST                      1: '  PASS  '
+                        30      LOAD_FAST                       1: msg
+                        32      FORMAT_SIMPLE                   
+                        34      BUILD_STRING                    2
+                        36      CALL                            1
+                        44      POP_TOP                         
+                        46      RETURN_CONST                    0: None
+                        48      LOAD_GLOBAL                     1: NULL + print
+                        58      LOAD_CONST                      2: '  FAIL  '
+                        60      LOAD_FAST                       1: msg
+                        62      FORMAT_SIMPLE                   
+                        64      BUILD_STRING                    2
+                        66      CALL                            1
+                        74      POP_TOP                         
+                        76      LOAD_DEREF                      2: fails
+                        78      LOAD_CONST                      3: 1
+                        80      BINARY_OP                       13 (+=)
+                        84      STORE_DEREF                     2: fails
+                        86      RETURN_CONST                    0: None
+                    [Exception Table]
+                30
+                'recebeu pelo menos 30 pacotes (foi '
+                ')'
+                -1
+                'frame'
+                'timestamp'
+                'points'
+                'payload tem schema {frame, timestamp, points}'
+                2
+                'último frame tem 2 tracks (teve '
+                ': '
+                [Code]
+                    File Name: test_e2e.py
+                    Object Name: <genexpr>
+                    Qualified Name: main.<locals>.<genexpr>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000033 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_GENERATOR | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '.0'
+                        'p'
+                    [Constants]
+                        0
+                        'x'
+                        1
+                        'y'
+                        None
+                    [Disassembly]
+                        0       RETURN_GENERATOR                
+                        2       POP_TOP                         
+                        4       RESUME                          0
+                        6       LOAD_FAST                       0: .0
+                        8       GET_ITER                        
+                        10      FOR_ITER                        60 (to 132)
+                        14      STORE_FAST                      1: p
+                        16      LOAD_CONST                      0: 0
+                        18      LOAD_FAST                       1: p
+                        20      LOAD_CONST                      1: 'x'
+                        22      BINARY_SUBSCR                   
+                        26      SWAP                            2
+                        28      COPY                            2
+                        30      COMPARE_OP                      42 (<=)
+                        34      COPY                            1
+                        36      TO_BOOL                         
+                        44      POP_JUMP_IF_FALSE               5 (to 56)
+                        48      POP_TOP                         
+                        50      LOAD_CONST                      2: 1
+                        52      COMPARE_OP                      42 (<=)
+                        56      JUMP_FORWARD                    2 (to 62)
+                        58      SWAP                            2
+                        60      POP_TOP                         
+                        62      COPY                            1
+                        64      TO_BOOL                         
+                        72      POP_JUMP_IF_FALSE               24 (to 122)
+                        76      POP_TOP                         
+                        78      LOAD_CONST                      0: 0
+                        80      LOAD_FAST                       1: p
+                        82      LOAD_CONST                      3: 'y'
+                        84      BINARY_SUBSCR                   
+                        88      SWAP                            2
+                        90      COPY                            2
+                        92      COMPARE_OP                      42 (<=)
+                        96      COPY                            1
+                        98      TO_BOOL                         
+                        106     POP_JUMP_IF_FALSE               5 (to 118)
+                        110     POP_TOP                         
+                        112     LOAD_CONST                      2: 1
+                        114     COMPARE_OP                      42 (<=)
+                        118     JUMP_FORWARD                    2 (to 124)
+                        120     SWAP                            2
+                        122     POP_TOP                         
+                        124     YIELD_VALUE                     0
+                        126     RESUME                          5
+                        128     POP_TOP                         
+                        130     JUMP_BACKWARD                   62 (to 8)
+                        134     END_FOR                         
+                        136     POP_TOP                         
+                        138     RETURN_CONST                    4: None
+                        140     CALL_INTRINSIC_1                3 (INTRINSIC_STOPITERATION_ERROR)
+                        142     RERAISE                         1
+                    [Exception Table]
+                        4 to 140 -> 140 [0] lasti
+                'coords (x,y) do último frame em [0,1]'
+                -10
+                [Code]
+                    File Name: test_e2e.py
+                    Object Name: <genexpr>
+                    Qualified Name: main.<locals>.<genexpr>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 3
+                    Flags: 0x01000033 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_GENERATOR | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '.0'
+                        'p'
+                    [Constants]
+                        'id'
+                        None
+                    [Disassembly]
+                        0       RETURN_GENERATOR                
+                        2       POP_TOP                         
+                        4       RESUME                          0
+                        6       LOAD_FAST                       0: .0
+                        8       GET_ITER                        
+                        10      FOR_ITER                        9 (to 30)
+                        14      STORE_FAST_LOAD_FAST            17: p, p
+                        16      LOAD_CONST                      0: 'id'
+                        18      BINARY_SUBSCR                   
+                        22      YIELD_VALUE                     0
+                        24      RESUME                          5
+                        26      POP_TOP                         
+                        28      JUMP_BACKWARD                   11 (to 8)
+                        32      END_FOR                         
+                        34      POP_TOP                         
+                        36      RETURN_CONST                    1: None
+                        38      CALL_INTRINSIC_1                3 (INTRINSIC_STOPITERATION_ERROR)
+                        40      RERAISE                         1
+                    [Exception Table]
+                        4 to 38 -> 38 [0] lasti
+                'ao menos um ID persistiu nos últimos '
+                ' frames ('
+                'confidence'
+                [Code]
+                    File Name: test_e2e.py
+                    Object Name: <genexpr>
+                    Qualified Name: main.<locals>.<genexpr>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000033 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_GENERATOR | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '.0'
+                        'c'
+                    [Constants]
+                        0
+                        1
+                        None
+                    [Disassembly]
+                        0       RETURN_GENERATOR                
+                        2       POP_TOP                         
+                        4       RESUME                          0
+                        6       LOAD_FAST                       0: .0
+                        8       GET_ITER                        
+                        10      FOR_ITER                        26 (to 64)
+                        14      STORE_FAST                      1: c
+                        16      LOAD_CONST                      0: 0
+                        18      LOAD_FAST                       1: c
+                        20      SWAP                            2
+                        22      COPY                            2
+                        24      COMPARE_OP                      42 (<=)
+                        28      COPY                            1
+                        30      TO_BOOL                         
+                        38      POP_JUMP_IF_FALSE               5 (to 50)
+                        42      POP_TOP                         
+                        44      LOAD_CONST                      1: 1
+                        46      COMPARE_OP                      42 (<=)
+                        50      JUMP_FORWARD                    2 (to 56)
+                        52      SWAP                            2
+                        54      POP_TOP                         
+                        56      YIELD_VALUE                     0
+                        58      RESUME                          5
+                        60      POP_TOP                         
+                        62      JUMP_BACKWARD                   28 (to 8)
+                        66      END_FOR                         
+                        68      POP_TOP                         
+                        70      RETURN_CONST                    2: None
+                        72      CALL_INTRINSIC_1                3 (INTRINSIC_STOPITERATION_ERROR)
+                        74      RERAISE                         1
+                    [Exception Table]
+                        4 to 72 -> 72 [0] lasti
+                'confidence em [0,1] no último frame (foi '
+                'tamanho previsto do datagrama com 2 pts = '
+                ' B'
+                '[e2e] '
+                'OK'
+                'FAIL'
+                '  ('
+                ' asserts falharam)'
+                (
+                    'cond'
+                    'bool'
+                    'msg'
+                    'str'
+                )
+            [Disassembly]
+                0       MAKE_CELL                       38: fails
+                2       MAKE_CELL                       39: received
+                4       MAKE_CELL                       40: received_lock
+                6       MAKE_CELL                       41: sock
+                8       MAKE_CELL                       42: sub_done
+                10      RESUME                          0
+                12      LOAD_GLOBAL                     0: argparse
+                22      LOAD_ATTR                       2: ArgumentParser
+                42      PUSH_NULL                       
+                44      CALL                            0
+                52      STORE_FAST                      0: ap
+                54      LOAD_FAST                       0: ap
+                56      LOAD_ATTR                       5: add_argument
+                76      LOAD_CONST                      1: '--duration'
+                78      LOAD_GLOBAL                     6: float
+                88      LOAD_CONST                      2: 2
+                90      LOAD_CONST                      3: ('type', 'default')
+                92      CALL_KW                         3
+                94      POP_TOP                         
+                96      LOAD_FAST                       0: ap
+                98      LOAD_ATTR                       5: add_argument
+                118     LOAD_CONST                      4: '--port'
+                120     LOAD_GLOBAL                     8: int
+                130     LOAD_CONST                      5: 5599
+                132     LOAD_CONST                      6: 'porta UDP pro teste (não conflita com main 5555)'
+                134     LOAD_CONST                      7: ('type', 'default', 'help')
+                136     CALL_KW                         4
+                138     POP_TOP                         
+                140     LOAD_FAST                       0: ap
+                142     LOAD_ATTR                       5: add_argument
+                162     LOAD_CONST                      8: '--baseline-s'
+                164     LOAD_GLOBAL                     6: float
+                174     LOAD_CONST                      9: 0.5
+                176     LOAD_CONST                      3: ('type', 'default')
+                178     CALL_KW                         3
+                180     POP_TOP                         
+                182     LOAD_FAST                       0: ap
+                184     LOAD_ATTR                       11: parse_args
+                204     CALL                            0
+                212     STORE_FAST                      1: args
+                214     LOAD_GLOBAL                     13: NULL + print
+                224     LOAD_CONST                      10: '[e2e] montando mundo sintético...'
+                226     CALL                            1
+                234     POP_TOP                         
+                236     LOAD_GLOBAL                     15: NULL + make_world
+                246     CALL                            0
+                254     UNPACK_SEQUENCE                 2
+                258     STORE_FAST_STORE_FAST           35: corners, H
+                260     LOAD_GLOBAL                     13: NULL + print
+                270     LOAD_CONST                      11: '[e2e] cantos (mm): '
+                272     LOAD_FAST                       2: corners
+                274     GET_ITER                        
+                276     LOAD_FAST_AND_CLEAR             4: p
+                278     SWAP                            2
+                280     BUILD_LIST                      0
+                282     SWAP                            2
+                284     GET_ITER                        
+                286     FOR_ITER                        31 (to 350)
+                290     STORE_FAST                      4: p
+                292     LOAD_GLOBAL                     17: NULL + round
+                302     LOAD_FAST                       4: p
+                304     LOAD_CONST                      12: 0
+                306     BINARY_SUBSCR                   
+                310     CALL                            1
+                318     LOAD_GLOBAL                     17: NULL + round
+                328     LOAD_FAST                       4: p
+                330     LOAD_CONST                      13: 1
+                332     BINARY_SUBSCR                   
+                336     CALL                            1
+                344     BUILD_TUPLE                     2
+                346     LIST_APPEND                     2
+                348     JUMP_BACKWARD                   33 (to 284)
+                352     END_FOR                         
+                354     POP_TOP                         
+                356     SWAP                            2
+                358     STORE_FAST                      4: p
+                360     FORMAT_SIMPLE                   
+                362     BUILD_STRING                    2
+                364     CALL                            1
+                372     POP_TOP                         
+                374     LOAD_GLOBAL                     18: socket
+                384     LOAD_ATTR                       18: socket
+                404     PUSH_NULL                       
+                406     LOAD_GLOBAL                     18: socket
+                416     LOAD_ATTR                       20: AF_INET
+                436     LOAD_GLOBAL                     18: socket
+                446     LOAD_ATTR                       22: SOCK_DGRAM
+                466     CALL                            2
+                474     STORE_DEREF                     41: sock
+                476     LOAD_DEREF                      41: sock
+                478     LOAD_ATTR                       25: setsockopt
+                498     LOAD_GLOBAL                     18: socket
+                508     LOAD_ATTR                       26: SOL_SOCKET
+                528     LOAD_GLOBAL                     18: socket
+                538     LOAD_ATTR                       28: SO_REUSEADDR
+                558     LOAD_CONST                      13: 1
+                560     CALL                            3
+                568     POP_TOP                         
+                570     LOAD_DEREF                      41: sock
+                572     LOAD_ATTR                       31: bind
+                592     LOAD_CONST                      14: '127.0.0.1'
+                594     LOAD_FAST                       1: args
+                596     LOAD_ATTR                       32: port
+                616     BUILD_TUPLE                     2
+                618     CALL                            1
+                626     POP_TOP                         
+                628     LOAD_DEREF                      41: sock
+                630     LOAD_ATTR                       35: settimeout
+                650     LOAD_CONST                      15: 0.1
+                652     CALL                            1
+                660     POP_TOP                         
+                662     BUILD_LIST                      0
+                664     STORE_DEREF                     39: received
+                666     LOAD_GLOBAL                     36: threading
+                676     LOAD_ATTR                       38: Lock
+                696     PUSH_NULL                       
+                698     CALL                            0
+                706     STORE_DEREF                     40: received_lock
+                708     LOAD_GLOBAL                     36: threading
+                718     LOAD_ATTR                       40: Event
+                738     PUSH_NULL                       
+                740     CALL                            0
+                748     STORE_DEREF                     42: sub_done
+                750     LOAD_FAST                       39: received
+                752     LOAD_FAST                       40: received_lock
+                754     LOAD_FAST                       41: sock
+                756     LOAD_FAST                       42: sub_done
+                758     BUILD_TUPLE                     4
+                760     LOAD_CONST                      16: <CODE> recv_loop
+                762     MAKE_FUNCTION                   
+                764     SET_FUNCTION_ATTRIBUTE          8 (MAKE_FUNCTION_CLOSURE)
+                766     STORE_FAST                      5: recv_loop
+                768     LOAD_GLOBAL                     36: threading
+                778     LOAD_ATTR                       42: Thread
+                798     PUSH_NULL                       
+                800     LOAD_FAST                       5: recv_loop
+                802     LOAD_CONST                      17: True
+                804     LOAD_CONST                      18: ('target', 'daemon')
+                806     CALL_KW                         2
+                808     STORE_FAST                      6: t_sub
+                810     LOAD_FAST                       6: t_sub
+                812     LOAD_ATTR                       45: start
+                832     CALL                            0
+                840     POP_TOP                         
+                842     LOAD_GLOBAL                     47: NULL + UdpPublisher
+                852     LOAD_CONST                      14: '127.0.0.1'
+                854     LOAD_FAST                       1: args
+                856     LOAD_ATTR                       32: port
+                876     LOAD_CONST                      19: 32
+                878     LOAD_CONST                      20: ('host', 'port', 'max_points')
+                880     CALL_KW                         3
+                882     STORE_FAST                      7: pub
+                884     LOAD_GLOBAL                     13: NULL + print
+                894     LOAD_CONST                      21: '[e2e] publisher em '
+                896     LOAD_FAST                       7: pub
+                898     LOAD_ATTR                       48: endpoint
+                918     FORMAT_SIMPLE                   
+                920     BUILD_STRING                    2
+                922     CALL                            1
+                930     POP_TOP                         
+                932     LOAD_GLOBAL                     51: NULL + BackgroundSubtractor
+                942     LOAD_CONST                      22: 720
+                944     LOAD_CONST                      23: 120
+                946     LOAD_CONST                      24: ('bins', 'margin_mm')
+                948     CALL_KW                         2
+                950     STORE_FAST                      8: bg
+                952     LOAD_FAST                       8: bg
+                954     LOAD_ATTR                       53: begin_baseline
+                974     CALL                            0
+                982     POP_TOP                         
+                984     LOAD_FAST                       8: bg
+                986     LOAD_ATTR                       55: configure_time
+                1006    LOAD_FAST                       1: args
+                1008    LOAD_ATTR                       56: baseline_s
+                1028    CALL                            1
+                1036    POP_TOP                         
+                1038    LOAD_GLOBAL                     59: NULL + TrackerCfg
+                1048    LOAD_CONST                      25: 160
+                1050    LOAD_CONST                      26: 4
+                1052    LOAD_CONST                      27: 300
+                1054    LOAD_CONST                      28: 0.2
+                1056    LOAD_CONST                      29: ('dbscan_eps_mm', 'dbscan_min_samples', 'match_dist_mm', 'smoothing')
+                1058    CALL_KW                         4
+                1060    STORE_FAST                      9: trk_cfg
+                1062    LOAD_GLOBAL                     61: NULL + Tracker
+                1072    LOAD_FAST                       9: trk_cfg
+                1074    CALL                            1
+                1082    STORE_FAST                      10: trk
+                1084    LOAD_GLOBAL                     62: cfg_mod
+                1094    LOAD_ATTR                       64: Config
+                1114    PUSH_NULL                       
+                1116    CALL                            0
+                1124    STORE_FAST                      11: cfg
+                1126    LOAD_GLOBAL                     66: np
+                1136    LOAD_ATTR                       68: random
+                1156    LOAD_ATTR                       71: default_rng
+                1176    LOAD_CONST                      30: 42
+                1178    CALL                            1
+                1186    STORE_FAST                      12: rng
+                1188    LOAD_GLOBAL                     13: NULL + print
+                1198    LOAD_CONST                      31: '[e2e] alimentando baseline...'
+                1200    CALL                            1
+                1208    POP_TOP                         
+                1210    LOAD_FAST                       8: bg
+                1212    LOAD_ATTR                       72: ready
+                1232    TO_BOOL                         
+                1240    POP_JUMP_IF_TRUE                86 (to 1414)
+                1244    LOAD_FAST                       8: bg
+                1246    LOAD_ATTR                       75: feed
+                1266    LOAD_GLOBAL                     77: NULL + synth_baseline_measurements
+                1276    LOAD_GLOBAL                     78: time
+                1286    LOAD_ATTR                       80: monotonic
+                1306    PUSH_NULL                       
+                1308    CALL                            0
+                1316    CALL                            1
+                1324    CALL                            1
+                1332    POP_TOP                         
+                1334    LOAD_GLOBAL                     78: time
+                1344    LOAD_ATTR                       82: sleep
+                1364    PUSH_NULL                       
+                1366    LOAD_CONST                      32: 0.02
+                1368    CALL                            1
+                1376    POP_TOP                         
+                1378    LOAD_FAST                       8: bg
+                1380    LOAD_ATTR                       72: ready
+                1400    TO_BOOL                         
+                1408    POP_JUMP_IF_TRUE                2 (to 1414)
+                1412    JUMP_BACKWARD                   86 (to 1242)
+                1416    LOAD_GLOBAL                     13: NULL + print
+                1426    LOAD_CONST                      33: '[e2e] baseline pronto ('
+                1428    LOAD_FAST                       8: bg
+                1430    LOAD_ATTR                       84: learned_bins
+                1450    FORMAT_SIMPLE                   
+                1452    LOAD_CONST                      34: '/720 bins)'
+                1454    BUILD_STRING                    3
+                1456    CALL                            1
+                1464    POP_TOP                         
+                1466    LOAD_GLOBAL                     13: NULL + print
+                1476    LOAD_CONST                      35: '[e2e] rodando '
+                1478    LOAD_FAST                       1: args
+                1480    LOAD_ATTR                       86: duration
+                1500    LOAD_CONST                      36: '.1f'
+                1502    FORMAT_WITH_SPEC                
+                1504    LOAD_CONST                      37: 's com 2 cursores sintéticos...'
+                1506    BUILD_STRING                    3
+                1508    CALL                            1
+                1516    POP_TOP                         
+                1518    LOAD_GLOBAL                     78: time
+                1528    LOAD_ATTR                       80: monotonic
+                1548    PUSH_NULL                       
+                1550    CALL                            0
+                1558    STORE_FAST                      13: t_start
+                1560    LOAD_GLOBAL                     89: NULL + RateLimiter
+                1570    LOAD_CONST                      38: 60
+                1572    CALL                            1
+                1580    STORE_FAST                      14: limiter
+                1582    LOAD_GLOBAL                     78: time
+                1592    LOAD_ATTR                       80: monotonic
+                1612    PUSH_NULL                       
+                1614    CALL                            0
+                1622    LOAD_FAST                       13: t_start
+                1624    BINARY_OP                       10 (-)
+                1628    LOAD_FAST                       1: args
+                1630    LOAD_ATTR                       86: duration
+                1650    COMPARE_OP                      18 (<)
+                1654    POP_JUMP_IF_FALSE               508 (to 2674)
+                1660    LOAD_GLOBAL                     78: time
+                1670    LOAD_ATTR                       80: monotonic
+                1690    PUSH_NULL                       
+                1692    CALL                            0
+                1700    STORE_FAST                      15: now
+                1702    LOAD_FAST_LOAD_FAST             253: now, t_start
+                1704    BINARY_OP                       10 (-)
+                1708    STORE_FAST                      16: t
+                1710    LOAD_CONST                      39: 1200
+                1712    LOAD_CONST                      40: 400
+                1714    LOAD_GLOBAL                     90: math
+                1724    LOAD_ATTR                       92: cos
+                1744    PUSH_NULL                       
+                1746    LOAD_FAST                       16: t
+                1748    LOAD_CONST                      2: 2
+                1750    BINARY_OP                       5 (*)
+                1754    CALL                            1
+                1762    BINARY_OP                       5 (*)
+                1766    BINARY_OP                       0 (+)
+                1770    STORE_FAST                      17: ax
+                1772    LOAD_CONST                      41: -200
+                1774    LOAD_CONST                      40: 400
+                1776    LOAD_GLOBAL                     90: math
+                1786    LOAD_ATTR                       94: sin
+                1806    PUSH_NULL                       
+                1808    LOAD_FAST                       16: t
+                1810    LOAD_CONST                      2: 2
+                1812    BINARY_OP                       5 (*)
+                1816    CALL                            1
+                1824    BINARY_OP                       5 (*)
+                1828    BINARY_OP                       0 (+)
+                1832    STORE_FAST                      18: ay
+                1834    LOAD_CONST                      42: 1800
+                1836    LOAD_CONST                      43: 250
+                1838    LOAD_GLOBAL                     90: math
+                1848    LOAD_ATTR                       92: cos
+                1868    PUSH_NULL                       
+                1870    LOAD_FAST                       16: t
+                1872    LOAD_CONST                      44: 1.3
+                1874    BINARY_OP                       5 (*)
+                1878    LOAD_GLOBAL                     90: math
+                1888    LOAD_ATTR                       96: pi
+                1908    LOAD_CONST                      45: 3
+                1910    BINARY_OP                       11 (/)
+                1914    BINARY_OP                       0 (+)
+                1918    CALL                            1
+                1926    BINARY_OP                       5 (*)
+                1930    BINARY_OP                       0 (+)
+                1934    STORE_FAST                      19: bx
+                1936    LOAD_CONST                      46: 200
+                1938    LOAD_CONST                      43: 250
+                1940    LOAD_GLOBAL                     90: math
+                1950    LOAD_ATTR                       94: sin
+                1970    PUSH_NULL                       
+                1972    LOAD_FAST                       16: t
+                1974    LOAD_CONST                      44: 1.3
+                1976    BINARY_OP                       5 (*)
+                1980    LOAD_GLOBAL                     90: math
+                1990    LOAD_ATTR                       96: pi
+                2010    LOAD_CONST                      45: 3
+                2012    BINARY_OP                       11 (/)
+                2016    BINARY_OP                       0 (+)
+                2020    CALL                            1
+                2028    BINARY_OP                       5 (*)
+                2032    BINARY_OP                       0 (+)
+                2036    STORE_FAST                      20: by
+                2038    LOAD_GLOBAL                     77: NULL + synth_baseline_measurements
+                2048    LOAD_FAST                       15: now
+                2050    CALL                            1
+                2058    STORE_FAST                      21: meas
+                2060    LOAD_FAST                       21: meas
+                2062    LOAD_GLOBAL                     99: NULL + synth_cursor_blob
+                2072    LOAD_FAST                       17: ax
+                2074    LOAD_FAST                       18: ay
+                2076    BUILD_TUPLE                     2
+                2078    LOAD_CONST                      47: 20
+                2080    LOAD_FAST_LOAD_FAST             252: now, rng
+                2082    LOAD_CONST                      48: ('rng',)
+                2084    CALL_KW                         4
+                2086    BINARY_OP                       13 (+=)
+                2090    STORE_FAST                      21: meas
+                2092    LOAD_FAST                       21: meas
+                2094    LOAD_GLOBAL                     99: NULL + synth_cursor_blob
+                2104    LOAD_FAST                       19: bx
+                2106    LOAD_FAST                       20: by
+                2108    BUILD_TUPLE                     2
+                2110    LOAD_CONST                      47: 20
+                2112    LOAD_FAST_LOAD_FAST             252: now, rng
+                2114    LOAD_CONST                      48: ('rng',)
+                2116    CALL_KW                         4
+                2118    BINARY_OP                       13 (+=)
+                2122    STORE_FAST                      21: meas
+                2124    LOAD_GLOBAL                     101: NULL + project_batch
+                2134    LOAD_FAST                       21: meas
+                2136    LOAD_FAST                       11: cfg
+                2138    LOAD_ATTR                       102: processing
+                2158    CALL                            2
+                2166    STORE_FAST                      22: points
+                2168    LOAD_FAST                       8: bg
+                2170    LOAD_ATTR                       105: foreground_points
+                2190    LOAD_FAST                       22: points
+                2192    CALL                            1
+                2200    STORE_FAST                      23: fg
+                2202    LOAD_GLOBAL                     107: NULL + split_by_roi
+                2212    LOAD_FAST                       23: fg
+                2214    LOAD_FAST                       11: cfg
+                2216    LOAD_ATTR                       108: roi
+                2236    CALL                            2
+                2244    UNPACK_SEQUENCE                 2
+                2248    STORE_FAST                      24: fg_in
+                2250    STORE_FAST                      25: _
+                2252    LOAD_FAST                       24: fg_in
+                2254    TO_BOOL                         
+                2262    POP_JUMP_IF_FALSE               63 (to 2390)
+                2266    LOAD_GLOBAL                     66: np
+                2276    LOAD_ATTR                       110: array
+                2296    PUSH_NULL                       
+                2298    LOAD_FAST                       24: fg_in
+                2300    GET_ITER                        
+                2302    LOAD_FAST_AND_CLEAR             4: p
+                2304    SWAP                            2
+                2306    BUILD_LIST                      0
+                2308    SWAP                            2
+                2310    GET_ITER                        
+                2312    FOR_ITER                        26 (to 2366)
+                2316    STORE_FAST_LOAD_FAST            68: p, p
+                2318    LOAD_ATTR                       112: x
+                2338    LOAD_FAST                       4: p
+                2340    LOAD_ATTR                       114: y
+                2360    BUILD_TUPLE                     2
+                2362    LIST_APPEND                     2
+                2364    JUMP_BACKWARD                   28 (to 2310)
+                2368    END_FOR                         
+                2370    POP_TOP                         
+                2372    SWAP                            2
+                2374    STORE_FAST                      4: p
+                2376    LOAD_GLOBAL                     6: float
+                2386    LOAD_CONST                      49: ('dtype',)
+                2388    CALL_KW                         2
+                2390    JUMP_FORWARD                    21 (to 2434)
+                2392    LOAD_GLOBAL                     66: np
+                2402    LOAD_ATTR                       116: zeros
+                2422    PUSH_NULL                       
+                2424    LOAD_CONST                      50: (0, 2)
+                2426    CALL                            1
+                2434    STORE_FAST                      26: xy
+                2436    LOAD_FAST                       10: trk
+                2438    LOAD_ATTR                       119: update
+                2458    LOAD_FAST                       26: xy
+                2460    LOAD_FAST                       3: H
+                2462    CALL                            2
+                2470    STORE_FAST                      27: tracks
+                2472    LOAD_FAST                       14: limiter
+                2474    LOAD_ATTR                       73: ready
+                2494    LOAD_FAST                       15: now
+                2496    CALL                            1
+                2504    TO_BOOL                         
+                2512    POP_JUMP_IF_FALSE               17 (to 2548)
+                2516    LOAD_FAST                       7: pub
+                2518    LOAD_ATTR                       121: publish
+                2538    LOAD_FAST                       27: tracks
+                2540    CALL                            1
+                2548    POP_TOP                         
+                2550    LOAD_GLOBAL                     78: time
+                2560    LOAD_ATTR                       82: sleep
+                2580    PUSH_NULL                       
+                2582    LOAD_CONST                      51: 0.005
+                2584    CALL                            1
+                2592    POP_TOP                         
+                2594    LOAD_GLOBAL                     78: time
+                2604    LOAD_ATTR                       80: monotonic
+                2624    PUSH_NULL                       
+                2626    CALL                            0
+                2634    LOAD_FAST                       13: t_start
+                2636    BINARY_OP                       10 (-)
+                2640    LOAD_FAST                       1: args
+                2642    LOAD_ATTR                       86: duration
+                2662    COMPARE_OP                      18 (<)
+                2666    POP_JUMP_IF_FALSE               3 (to 2674)
+                2670    JUMP_BACKWARD                   508 (to 1658)
+                2676    LOAD_GLOBAL                     78: time
+                2686    LOAD_ATTR                       82: sleep
+                2706    PUSH_NULL                       
+                2708    LOAD_CONST                      28: 0.2
+                2710    CALL                            1
+                2718    POP_TOP                         
+                2720    LOAD_DEREF                      42: sub_done
+                2722    LOAD_ATTR                       123: set
+                2742    CALL                            0
+                2750    POP_TOP                         
+                2752    LOAD_FAST                       6: t_sub
+                2754    LOAD_ATTR                       125: join
+                2774    LOAD_CONST                      52: 1
+                2776    LOAD_CONST                      53: ('timeout',)
+                2778    CALL_KW                         1
+                2780    POP_TOP                         
+                2782    LOAD_FAST                       7: pub
+                2784    LOAD_ATTR                       127: close
+                2804    CALL                            0
+                2812    POP_TOP                         
+                2814    LOAD_DEREF                      40: received_lock
+                2816    BEFORE_WITH                     
+                2818    POP_TOP                         
+                2820    LOAD_GLOBAL                     129: NULL + list
+                2830    LOAD_DEREF                      39: received
+                2832    CALL                            1
+                2840    STORE_FAST                      28: msgs
+                2842    LOAD_CONST                      0: None
+                2844    LOAD_CONST                      0: None
+                2846    LOAD_CONST                      0: None
+                2848    CALL                            2
+                2856    POP_TOP                         
+                2858    LOAD_GLOBAL                     13: NULL + print
+                2868    LOAD_CONST                      54: '[e2e] recebidos: '
+                2870    LOAD_GLOBAL                     131: NULL + len
+                2880    LOAD_FAST_CHECK                 28: msgs
+                2882    CALL                            1
+                2890    FORMAT_SIMPLE                   
+                2892    LOAD_CONST                      55: ' pacotes'
+                2894    BUILD_STRING                    3
+                2896    CALL                            1
+                2904    POP_TOP                         
+                2906    LOAD_CONST                      12: 0
+                2908    STORE_DEREF                     38: fails
+                2910    LOAD_CONST                      84: ('cond', 'bool', 'msg', 'str')
+                2912    LOAD_FAST                       38: fails
+                2914    BUILD_TUPLE                     1
+                2916    LOAD_CONST                      56: <CODE> expect
+                2918    MAKE_FUNCTION                   
+                2920    SET_FUNCTION_ATTRIBUTE          8 (MAKE_FUNCTION_CLOSURE)
+                2922    SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                2924    STORE_FAST                      29: expect
+                2926    LOAD_FAST                       29: expect
+                2928    PUSH_NULL                       
+                2930    LOAD_GLOBAL                     131: NULL + len
+                2940    LOAD_FAST                       28: msgs
+                2942    CALL                            1
+                2950    LOAD_CONST                      57: 30
+                2952    COMPARE_OP                      172 (>=)
+                2956    LOAD_CONST                      58: 'recebeu pelo menos 30 pacotes (foi '
+                2958    LOAD_GLOBAL                     131: NULL + len
+                2968    LOAD_FAST                       28: msgs
+                2970    CALL                            1
+                2978    FORMAT_SIMPLE                   
+                2980    LOAD_CONST                      59: ')'
+                2982    BUILD_STRING                    3
+                2984    CALL                            2
+                2992    POP_TOP                         
+                2994    LOAD_FAST                       28: msgs
+                2996    TO_BOOL                         
+                3004    POP_JUMP_IF_FALSE               380 (to 3768)
+                3010    LOAD_FAST                       28: msgs
+                3012    LOAD_CONST                      60: -1
+                3014    BINARY_SUBSCR                   
+                3018    STORE_FAST                      30: last
+                3020    LOAD_FAST                       29: expect
+                3022    PUSH_NULL                       
+                3024    LOAD_CONST                      61: 'frame'
+                3026    LOAD_FAST                       30: last
+                3028    CONTAINS_OP                     0 (in)
+                3032    COPY                            1
+                3034    TO_BOOL                         
+                3042    POP_JUMP_IF_FALSE               17 (to 3078)
+                3046    POP_TOP                         
+                3048    LOAD_CONST                      62: 'timestamp'
+                3050    LOAD_FAST                       30: last
+                3052    CONTAINS_OP                     0 (in)
+                3056    COPY                            1
+                3058    TO_BOOL                         
+                3066    POP_JUMP_IF_FALSE               5 (to 3078)
+                3070    POP_TOP                         
+                3072    LOAD_CONST                      63: 'points'
+                3074    LOAD_FAST                       30: last
+                3076    CONTAINS_OP                     0 (in)
+                3080    LOAD_CONST                      64: 'payload tem schema {frame, timestamp, points}'
+                3082    CALL                            2
+                3090    POP_TOP                         
+                3092    LOAD_GLOBAL                     131: NULL + len
+                3102    LOAD_FAST                       30: last
+                3104    LOAD_CONST                      63: 'points'
+                3106    BINARY_SUBSCR                   
+                3110    CALL                            1
+                3118    STORE_FAST                      31: n_last
+                3120    LOAD_FAST                       29: expect
+                3122    PUSH_NULL                       
+                3124    LOAD_FAST                       31: n_last
+                3126    LOAD_CONST                      65: 2
+                3128    COMPARE_OP                      72 (==)
+                3132    LOAD_CONST                      66: 'último frame tem 2 tracks (teve '
+                3134    LOAD_FAST                       31: n_last
+                3136    FORMAT_SIMPLE                   
+                3138    LOAD_CONST                      67: ': '
+                3140    LOAD_FAST                       30: last
+                3142    LOAD_CONST                      63: 'points'
+                3144    BINARY_SUBSCR                   
+                3148    FORMAT_SIMPLE                   
+                3150    LOAD_CONST                      59: ')'
+                3152    BUILD_STRING                    5
+                3154    CALL                            2
+                3162    POP_TOP                         
+                3164    LOAD_GLOBAL                     133: NULL + all
+                3174    LOAD_CONST                      68: <CODE> <genexpr>
+                3176    MAKE_FUNCTION                   
+                3178    LOAD_FAST                       30: last
+                3180    LOAD_CONST                      63: 'points'
+                3182    BINARY_SUBSCR                   
+                3186    GET_ITER                        
+                3188    CALL                            0
+                3196    CALL                            1
+                3204    STORE_FAST                      32: all_in
+                3206    LOAD_FAST                       29: expect
+                3208    PUSH_NULL                       
+                3210    LOAD_FAST                       32: all_in
+                3212    LOAD_CONST                      69: 'coords (x,y) do último frame em [0,1]'
+                3214    CALL                            2
+                3222    POP_TOP                         
+                3224    LOAD_FAST                       28: msgs
+                3226    LOAD_CONST                      70: -10
+                3228    LOAD_CONST                      0: None
+                3230    BINARY_SLICE                    
+                3232    GET_ITER                        
+                3234    LOAD_FAST_AND_CLEAR             33: m
+                3236    SWAP                            2
+                3238    BUILD_LIST                      0
+                3240    SWAP                            2
+                3242    GET_ITER                        
+                3244    FOR_ITER                        36 (to 3318)
+                3248    STORE_FAST                      33: m
+                3250    LOAD_FAST                       33: m
+                3252    LOAD_CONST                      63: 'points'
+                3254    BINARY_SUBSCR                   
+                3258    TO_BOOL                         
+                3266    POP_JUMP_IF_TRUE                2 (to 3272)
+                3270    JUMP_BACKWARD                   15 (to 3242)
+                3274    LOAD_GLOBAL                     123: NULL + set
+                3284    LOAD_CONST                      71: <CODE> <genexpr>
+                3286    MAKE_FUNCTION                   
+                3288    LOAD_FAST                       33: m
+                3290    LOAD_CONST                      63: 'points'
+                3292    BINARY_SUBSCR                   
+                3296    GET_ITER                        
+                3298    CALL                            0
+                3306    CALL                            1
+                3314    LIST_APPEND                     2
+                3316    JUMP_BACKWARD                   38 (to 3242)
+                3320    END_FOR                         
+                3322    POP_TOP                         
+                3324    STORE_FAST                      34: ids_seq
+                3326    STORE_FAST                      33: m
+                3328    LOAD_GLOBAL                     131: NULL + len
+                3338    LOAD_FAST                       34: ids_seq
+                3340    CALL                            1
+                3348    LOAD_CONST                      65: 2
+                3350    COMPARE_OP                      188 (>=)
+                3354    POP_JUMP_IF_FALSE               56 (to 3468)
+                3358    LOAD_GLOBAL                     122: set
+                3368    LOAD_ATTR                       134: intersection
+                3388    PUSH_NULL                       
+                3390    LOAD_FAST                       34: ids_seq
+                3392    CALL_FUNCTION_EX                0
+                3394    STORE_FAST                      35: common
+                3396    LOAD_FAST                       29: expect
+                3398    PUSH_NULL                       
+                3400    LOAD_GLOBAL                     131: NULL + len
+                3410    LOAD_FAST                       35: common
+                3412    CALL                            1
+                3420    LOAD_CONST                      13: 1
+                3422    COMPARE_OP                      172 (>=)
+                3426    LOAD_CONST                      72: 'ao menos um ID persistiu nos últimos '
+                3428    LOAD_GLOBAL                     131: NULL + len
+                3438    LOAD_FAST                       34: ids_seq
+                3440    CALL                            1
+                3448    FORMAT_SIMPLE                   
+                3450    LOAD_CONST                      73: ' frames ('
+                3452    LOAD_FAST                       35: common
+                3454    FORMAT_SIMPLE                   
+                3456    LOAD_CONST                      59: ')'
+                3458    BUILD_STRING                    5
+                3460    CALL                            2
+                3468    POP_TOP                         
+                3470    LOAD_FAST                       30: last
+                3472    LOAD_CONST                      63: 'points'
+                3474    BINARY_SUBSCR                   
+                3478    GET_ITER                        
+                3480    LOAD_FAST_AND_CLEAR             4: p
+                3482    SWAP                            2
+                3484    BUILD_LIST                      0
+                3486    SWAP                            2
+                3488    GET_ITER                        
+                3490    FOR_ITER                        7 (to 3506)
+                3494    STORE_FAST_LOAD_FAST            68: p, p
+                3496    LOAD_CONST                      74: 'confidence'
+                3498    BINARY_SUBSCR                   
+                3502    LIST_APPEND                     2
+                3504    JUMP_BACKWARD                   9 (to 3488)
+                3508    END_FOR                         
+                3510    POP_TOP                         
+                3512    STORE_FAST                      36: confs
+                3514    STORE_FAST                      4: p
+                3516    LOAD_FAST                       29: expect
+                3518    PUSH_NULL                       
+                3520    LOAD_GLOBAL                     133: NULL + all
+                3530    LOAD_CONST                      75: <CODE> <genexpr>
+                3532    MAKE_FUNCTION                   
+                3534    LOAD_FAST                       36: confs
+                3536    GET_ITER                        
+                3538    CALL                            0
+                3546    CALL                            1
+                3554    LOAD_CONST                      76: 'confidence em [0,1] no último frame (foi '
+                3556    LOAD_FAST                       36: confs
+                3558    FORMAT_SIMPLE                   
+                3560    LOAD_CONST                      59: ')'
+                3562    BUILD_STRING                    3
+                3564    CALL                            2
+                3572    POP_TOP                         
+                3574    LOAD_GLOBAL                     136: _HEADER
+                3584    LOAD_ATTR                       138: size
+                3604    LOAD_GLOBAL                     131: NULL + len
+                3614    LOAD_FAST                       30: last
+                3616    LOAD_CONST                      63: 'points'
+                3618    BINARY_SUBSCR                   
+                3622    CALL                            1
+                3630    LOAD_GLOBAL                     140: _POINT
+                3640    LOAD_ATTR                       138: size
+                3660    BINARY_OP                       5 (*)
+                3664    BINARY_OP                       0 (+)
+                3668    STORE_FAST                      37: expected_bytes_last
+                3670    LOAD_FAST                       29: expect
+                3672    PUSH_NULL                       
+                3674    LOAD_FAST                       37: expected_bytes_last
+                3676    LOAD_GLOBAL                     136: _HEADER
+                3686    LOAD_ATTR                       138: size
+                3706    LOAD_CONST                      65: 2
+                3708    LOAD_GLOBAL                     140: _POINT
+                3718    LOAD_ATTR                       138: size
+                3738    BINARY_OP                       5 (*)
+                3742    BINARY_OP                       0 (+)
+                3746    COMPARE_OP                      72 (==)
+                3750    LOAD_CONST                      77: 'tamanho previsto do datagrama com 2 pts = '
+                3752    LOAD_FAST                       37: expected_bytes_last
+                3754    FORMAT_SIMPLE                   
+                3756    LOAD_CONST                      78: ' B'
+                3758    BUILD_STRING                    3
+                3760    CALL                            2
+                3768    POP_TOP                         
+                3770    LOAD_GLOBAL                     13: NULL + print
+                3780    LOAD_CONST                      79: '[e2e] '
+                3782    LOAD_DEREF                      38: fails
+                3784    LOAD_CONST                      12: 0
+                3786    COMPARE_OP                      88 (==)
+                3790    POP_JUMP_IF_FALSE               2 (to 3796)
+                3794    LOAD_CONST                      80: 'OK'
+                3796    JUMP_FORWARD                    1 (to 3800)
+                3798    LOAD_CONST                      81: 'FAIL'
+                3800    FORMAT_SIMPLE                   
+                3802    LOAD_CONST                      82: '  ('
+                3804    LOAD_DEREF                      38: fails
+                3806    FORMAT_SIMPLE                   
+                3808    LOAD_CONST                      83: ' asserts falharam)'
+                3810    BUILD_STRING                    5
+                3812    CALL                            1
+                3820    POP_TOP                         
+                3822    LOAD_DEREF                      38: fails
+                3824    LOAD_CONST                      12: 0
+                3826    COMPARE_OP                      88 (==)
+                3830    POP_JUMP_IF_FALSE               2 (to 3836)
+                3834    LOAD_CONST                      12: 0
+                3836    RETURN_VALUE                    
+                3838    LOAD_CONST                      13: 1
+                3840    RETURN_VALUE                    
+                3842    SWAP                            2
+                3844    POP_TOP                         
+                3846    SWAP                            2
+                3848    STORE_FAST                      4: p
+                3850    RERAISE                         0
+                3852    SWAP                            2
+                3854    POP_TOP                         
+                3856    SWAP                            2
+                3858    STORE_FAST                      4: p
+                3860    RERAISE                         0
+                3862    PUSH_EXC_INFO                   
+                3864    WITH_EXCEPT_START               
+                3866    TO_BOOL                         
+                3874    POP_JUMP_IF_TRUE                1 (to 3878)
+                3878    RERAISE                         2
+                3880    POP_TOP                         
+                3882    POP_EXCEPT                      
+                3884    POP_TOP                         
+                3886    POP_TOP                         
+                3888    JUMP_BACKWARD_NO_INTERRUPT      517 (to 2858)
+                3892    COPY                            3
+                3894    POP_EXCEPT                      
+                3896    RERAISE                         1
+                3898    SWAP                            2
+                3900    POP_TOP                         
+                3902    SWAP                            2
+                3904    STORE_FAST                      33: m
+                3906    RERAISE                         0
+                3908    SWAP                            2
+                3910    POP_TOP                         
+                3912    SWAP                            2
+                3914    STORE_FAST                      4: p
+                3916    RERAISE                         0
+            [Exception Table]
+                280 to 356 -> 3842 [5] 
+                2306 to 2372 -> 3852 [4] 
+                2818 to 2842 -> 3862 [1] lasti
+                3238 to 3266 -> 3898 [2] 
+                3274 to 3324 -> 3898 [2] 
+                3484 to 3512 -> 3908 [2] 
+                3862 to 3882 -> 3892 [3] lasti
+        '__main__'
+        (
+            'return'
+            'tuple[list[tuple[float, float]], np.ndarray]'
+        )
+        (
+            'x'
+            'float'
+            'y'
+            'float'
+            'return'
+            'tuple[float, float]'
+        )
+        (
+            'now'
+            'float'
+            'return'
+            'list[Measurement]'
+        )
+        (
+            30
+            None
+        )
+        (
+            'rng'
+            'np.random.Generator | None'
+        )
+        (
+            'return'
+            'int'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — teste E2E final (sem hardware).\n\nRoda o pipeline completo em memória, sem conectar ao sensor: gera medidas\nsintéticas (2 "objetos" se movendo em círculos), envia via UDP no mesmo\nprocesso, e um receptor local valida que recebeu pacotes coerentes.\n\nCritérios de sucesso:\n  - pelo menos N pacotes recebidos\n  - último pacote tem 2 tracks ativos\n  - IDs estáveis (frames consecutivos compartilham pelo menos um id)\n  - coords (x, y) ∈ [0, 1]\n  - tamanho do datagrama bate com o esperado pelo header\n\nUso:\n    python test_e2e.py\n    python test_e2e.py --duration 3\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: argparse
+        24      STORE_NAME                      3: argparse
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: math
+        32      STORE_NAME                      4: math
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      3: None
+        38      IMPORT_NAME                     5: socket
+        40      STORE_NAME                      5: socket
+        42      LOAD_CONST                      1: 0
+        44      LOAD_CONST                      3: None
+        46      IMPORT_NAME                     6: threading
+        48      STORE_NAME                      6: threading
+        50      LOAD_CONST                      1: 0
+        52      LOAD_CONST                      3: None
+        54      IMPORT_NAME                     7: time
+        56      STORE_NAME                      7: time
+        58      LOAD_CONST                      1: 0
+        60      LOAD_CONST                      3: None
+        62      IMPORT_NAME                     8: numpy
+        64      STORE_NAME                      9: np
+        66      LOAD_CONST                      1: 0
+        68      LOAD_CONST                      3: None
+        70      IMPORT_NAME                     10: config
+        72      STORE_NAME                      11: cfg_mod
+        74      LOAD_CONST                      1: 0
+        76      LOAD_CONST                      4: ('TrackerCfg',)
+        78      IMPORT_NAME                     10: config
+        80      IMPORT_FROM                     12: TrackerCfg
+        82      STORE_NAME                      12: TrackerCfg
+        84      POP_TOP                         
+        86      LOAD_CONST                      1: 0
+        88      LOAD_CONST                      5: ('compute_homography',)
+        90      IMPORT_NAME                     13: homography
+        92      IMPORT_FROM                     14: compute_homography
+        94      STORE_NAME                      14: compute_homography
+        96      POP_TOP                         
+        98      LOAD_CONST                      1: 0
+        100     LOAD_CONST                      6: ('Measurement',)
+        102     IMPORT_NAME                     15: lidar_reader
+        104     IMPORT_FROM                     16: Measurement
+        106     STORE_NAME                      16: Measurement
+        108     POP_TOP                         
+        110     LOAD_CONST                      1: 0
+        112     LOAD_CONST                      7: ('BackgroundSubtractor', 'project_batch', 'split_by_roi')
+        114     IMPORT_NAME                     17: processing
+        116     IMPORT_FROM                     18: BackgroundSubtractor
+        118     STORE_NAME                      18: BackgroundSubtractor
+        120     IMPORT_FROM                     19: project_batch
+        122     STORE_NAME                      19: project_batch
+        124     IMPORT_FROM                     20: split_by_roi
+        126     STORE_NAME                      20: split_by_roi
+        128     POP_TOP                         
+        130     LOAD_CONST                      1: 0
+        132     LOAD_CONST                      8: ('RateLimiter', 'UdpPublisher', 'unpack_frame', '_HEADER', '_POINT')
+        134     IMPORT_NAME                     21: publisher
+        136     IMPORT_FROM                     22: RateLimiter
+        138     STORE_NAME                      22: RateLimiter
+        140     IMPORT_FROM                     23: UdpPublisher
+        142     STORE_NAME                      23: UdpPublisher
+        144     IMPORT_FROM                     24: unpack_frame
+        146     STORE_NAME                      24: unpack_frame
+        148     IMPORT_FROM                     25: _HEADER
+        150     STORE_NAME                      25: _HEADER
+        152     IMPORT_FROM                     26: _POINT
+        154     STORE_NAME                      26: _POINT
+        156     POP_TOP                         
+        158     LOAD_CONST                      1: 0
+        160     LOAD_CONST                      9: ('Tracker',)
+        162     IMPORT_NAME                     27: tracker
+        164     IMPORT_FROM                     28: Tracker
+        166     STORE_NAME                      28: Tracker
+        168     POP_TOP                         
+        170     LOAD_CONST                      16: ('return', 'tuple[list[tuple[float, float]], np.ndarray]')
+        172     LOAD_CONST                      10: <CODE> make_world
+        174     MAKE_FUNCTION                   
+        176     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        178     STORE_NAME                      29: make_world
+        180     LOAD_CONST                      17: ('x', 'float', 'y', 'float', 'return', 'tuple[float, float]')
+        182     LOAD_CONST                      11: <CODE> cartesian_to_polar
+        184     MAKE_FUNCTION                   
+        186     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        188     STORE_NAME                      30: cartesian_to_polar
+        190     LOAD_CONST                      18: ('now', 'float', 'return', 'list[Measurement]')
+        192     LOAD_CONST                      12: <CODE> synth_baseline_measurements
+        194     MAKE_FUNCTION                   
+        196     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        198     STORE_NAME                      31: synth_baseline_measurements
+        200     NOP                             
+        202     NOP                             
+        204     LOAD_CONST                      19: (30, None)
+        206     NOP                             
+        208     LOAD_CONST                      20: ('rng', 'np.random.Generator | None')
+        210     LOAD_CONST                      13: <CODE> synth_cursor_blob
+        212     MAKE_FUNCTION                   
+        214     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        216     SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+        218     STORE_NAME                      32: synth_cursor_blob
+        220     LOAD_CONST                      21: ('return', 'int')
+        222     LOAD_CONST                      14: <CODE> main
+        224     MAKE_FUNCTION                   
+        226     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        228     STORE_NAME                      33: main
+        230     LOAD_NAME                       34: __name__
+        232     LOAD_CONST                      15: '__main__'
+        234     COMPARE_OP                      88 (==)
+        238     POP_JUMP_IF_FALSE               13 (to 266)
+        242     LOAD_NAME                       35: SystemExit
+        244     PUSH_NULL                       
+        246     LOAD_NAME                       33: main
+        248     PUSH_NULL                       
+        250     CALL                            0
+        258     CALL                            1
+        266     RAISE_VARARGS                   1
+        268     RETURN_CONST                    3: None
+    [Exception Table]

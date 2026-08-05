@@ -1,0 +1,836 @@
+tracker.pyc (Python 3.13)
+[Code]
+    File Name: tracker.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 5
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'dataclasses'
+        'dataclass'
+        'field'
+        'time'
+        'typing'
+        'Iterable'
+        'numpy'
+        'np'
+        'config'
+        'TrackerCfg'
+        'homography'
+        'apply_h_batch'
+        'processing'
+        'dbscan_centroids'
+        'Track'
+        'Tracker'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — Etapa 4: tracking de cursores com IDs persistentes.\n\nPipeline por frame:\n  pontos foreground (mm) → DBSCAN → centróides → associação nearest-neighbor\n  com gating → tracks atualizados/novos → expira não-vistos por timeout\n  → aplica homografia em cada track → (u, v) em [0,1].\n\nCada Track tem ID estável (incrementado globalmente). A confidence sobe\ngradualmente até 1.0 nos primeiros N frames de vida e cai pra zero quando\no track não é visto há muito tempo. Suavização exponencial opcional no (x,y)\ndo plano do sensor pra reduzir jitter visual.\n'
+        0
+        (
+            'annotations'
+        )
+        (
+            'dataclass'
+            'field'
+        )
+        None
+        (
+            'Iterable'
+        )
+        (
+            'TrackerCfg'
+        )
+        (
+            'apply_h_batch'
+        )
+        (
+            'dbscan_centroids'
+        )
+        [Code]
+            File Name: tracker.py
+            Object Name: Track
+            Qualified Name: Track
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__annotations__'
+                'u'
+                'v'
+                'last_seen'
+                'first_seen'
+                'age_frames'
+                'confidence'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'Track'
+                27
+                'int'
+                'id'
+                'float'
+                'x_mm'
+                'y_mm'
+                0
+                'u'
+                'v'
+                'last_seen'
+                'first_seen'
+                0
+                'age_frames'
+                'confidence'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'Track'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 27
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 'int'
+                18      LOAD_NAME                       4: __annotations__
+                20      LOAD_CONST                      3: 'id'
+                22      STORE_SUBSCR                    
+                26      LOAD_CONST                      4: 'float'
+                28      LOAD_NAME                       4: __annotations__
+                30      LOAD_CONST                      5: 'x_mm'
+                32      STORE_SUBSCR                    
+                36      LOAD_CONST                      4: 'float'
+                38      LOAD_NAME                       4: __annotations__
+                40      LOAD_CONST                      6: 'y_mm'
+                42      STORE_SUBSCR                    
+                46      LOAD_CONST                      7: 0
+                48      STORE_NAME                      5: u
+                50      LOAD_CONST                      4: 'float'
+                52      LOAD_NAME                       4: __annotations__
+                54      LOAD_CONST                      8: 'u'
+                56      STORE_SUBSCR                    
+                60      LOAD_CONST                      7: 0
+                62      STORE_NAME                      6: v
+                64      LOAD_CONST                      4: 'float'
+                66      LOAD_NAME                       4: __annotations__
+                68      LOAD_CONST                      9: 'v'
+                70      STORE_SUBSCR                    
+                74      LOAD_CONST                      7: 0
+                76      STORE_NAME                      7: last_seen
+                78      LOAD_CONST                      4: 'float'
+                80      LOAD_NAME                       4: __annotations__
+                82      LOAD_CONST                      10: 'last_seen'
+                84      STORE_SUBSCR                    
+                88      LOAD_CONST                      7: 0
+                90      STORE_NAME                      8: first_seen
+                92      LOAD_CONST                      4: 'float'
+                94      LOAD_NAME                       4: __annotations__
+                96      LOAD_CONST                      11: 'first_seen'
+                98      STORE_SUBSCR                    
+                102     LOAD_CONST                      12: 0
+                104     STORE_NAME                      9: age_frames
+                106     LOAD_CONST                      2: 'int'
+                108     LOAD_NAME                       4: __annotations__
+                110     LOAD_CONST                      13: 'age_frames'
+                112     STORE_SUBSCR                    
+                116     LOAD_CONST                      7: 0
+                118     STORE_NAME                      10: confidence
+                120     LOAD_CONST                      4: 'float'
+                122     LOAD_NAME                       4: __annotations__
+                124     LOAD_CONST                      14: 'confidence'
+                126     STORE_SUBSCR                    
+                130     LOAD_CONST                      15: ()
+                132     STORE_NAME                      11: __static_attributes__
+                134     RETURN_CONST                    16: None
+            [Exception Table]
+        'Track'
+        [Code]
+            File Name: tracker.py
+            Object Name: Tracker
+            Qualified Name: Tracker
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__doc__'
+                '__init__'
+                'property'
+                'tracks'
+                'update'
+                'reset'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'Tracker'
+                40
+                'Mantém uma lista de Track com IDs persistentes.'
+                [Code]
+                    File Name: tracker.py
+                    Object Name: __init__
+                    Qualified Name: Tracker.__init__
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 2
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'cfg'
+                        '_tracks'
+                        '_next_id'
+                    [Locals+Names]
+                        'self'
+                        'cfg'
+                    [Constants]
+                        None
+                        1
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST_LOAD_FAST             16: cfg, self
+                        4       STORE_ATTR                      0: cfg
+                        14      BUILD_LIST                      0
+                        16      LOAD_FAST                       0: self
+                        18      STORE_ATTR                      1: _tracks
+                        28      LOAD_CONST                      1: 1
+                        30      LOAD_FAST                       0: self
+                        32      STORE_ATTR                      2: _next_id
+                        42      RETURN_CONST                    0: None
+                    [Exception Table]
+                [Code]
+                    File Name: tracker.py
+                    Object Name: tracks
+                    Qualified Name: Tracker.tracks
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_tracks'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        'Lista mutável dos tracks ativos atuais (não copia — leitura).'
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _tracks
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                None
+                [Code]
+                    File Name: tracker.py
+                    Object Name: update
+                    Qualified Name: Tracker.update
+                    Arg Count: 4
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 14
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'time'
+                        'monotonic'
+                        'cfg'
+                        'dbscan_centroids'
+                        'dbscan_eps_mm'
+                        'dbscan_min_samples'
+                        'enumerate'
+                        '_tracks'
+                        'x_mm'
+                        'y_mm'
+                        'match_dist_mm'
+                        'append'
+                        'sort'
+                        'len'
+                        'smoothing'
+                        'last_seen'
+                        'age_frames'
+                        'min'
+                        'max'
+                        'confidence_frames'
+                        'confidence'
+                        'max_tracks'
+                        'Track'
+                        '_next_id'
+                        'timeout_s'
+                        'np'
+                        'array'
+                        'float'
+                        'apply_h_batch'
+                        'zip'
+                        'u'
+                        'v'
+                    [Locals+Names]
+                        'self'
+                        'fg_points_xy'
+                        'H'
+                        'now'
+                        'cfg'
+                        'centroids'
+                        'pairs'
+                        'ci'
+                        'cx'
+                        'cy'
+                        'n'
+                        'ti'
+                        'tr'
+                        'd2'
+                        'used_t'
+                        'used_c'
+                        'a'
+                        '_d2'
+                        '_n'
+                        't'
+                        'xy'
+                        'uv'
+                        'u'
+                        'v'
+                    [Constants]
+                        'Atualiza tracks dado o conjunto de pontos foreground deste frame.\n\nArgs:\n    fg_points_xy: array (N, 2) de pontos foreground em mm no plano\n                  do sensor. Pode estar vazio.\n    H: matriz 3x3 da homografia LIDAR→(u,v). Se None, (u,v) ficam 0.\n    now: time.monotonic() opcional (pra testes determinísticos).\n'
+                        2
+                        False
+                        True
+                        1
+                        1
+                        (
+                            'id'
+                            'x_mm'
+                            'y_mm'
+                            'last_seen'
+                            'first_seen'
+                            'age_frames'
+                            'confidence'
+                        )
+                        (
+                            'dtype'
+                        )
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       3: now
+                        4       POP_JUMP_IF_NOT_NONE            21 (to 48)
+                        8       LOAD_GLOBAL                     0: time
+                        18      LOAD_ATTR                       2: monotonic
+                        38      PUSH_NULL                       
+                        40      CALL                            0
+                        48      STORE_FAST                      3: now
+                        50      LOAD_FAST                       0: self
+                        52      LOAD_ATTR                       4: cfg
+                        72      STORE_FAST                      4: cfg
+                        74      LOAD_GLOBAL                     7: NULL + dbscan_centroids
+                        84      LOAD_FAST_LOAD_FAST             20: fg_points_xy, cfg
+                        86      LOAD_ATTR                       8: dbscan_eps_mm
+                        106     LOAD_FAST                       4: cfg
+                        108     LOAD_ATTR                       10: dbscan_min_samples
+                        128     CALL                            3
+                        136     STORE_FAST                      5: centroids
+                        138     BUILD_LIST                      0
+                        140     STORE_FAST                      6: pairs
+                        142     LOAD_GLOBAL                     13: NULL + enumerate
+                        152     LOAD_FAST                       5: centroids
+                        154     CALL                            1
+                        162     GET_ITER                        
+                        164     FOR_ITER                        115 (to 396)
+                        168     UNPACK_SEQUENCE                 2
+                        172     STORE_FAST                      7: ci
+                        174     UNPACK_SEQUENCE                 2
+                        178     UNPACK_SEQUENCE                 2
+                        182     STORE_FAST_STORE_FAST           137: cx, cy
+                        184     STORE_FAST                      10: n
+                        186     LOAD_GLOBAL                     13: NULL + enumerate
+                        196     LOAD_FAST                       0: self
+                        198     LOAD_ATTR                       14: _tracks
+                        218     CALL                            1
+                        226     GET_ITER                        
+                        228     FOR_ITER                        79 (to 388)
+                        232     UNPACK_SEQUENCE                 2
+                        236     STORE_FAST_STORE_FAST           188: ti, tr
+                        238     LOAD_FAST_LOAD_FAST             140: cx, tr
+                        240     LOAD_ATTR                       16: x_mm
+                        260     BINARY_OP                       10 (-)
+                        264     LOAD_CONST                      1: 2
+                        266     BINARY_OP                       8 (**)
+                        270     LOAD_FAST_LOAD_FAST             156: cy, tr
+                        272     LOAD_ATTR                       18: y_mm
+                        292     BINARY_OP                       10 (-)
+                        296     LOAD_CONST                      1: 2
+                        298     BINARY_OP                       8 (**)
+                        302     BINARY_OP                       0 (+)
+                        306     STORE_FAST                      13: d2
+                        308     LOAD_FAST_LOAD_FAST             212: d2, cfg
+                        310     LOAD_ATTR                       20: match_dist_mm
+                        330     LOAD_CONST                      1: 2
+                        332     BINARY_OP                       8 (**)
+                        336     COMPARE_OP                      58 (<=)
+                        340     POP_JUMP_IF_TRUE                2 (to 346)
+                        344     JUMP_BACKWARD                   60 (to 226)
+                        348     LOAD_FAST                       6: pairs
+                        350     LOAD_ATTR                       23: append
+                        370     LOAD_FAST_LOAD_FAST             219: d2, ti
+                        372     LOAD_FAST                       7: ci
+                        374     BUILD_TUPLE                     3
+                        376     CALL                            1
+                        384     POP_TOP                         
+                        386     JUMP_BACKWARD                   81 (to 226)
+                        390     END_FOR                         
+                        392     POP_TOP                         
+                        394     JUMP_BACKWARD                   117 (to 162)
+                        398     END_FOR                         
+                        400     POP_TOP                         
+                        402     LOAD_FAST                       6: pairs
+                        404     LOAD_ATTR                       25: sort
+                        424     CALL                            0
+                        432     POP_TOP                         
+                        434     LOAD_CONST                      2: False
+                        436     BUILD_LIST                      1
+                        438     LOAD_GLOBAL                     27: NULL + len
+                        448     LOAD_FAST                       0: self
+                        450     LOAD_ATTR                       14: _tracks
+                        470     CALL                            1
+                        478     BINARY_OP                       5 (*)
+                        482     STORE_FAST                      14: used_t
+                        484     LOAD_CONST                      2: False
+                        486     BUILD_LIST                      1
+                        488     LOAD_GLOBAL                     27: NULL + len
+                        498     LOAD_FAST                       5: centroids
+                        500     CALL                            1
+                        508     BINARY_OP                       5 (*)
+                        512     STORE_FAST                      15: used_c
+                        514     LOAD_FAST                       4: cfg
+                        516     LOAD_ATTR                       28: smoothing
+                        536     STORE_FAST                      16: a
+                        538     LOAD_FAST                       6: pairs
+                        540     GET_ITER                        
+                        542     FOR_ITER                        193 (to 930)
+                        546     UNPACK_SEQUENCE                 3
+                        550     STORE_FAST                      17: _d2
+                        552     STORE_FAST_STORE_FAST           183: ti, ci
+                        554     LOAD_FAST_LOAD_FAST             235: used_t, ti
+                        556     BINARY_SUBSCR                   
+                        560     TO_BOOL                         
+                        568     POP_JUMP_IF_TRUE                9 (to 588)
+                        572     LOAD_FAST_LOAD_FAST             247: used_c, ci
+                        574     BINARY_SUBSCR                   
+                        578     TO_BOOL                         
+                        586     POP_JUMP_IF_FALSE               2 (to 592)
+                        590     JUMP_BACKWARD                   26 (to 540)
+                        594     LOAD_CONST                      3: True
+                        596     COPY                            1
+                        598     LOAD_FAST_LOAD_FAST             235: used_t, ti
+                        600     STORE_SUBSCR                    
+                        604     LOAD_FAST_LOAD_FAST             247: used_c, ci
+                        606     STORE_SUBSCR                    
+                        610     LOAD_FAST_LOAD_FAST             87: centroids, ci
+                        612     BINARY_SUBSCR                   
+                        616     UNPACK_SEQUENCE                 2
+                        620     UNPACK_SEQUENCE                 2
+                        624     STORE_FAST_STORE_FAST           137: cx, cy
+                        626     STORE_FAST                      18: _n
+                        628     LOAD_FAST                       0: self
+                        630     LOAD_ATTR                       14: _tracks
+                        650     LOAD_FAST                       11: ti
+                        652     BINARY_SUBSCR                   
+                        656     STORE_FAST                      12: tr
+                        658     LOAD_FAST                       16: a
+                        660     LOAD_FAST                       12: tr
+                        662     LOAD_ATTR                       16: x_mm
+                        682     BINARY_OP                       5 (*)
+                        686     LOAD_CONST                      4: 1
+                        688     LOAD_FAST                       16: a
+                        690     BINARY_OP                       10 (-)
+                        694     LOAD_FAST                       8: cx
+                        696     BINARY_OP                       5 (*)
+                        700     BINARY_OP                       0 (+)
+                        704     LOAD_FAST                       12: tr
+                        706     STORE_ATTR                      8: x_mm
+                        716     LOAD_FAST                       16: a
+                        718     LOAD_FAST                       12: tr
+                        720     LOAD_ATTR                       18: y_mm
+                        740     BINARY_OP                       5 (*)
+                        744     LOAD_CONST                      4: 1
+                        746     LOAD_FAST                       16: a
+                        748     BINARY_OP                       10 (-)
+                        752     LOAD_FAST                       9: cy
+                        754     BINARY_OP                       5 (*)
+                        758     BINARY_OP                       0 (+)
+                        762     LOAD_FAST                       12: tr
+                        764     STORE_ATTR                      9: y_mm
+                        774     LOAD_FAST_LOAD_FAST             60: now, tr
+                        776     STORE_ATTR                      15: last_seen
+                        786     LOAD_FAST                       12: tr
+                        788     COPY                            1
+                        790     LOAD_ATTR                       32: age_frames
+                        810     LOAD_CONST                      4: 1
+                        812     BINARY_OP                       13 (+=)
+                        816     SWAP                            2
+                        818     STORE_ATTR                      16: age_frames
+                        828     LOAD_GLOBAL                     35: NULL + min
+                        838     LOAD_CONST                      5: 1
+                        840     LOAD_FAST                       12: tr
+                        842     LOAD_ATTR                       32: age_frames
+                        862     LOAD_GLOBAL                     37: NULL + max
+                        872     LOAD_FAST                       4: cfg
+                        874     LOAD_ATTR                       38: confidence_frames
+                        894     LOAD_CONST                      4: 1
+                        896     CALL                            2
+                        904     BINARY_OP                       11 (/)
+                        908     CALL                            2
+                        916     LOAD_FAST                       12: tr
+                        918     STORE_ATTR                      20: confidence
+                        928     JUMP_BACKWARD                   195 (to 540)
+                        932     END_FOR                         
+                        934     POP_TOP                         
+                        936     LOAD_GLOBAL                     13: NULL + enumerate
+                        946     LOAD_FAST                       5: centroids
+                        948     CALL                            1
+                        956     GET_ITER                        
+                        958     FOR_ITER                        153 (to 1266)
+                        962     UNPACK_SEQUENCE                 2
+                        966     STORE_FAST                      7: ci
+                        968     UNPACK_SEQUENCE                 2
+                        972     UNPACK_SEQUENCE                 2
+                        976     STORE_FAST_STORE_FAST           137: cx, cy
+                        978     STORE_FAST                      10: n
+                        980     LOAD_FAST_LOAD_FAST             247: used_c, ci
+                        982     BINARY_SUBSCR                   
+                        986     TO_BOOL                         
+                        994     POP_JUMP_IF_FALSE               2 (to 1000)
+                        998     JUMP_BACKWARD                   22 (to 956)
+                        1002    LOAD_GLOBAL                     27: NULL + len
+                        1012    LOAD_FAST                       0: self
+                        1014    LOAD_ATTR                       14: _tracks
+                        1034    CALL                            1
+                        1042    LOAD_FAST                       4: cfg
+                        1044    LOAD_ATTR                       42: max_tracks
+                        1064    COMPARE_OP                      188 (>=)
+                        1068    POP_JUMP_IF_FALSE               2 (to 1074)
+                        1072    POP_TOP                         
+                        1074    JUMP_FORWARD                    98 (to 1272)
+                        1076    LOAD_GLOBAL                     45: NULL + Track
+                        1086    LOAD_FAST                       0: self
+                        1088    LOAD_ATTR                       46: _next_id
+                        1108    LOAD_FAST_LOAD_FAST             137: cx, cy
+                        1110    LOAD_FAST_LOAD_FAST             51: now, now
+                        1112    LOAD_CONST                      4: 1
+                        1114    LOAD_CONST                      5: 1
+                        1116    LOAD_GLOBAL                     37: NULL + max
+                        1126    LOAD_FAST                       4: cfg
+                        1128    LOAD_ATTR                       38: confidence_frames
+                        1148    LOAD_CONST                      4: 1
+                        1150    CALL                            2
+                        1158    BINARY_OP                       11 (/)
+                        1162    LOAD_CONST                      6: ('id', 'x_mm', 'y_mm', 'last_seen', 'first_seen', 'age_frames', 'confidence')
+                        1164    CALL_KW                         7
+                        1166    STORE_FAST                      19: t
+                        1168    LOAD_FAST                       0: self
+                        1170    LOAD_ATTR                       14: _tracks
+                        1190    LOAD_ATTR                       23: append
+                        1210    LOAD_FAST                       19: t
+                        1212    CALL                            1
+                        1220    POP_TOP                         
+                        1222    LOAD_FAST                       0: self
+                        1224    COPY                            1
+                        1226    LOAD_ATTR                       46: _next_id
+                        1246    LOAD_CONST                      4: 1
+                        1248    BINARY_OP                       13 (+=)
+                        1252    SWAP                            2
+                        1254    STORE_ATTR                      23: _next_id
+                        1264    JUMP_BACKWARD                   155 (to 956)
+                        1268    END_FOR                         
+                        1270    POP_TOP                         
+                        1272    LOAD_FAST                       0: self
+                        1274    LOAD_ATTR                       14: _tracks
+                        1294    GET_ITER                        
+                        1296    LOAD_FAST_AND_CLEAR             19: t
+                        1298    SWAP                            2
+                        1300    BUILD_LIST                      0
+                        1302    SWAP                            2
+                        1304    GET_ITER                        
+                        1306    FOR_ITER                        36 (to 1380)
+                        1310    STORE_FAST                      19: t
+                        1312    LOAD_FAST                       3: now
+                        1314    LOAD_FAST                       19: t
+                        1316    LOAD_ATTR                       30: last_seen
+                        1336    BINARY_OP                       10 (-)
+                        1340    LOAD_FAST                       4: cfg
+                        1342    LOAD_ATTR                       48: timeout_s
+                        1362    COMPARE_OP                      58 (<=)
+                        1366    POP_JUMP_IF_TRUE                2 (to 1372)
+                        1370    JUMP_BACKWARD                   34 (to 1304)
+                        1374    LOAD_FAST                       19: t
+                        1376    LIST_APPEND                     2
+                        1378    JUMP_BACKWARD                   38 (to 1304)
+                        1382    END_FOR                         
+                        1384    POP_TOP                         
+                        1386    SWAP                            2
+                        1388    STORE_FAST                      19: t
+                        1390    LOAD_FAST                       0: self
+                        1392    STORE_ATTR                      7: _tracks
+                        1402    LOAD_FAST                       0: self
+                        1404    LOAD_ATTR                       14: _tracks
+                        1424    TO_BOOL                         
+                        1432    POP_JUMP_IF_FALSE               156 (to 1746)
+                        1436    LOAD_FAST                       2: H
+                        1438    POP_JUMP_IF_NONE                153 (to 1746)
+                        1442    LOAD_GLOBAL                     50: np
+                        1452    LOAD_ATTR                       52: array
+                        1472    PUSH_NULL                       
+                        1474    LOAD_FAST                       0: self
+                        1476    LOAD_ATTR                       14: _tracks
+                        1496    GET_ITER                        
+                        1498    LOAD_FAST_AND_CLEAR             19: t
+                        1500    SWAP                            2
+                        1502    BUILD_LIST                      0
+                        1504    SWAP                            2
+                        1506    GET_ITER                        
+                        1508    FOR_ITER                        27 (to 1564)
+                        1512    STORE_FAST                      19: t
+                        1514    LOAD_FAST                       19: t
+                        1516    LOAD_ATTR                       16: x_mm
+                        1536    LOAD_FAST                       19: t
+                        1538    LOAD_ATTR                       18: y_mm
+                        1558    BUILD_TUPLE                     2
+                        1560    LIST_APPEND                     2
+                        1562    JUMP_BACKWARD                   29 (to 1506)
+                        1566    END_FOR                         
+                        1568    POP_TOP                         
+                        1570    SWAP                            2
+                        1572    STORE_FAST                      19: t
+                        1574    LOAD_GLOBAL                     54: float
+                        1584    LOAD_CONST                      7: ('dtype',)
+                        1586    CALL_KW                         2
+                        1588    STORE_FAST                      20: xy
+                        1590    LOAD_GLOBAL                     57: NULL + apply_h_batch
+                        1600    LOAD_FAST                       2: H
+                        1602    LOAD_FAST                       20: xy
+                        1604    CALL                            2
+                        1612    STORE_FAST                      21: uv
+                        1614    LOAD_GLOBAL                     59: NULL + zip
+                        1624    LOAD_FAST                       0: self
+                        1626    LOAD_ATTR                       14: _tracks
+                        1646    LOAD_FAST                       21: uv
+                        1648    CALL                            2
+                        1656    GET_ITER                        
+                        1658    FOR_ITER                        41 (to 1742)
+                        1662    UNPACK_SEQUENCE                 2
+                        1666    STORE_FAST                      12: tr
+                        1668    UNPACK_SEQUENCE                 2
+                        1672    STORE_FAST                      22: u
+                        1674    STORE_FAST                      23: v
+                        1676    LOAD_GLOBAL                     55: NULL + float
+                        1686    LOAD_FAST                       22: u
+                        1688    CALL                            1
+                        1696    LOAD_FAST                       12: tr
+                        1698    STORE_ATTR                      30: u
+                        1708    LOAD_GLOBAL                     55: NULL + float
+                        1718    LOAD_FAST                       23: v
+                        1720    CALL                            1
+                        1728    LOAD_FAST                       12: tr
+                        1730    STORE_ATTR                      31: v
+                        1740    JUMP_BACKWARD                   43 (to 1656)
+                        1744    END_FOR                         
+                        1746    POP_TOP                         
+                        1748    LOAD_FAST                       0: self
+                        1750    LOAD_ATTR                       14: _tracks
+                        1770    RETURN_VALUE                    
+                        1772    SWAP                            2
+                        1774    POP_TOP                         
+                        1776    SWAP                            2
+                        1778    STORE_FAST                      19: t
+                        1780    RERAISE                         0
+                        1782    SWAP                            2
+                        1784    POP_TOP                         
+                        1786    SWAP                            2
+                        1788    STORE_FAST                      19: t
+                        1790    RERAISE                         0
+                    [Exception Table]
+                        1300 to 1366 -> 1772 [2] 
+                        1374 to 1386 -> 1772 [2] 
+                        1502 to 1570 -> 1782 [4] 
+                [Code]
+                    File Name: tracker.py
+                    Object Name: reset
+                    Qualified Name: Tracker.reset
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 2
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_tracks'
+                        'clear'
+                        '_next_id'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                        1
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _tracks
+                        24      LOAD_ATTR                       3: clear
+                        44      CALL                            0
+                        52      POP_TOP                         
+                        54      LOAD_CONST                      1: 1
+                        56      LOAD_FAST                       0: self
+                        58      STORE_ATTR                      2: _next_id
+                        68      RETURN_CONST                    0: None
+                    [Exception Table]
+                (
+                    '_next_id'
+                    '_tracks'
+                    'cfg'
+                )
+                (
+                    'cfg'
+                    'TrackerCfg'
+                )
+                (
+                    'return'
+                    'list[Track]'
+                )
+                (
+                    None
+                )
+                (
+                    'fg_points_xy'
+                    'np.ndarray'
+                    'H'
+                    'np.ndarray | None'
+                    'now'
+                    'float | None'
+                    'return'
+                    'list[Track]'
+                )
+                (
+                    'return'
+                    'None'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'Tracker'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 40
+                12      STORE_NAME                      3: __firstlineno__
+                14      LOAD_CONST                      2: 'Mantém uma lista de Track com IDs persistentes.'
+                16      STORE_NAME                      4: __doc__
+                18      LOAD_CONST                      9: ('cfg', 'TrackerCfg')
+                20      LOAD_CONST                      3: <CODE> __init__
+                22      MAKE_FUNCTION                   
+                24      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                26      STORE_NAME                      5: __init__
+                28      LOAD_NAME                       6: property
+                30      LOAD_CONST                      10: ('return', 'list[Track]')
+                32      LOAD_CONST                      4: <CODE> tracks
+                34      MAKE_FUNCTION                   
+                36      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                38      CALL                            0
+                46      STORE_NAME                      7: tracks
+                48      NOP                             
+                50      LOAD_CONST                      11: (None,)
+                52      NOP                             
+                54      NOP                             
+                56      NOP                             
+                58      LOAD_CONST                      12: ('fg_points_xy', 'np.ndarray', 'H', 'np.ndarray | None', 'now', 'float | None', 'return', 'list[Track]')
+                60      LOAD_CONST                      6: <CODE> update
+                62      MAKE_FUNCTION                   
+                64      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                66      SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+                68      STORE_NAME                      8: update
+                70      LOAD_CONST                      13: ('return', 'None')
+                72      LOAD_CONST                      7: <CODE> reset
+                74      MAKE_FUNCTION                   
+                76      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                78      STORE_NAME                      9: reset
+                80      LOAD_CONST                      8: ('_next_id', '_tracks', 'cfg')
+                82      STORE_NAME                      10: __static_attributes__
+                84      RETURN_CONST                    5: None
+            [Exception Table]
+        'Tracker'
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — Etapa 4: tracking de cursores com IDs persistentes.\n\nPipeline por frame:\n  pontos foreground (mm) → DBSCAN → centróides → associação nearest-neighbor\n  com gating → tracks atualizados/novos → expira não-vistos por timeout\n  → aplica homografia em cada track → (u, v) em [0,1].\n\nCada Track tem ID estável (incrementado globalmente). A confidence sobe\ngradualmente até 1.0 nos primeiros N frames de vida e cai pra zero quando\no track não é visto há muito tempo. Suavização exponencial opcional no (x,y)\ndo plano do sensor pra reduzir jitter visual.\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: ('dataclass', 'field')
+        22      IMPORT_NAME                     3: dataclasses
+        24      IMPORT_FROM                     4: dataclass
+        26      STORE_NAME                      4: dataclass
+        28      IMPORT_FROM                     5: field
+        30      STORE_NAME                      5: field
+        32      POP_TOP                         
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      4: None
+        38      IMPORT_NAME                     6: time
+        40      STORE_NAME                      6: time
+        42      LOAD_CONST                      1: 0
+        44      LOAD_CONST                      5: ('Iterable',)
+        46      IMPORT_NAME                     7: typing
+        48      IMPORT_FROM                     8: Iterable
+        50      STORE_NAME                      8: Iterable
+        52      POP_TOP                         
+        54      LOAD_CONST                      1: 0
+        56      LOAD_CONST                      4: None
+        58      IMPORT_NAME                     9: numpy
+        60      STORE_NAME                      10: np
+        62      LOAD_CONST                      1: 0
+        64      LOAD_CONST                      6: ('TrackerCfg',)
+        66      IMPORT_NAME                     11: config
+        68      IMPORT_FROM                     12: TrackerCfg
+        70      STORE_NAME                      12: TrackerCfg
+        72      POP_TOP                         
+        74      LOAD_CONST                      1: 0
+        76      LOAD_CONST                      7: ('apply_h_batch',)
+        78      IMPORT_NAME                     13: homography
+        80      IMPORT_FROM                     14: apply_h_batch
+        82      STORE_NAME                      14: apply_h_batch
+        84      POP_TOP                         
+        86      LOAD_CONST                      1: 0
+        88      LOAD_CONST                      8: ('dbscan_centroids',)
+        90      IMPORT_NAME                     15: processing
+        92      IMPORT_FROM                     16: dbscan_centroids
+        94      STORE_NAME                      16: dbscan_centroids
+        96      POP_TOP                         
+        98      LOAD_NAME                       4: dataclass
+        100     LOAD_BUILD_CLASS                
+        102     PUSH_NULL                       
+        104     LOAD_CONST                      9: <CODE> Track
+        106     MAKE_FUNCTION                   
+        108     LOAD_CONST                      10: 'Track'
+        110     CALL                            2
+        118     CALL                            0
+        126     STORE_NAME                      17: Track
+        128     LOAD_BUILD_CLASS                
+        130     PUSH_NULL                       
+        132     LOAD_CONST                      11: <CODE> Tracker
+        134     MAKE_FUNCTION                   
+        136     LOAD_CONST                      12: 'Tracker'
+        138     CALL                            2
+        146     STORE_NAME                      18: Tracker
+        148     RETURN_CONST                    4: None
+    [Exception Table]

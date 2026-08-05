@@ -1,0 +1,1507 @@
+test_viz.pyc (Python 3.13)
+[Code]
+    File Name: test_viz.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 4
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'argparse'
+        'math'
+        'sys'
+        'time'
+        'pygame'
+        'config'
+        'cfg_mod'
+        'lidar_reader'
+        'LidarReader'
+        'processing'
+        'project_batch'
+        'split_by_roi'
+        'world_to_screen'
+        'draw_grid'
+        'draw_roi'
+        'main'
+        '__name__'
+        'SystemExit'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — teste da Etapa 2: visualização 2D dos pontos filtrados.\n\nJanela pygame mostrando, ao vivo:\n  - sensor no centro\n  - eixos cinza + grade a cada 1 m\n  - ROI configurada (config.yaml) desenhada em amarelo\n  - pontos DENTRO da ROI em verde, pontos FORA em cinza\n  - HUD com FPS de leitura, FPS de viz, scans/s, contagem de pontos,\n    porta e status\n\nTeclas:\n  ESC, Q : sair\n  + / -  : zoom (altera scale_mm_per_px em runtime)\n  R      : reset zoom (volta ao valor do config)\n  TAB    : alterna mostrar/ocultar pontos fora da ROI\n\nConvenção visual: +x do sensor aponta pra DIREITA, +y aponta pra CIMA\n(coordenadas matemáticas). O pygame tem y crescendo pra baixo, então\nfazemos `py = h/2 - y/scale`.\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'LidarReader'
+        )
+        (
+            'project_batch'
+            'split_by_roi'
+        )
+        [Code]
+            File Name: test_viz.py
+            Object Name: world_to_screen
+            Qualified Name: world_to_screen
+            Arg Count: 5
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 6
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'int'
+            [Locals+Names]
+                'x_mm'
+                'y_mm'
+                'w'
+                'h'
+                'scale'
+            [Constants]
+                'Sensor em (w/2, h/2), +y do mundo aponta pra cima.'
+                2
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     1: NULL + int
+                12      LOAD_FAST                       2: w
+                14      LOAD_CONST                      1: 2
+                16      BINARY_OP                       11 (/)
+                20      LOAD_FAST_LOAD_FAST             4: x_mm, scale
+                22      BINARY_OP                       11 (/)
+                26      BINARY_OP                       0 (+)
+                30      CALL                            1
+                38      LOAD_GLOBAL                     1: NULL + int
+                48      LOAD_FAST                       3: h
+                50      LOAD_CONST                      1: 2
+                52      BINARY_OP                       11 (/)
+                56      LOAD_FAST_LOAD_FAST             20: y_mm, scale
+                58      BINARY_OP                       11 (/)
+                62      BINARY_OP                       10 (-)
+                66      CALL                            1
+                74      BUILD_TUPLE                     2
+                76      RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: test_viz.py
+            Object Name: draw_grid
+            Qualified Name: draw_grid
+            Arg Count: 4
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 9
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'int'
+                'range'
+                'pygame'
+                'draw'
+                'line'
+                'max'
+                'circle'
+            [Locals+Names]
+                'surf'
+                'w'
+                'h'
+                'scale'
+                'g'
+                'axis'
+                'step_mm'
+                'cx'
+                'cy'
+                'n'
+                'i'
+                'x'
+                'y'
+                'r_mm'
+                'r'
+            [Constants]
+                'Grade a cada 1 m + eixos + círculos em 1, 2, 3, 5 m.'
+                (
+                    40
+                    40
+                    40
+                )
+                (
+                    70
+                    70
+                    70
+                )
+                1000
+                2
+                1
+                0
+                (
+                    1000
+                    2000
+                    3000
+                    5000
+                )
+                (
+                    50
+                    50
+                    50
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_CONST                      1: (40, 40, 40)
+                4       STORE_FAST                      4: g
+                6       LOAD_CONST                      2: (70, 70, 70)
+                8       STORE_FAST                      5: axis
+                10      LOAD_CONST                      3: 1000
+                12      STORE_FAST                      6: step_mm
+                14      LOAD_FAST                       1: w
+                16      LOAD_CONST                      4: 2
+                18      BINARY_OP                       11 (/)
+                22      LOAD_FAST                       2: h
+                24      LOAD_CONST                      4: 2
+                26      BINARY_OP                       11 (/)
+                30      STORE_FAST_STORE_FAST           135: cy, cx
+                32      LOAD_GLOBAL                     1: NULL + int
+                42      LOAD_FAST                       1: w
+                44      LOAD_CONST                      4: 2
+                46      BINARY_OP                       11 (/)
+                50      LOAD_FAST_LOAD_FAST             99: step_mm, scale
+                52      BINARY_OP                       11 (/)
+                56      BINARY_OP                       11 (/)
+                60      CALL                            1
+                68      LOAD_CONST                      5: 1
+                70      BINARY_OP                       0 (+)
+                74      STORE_FAST                      9: n
+                76      LOAD_GLOBAL                     3: NULL + range
+                86      LOAD_FAST                       9: n
+                88      UNARY_NEGATIVE                  
+                90      LOAD_FAST                       9: n
+                92      LOAD_CONST                      5: 1
+                94      BINARY_OP                       0 (+)
+                98      CALL                            2
+                106     GET_ITER                        
+                108     FOR_ITER                        58 (to 226)
+                112     STORE_FAST                      10: i
+                114     LOAD_GLOBAL                     1: NULL + int
+                124     LOAD_FAST_LOAD_FAST             122: cx, i
+                126     LOAD_FAST                       6: step_mm
+                128     BINARY_OP                       5 (*)
+                132     LOAD_FAST                       3: scale
+                134     BINARY_OP                       11 (/)
+                138     BINARY_OP                       0 (+)
+                142     CALL                            1
+                150     STORE_FAST                      11: x
+                152     LOAD_GLOBAL                     4: pygame
+                162     LOAD_ATTR                       6: draw
+                182     LOAD_ATTR                       9: line
+                202     LOAD_FAST_LOAD_FAST             4: surf, g
+                204     LOAD_FAST                       11: x
+                206     LOAD_CONST                      6: 0
+                208     BUILD_TUPLE                     2
+                210     LOAD_FAST_LOAD_FAST             178: x, h
+                212     BUILD_TUPLE                     2
+                214     CALL                            4
+                222     POP_TOP                         
+                224     JUMP_BACKWARD                   60 (to 106)
+                228     END_FOR                         
+                230     POP_TOP                         
+                232     LOAD_GLOBAL                     1: NULL + int
+                242     LOAD_FAST                       2: h
+                244     LOAD_CONST                      4: 2
+                246     BINARY_OP                       11 (/)
+                250     LOAD_FAST_LOAD_FAST             99: step_mm, scale
+                252     BINARY_OP                       11 (/)
+                256     BINARY_OP                       11 (/)
+                260     CALL                            1
+                268     LOAD_CONST                      5: 1
+                270     BINARY_OP                       0 (+)
+                274     STORE_FAST                      9: n
+                276     LOAD_GLOBAL                     3: NULL + range
+                286     LOAD_FAST                       9: n
+                288     UNARY_NEGATIVE                  
+                290     LOAD_FAST                       9: n
+                292     LOAD_CONST                      5: 1
+                294     BINARY_OP                       0 (+)
+                298     CALL                            2
+                306     GET_ITER                        
+                308     FOR_ITER                        58 (to 426)
+                312     STORE_FAST                      10: i
+                314     LOAD_GLOBAL                     1: NULL + int
+                324     LOAD_FAST_LOAD_FAST             138: cy, i
+                326     LOAD_FAST                       6: step_mm
+                328     BINARY_OP                       5 (*)
+                332     LOAD_FAST                       3: scale
+                334     BINARY_OP                       11 (/)
+                338     BINARY_OP                       0 (+)
+                342     CALL                            1
+                350     STORE_FAST                      12: y
+                352     LOAD_GLOBAL                     4: pygame
+                362     LOAD_ATTR                       6: draw
+                382     LOAD_ATTR                       9: line
+                402     LOAD_FAST_LOAD_FAST             4: surf, g
+                404     LOAD_CONST                      6: 0
+                406     LOAD_FAST                       12: y
+                408     BUILD_TUPLE                     2
+                410     LOAD_FAST_LOAD_FAST             28: w, y
+                412     BUILD_TUPLE                     2
+                414     CALL                            4
+                422     POP_TOP                         
+                424     JUMP_BACKWARD                   60 (to 306)
+                428     END_FOR                         
+                430     POP_TOP                         
+                432     LOAD_GLOBAL                     4: pygame
+                442     LOAD_ATTR                       6: draw
+                462     LOAD_ATTR                       9: line
+                482     LOAD_FAST_LOAD_FAST             5: surf, axis
+                484     LOAD_CONST                      6: 0
+                486     LOAD_GLOBAL                     1: NULL + int
+                496     LOAD_FAST                       8: cy
+                498     CALL                            1
+                506     BUILD_TUPLE                     2
+                508     LOAD_FAST                       1: w
+                510     LOAD_GLOBAL                     1: NULL + int
+                520     LOAD_FAST                       8: cy
+                522     CALL                            1
+                530     BUILD_TUPLE                     2
+                532     LOAD_CONST                      5: 1
+                534     CALL                            5
+                542     POP_TOP                         
+                544     LOAD_GLOBAL                     4: pygame
+                554     LOAD_ATTR                       6: draw
+                574     LOAD_ATTR                       9: line
+                594     LOAD_FAST_LOAD_FAST             5: surf, axis
+                596     LOAD_GLOBAL                     1: NULL + int
+                606     LOAD_FAST                       7: cx
+                608     CALL                            1
+                616     LOAD_CONST                      6: 0
+                618     BUILD_TUPLE                     2
+                620     LOAD_GLOBAL                     1: NULL + int
+                630     LOAD_FAST                       7: cx
+                632     CALL                            1
+                640     LOAD_FAST                       2: h
+                642     BUILD_TUPLE                     2
+                644     LOAD_CONST                      5: 1
+                646     CALL                            5
+                654     POP_TOP                         
+                656     LOAD_CONST                      7: (1000, 2000, 3000, 5000)
+                658     GET_ITER                        
+                660     FOR_ITER                        88 (to 838)
+                664     STORE_FAST                      13: r_mm
+                666     LOAD_GLOBAL                     1: NULL + int
+                676     LOAD_FAST_LOAD_FAST             211: r_mm, scale
+                678     BINARY_OP                       11 (/)
+                682     CALL                            1
+                690     STORE_FAST                      14: r
+                692     LOAD_FAST                       14: r
+                694     LOAD_GLOBAL                     11: NULL + max
+                704     LOAD_FAST_LOAD_FAST             18: w, h
+                706     CALL                            2
+                714     COMPARE_OP                      18 (<)
+                718     POP_JUMP_IF_TRUE                2 (to 724)
+                722     JUMP_BACKWARD                   33 (to 658)
+                726     LOAD_GLOBAL                     4: pygame
+                736     LOAD_ATTR                       6: draw
+                756     LOAD_ATTR                       13: circle
+                776     LOAD_FAST                       0: surf
+                778     LOAD_CONST                      8: (50, 50, 50)
+                780     LOAD_GLOBAL                     1: NULL + int
+                790     LOAD_FAST                       7: cx
+                792     CALL                            1
+                800     LOAD_GLOBAL                     1: NULL + int
+                810     LOAD_FAST                       8: cy
+                812     CALL                            1
+                820     BUILD_TUPLE                     2
+                822     LOAD_FAST                       14: r
+                824     LOAD_CONST                      5: 1
+                826     CALL                            5
+                834     POP_TOP                         
+                836     JUMP_BACKWARD                   90 (to 658)
+                840     END_FOR                         
+                842     POP_TOP                         
+                844     RETURN_CONST                    9: None
+            [Exception Table]
+        [Code]
+            File Name: test_viz.py
+            Object Name: draw_roi
+            Qualified Name: draw_roi
+            Arg Count: 5
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 9
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'x_min'
+                'x_max'
+                'y_min'
+                'y_max'
+                'world_to_screen'
+                'pygame'
+                'Rect'
+                'min'
+                'abs'
+                'draw'
+                'rect'
+            [Locals+Names]
+                'surf'
+                'roi'
+                'w'
+                'h'
+                'scale'
+                'x1'
+                'x2'
+                'y1'
+                'y2'
+                'sx1'
+                'sy1'
+                'sx2'
+                'sy2'
+                'rect'
+            [Constants]
+                'Desenha o retângulo da ROI. Limites None viram a borda da tela.'
+                None
+                (
+                    200
+                    180
+                    40
+                )
+                2
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       1: roi
+                4       LOAD_ATTR                       0: x_min
+                24      POP_JUMP_IF_NONE                12 (to 50)
+                28      LOAD_FAST                       1: roi
+                30      LOAD_ATTR                       0: x_min
+                50      JUMP_FORWARD                    5 (to 62)
+                52      LOAD_FAST                       2: w
+                54      UNARY_NEGATIVE                  
+                56      LOAD_FAST                       4: scale
+                58      BINARY_OP                       5 (*)
+                62      STORE_FAST                      5: x1
+                64      LOAD_FAST                       1: roi
+                66      LOAD_ATTR                       2: x_max
+                86      POP_JUMP_IF_NONE                12 (to 112)
+                90      LOAD_FAST                       1: roi
+                92      LOAD_ATTR                       2: x_max
+                112     JUMP_FORWARD                    3 (to 120)
+                114     LOAD_FAST_LOAD_FAST             36: w, scale
+                116     BINARY_OP                       5 (*)
+                120     STORE_FAST                      6: x2
+                122     LOAD_FAST                       1: roi
+                124     LOAD_ATTR                       4: y_min
+                144     POP_JUMP_IF_NONE                12 (to 170)
+                148     LOAD_FAST                       1: roi
+                150     LOAD_ATTR                       4: y_min
+                170     JUMP_FORWARD                    5 (to 182)
+                172     LOAD_FAST                       3: h
+                174     UNARY_NEGATIVE                  
+                176     LOAD_FAST                       4: scale
+                178     BINARY_OP                       5 (*)
+                182     STORE_FAST                      7: y1
+                184     LOAD_FAST                       1: roi
+                186     LOAD_ATTR                       6: y_max
+                206     POP_JUMP_IF_NONE                12 (to 232)
+                210     LOAD_FAST                       1: roi
+                212     LOAD_ATTR                       6: y_max
+                232     JUMP_FORWARD                    3 (to 240)
+                234     LOAD_FAST_LOAD_FAST             52: h, scale
+                236     BINARY_OP                       5 (*)
+                240     STORE_FAST                      8: y2
+                242     LOAD_GLOBAL                     9: NULL + world_to_screen
+                252     LOAD_FAST_LOAD_FAST             88: x1, y2
+                254     LOAD_FAST_LOAD_FAST             35: w, h
+                256     LOAD_FAST                       4: scale
+                258     CALL                            5
+                266     UNPACK_SEQUENCE                 2
+                270     STORE_FAST_STORE_FAST           154: sx1, sy1
+                272     LOAD_GLOBAL                     9: NULL + world_to_screen
+                282     LOAD_FAST_LOAD_FAST             103: x2, y1
+                284     LOAD_FAST_LOAD_FAST             35: w, h
+                286     LOAD_FAST                       4: scale
+                288     CALL                            5
+                296     UNPACK_SEQUENCE                 2
+                300     STORE_FAST_STORE_FAST           188: sx2, sy2
+                302     LOAD_GLOBAL                     10: pygame
+                312     LOAD_ATTR                       12: Rect
+                332     PUSH_NULL                       
+                334     LOAD_GLOBAL                     15: NULL + min
+                344     LOAD_FAST_LOAD_FAST             155: sx1, sx2
+                346     CALL                            2
+                354     LOAD_GLOBAL                     15: NULL + min
+                364     LOAD_FAST_LOAD_FAST             172: sy1, sy2
+                366     CALL                            2
+                374     LOAD_GLOBAL                     17: NULL + abs
+                384     LOAD_FAST_LOAD_FAST             185: sx2, sx1
+                386     BINARY_OP                       10 (-)
+                390     CALL                            1
+                398     LOAD_GLOBAL                     17: NULL + abs
+                408     LOAD_FAST_LOAD_FAST             202: sy2, sy1
+                410     BINARY_OP                       10 (-)
+                414     CALL                            1
+                422     CALL                            4
+                430     STORE_FAST                      13: rect
+                432     LOAD_GLOBAL                     10: pygame
+                442     LOAD_ATTR                       18: draw
+                462     LOAD_ATTR                       21: rect
+                482     LOAD_FAST                       0: surf
+                484     LOAD_CONST                      2: (200, 180, 40)
+                486     LOAD_FAST                       13: rect
+                488     LOAD_CONST                      3: 2
+                490     CALL                            4
+                498     POP_TOP                         
+                500     RETURN_CONST                    1: None
+            [Exception Table]
+        [Code]
+            File Name: test_viz.py
+            Object Name: main
+            Qualified Name: main
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 15
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'argparse'
+                'ArgumentParser'
+                'add_argument'
+                'parse_args'
+                'cfg_mod'
+                'load'
+                'config'
+                'port'
+                'sensor'
+                'LidarReader'
+                'baud'
+                'start'
+                'print'
+                'status'
+                'sys'
+                'stderr'
+                'pygame'
+                'init'
+                'display'
+                'set_caption'
+                'viz'
+                'width'
+                'height'
+                'set_mode'
+                'font'
+                'SysFont'
+                'time'
+                'Clock'
+                'scale_mm_per_px'
+                'event'
+                'get'
+                'type'
+                'QUIT'
+                'KEYDOWN'
+                'key'
+                'K_ESCAPE'
+                'K_q'
+                'K_PLUS'
+                'K_EQUALS'
+                'K_KP_PLUS'
+                'max'
+                'K_MINUS'
+                'K_KP_MINUS'
+                'min'
+                'K_r'
+                'K_TAB'
+                'drain'
+                'project_batch'
+                'processing'
+                'monotonic'
+                'append'
+                'x'
+                'y'
+                'quality'
+                'trail_window_s'
+                'range'
+                'len'
+                'Point2D'
+                'split_by_roi'
+                'roi'
+                'fill'
+                'draw_grid'
+                'draw_roi'
+                'world_to_screen'
+                'set_at'
+                'draw'
+                'circle'
+                'get_fps'
+                'meas_per_sec'
+                'scans_per_sec'
+                'enumerate'
+                'render'
+                'blit'
+                'flip'
+                'tick'
+                'KeyboardInterrupt'
+                'stop'
+                'quit'
+            [Locals+Names]
+                'ap'
+                'args'
+                'cfg'
+                'port_override'
+                'rdr'
+                'w'
+                'h'
+                'screen'
+                'font'
+                'clock'
+                'scale'
+                'scale_default'
+                'show_outside'
+                'trail'
+                'last_print'
+                'viz_fps'
+                'running'
+                'ev'
+                'measurements'
+                'points'
+                'now'
+                'p'
+                'cutoff'
+                'i'
+                'Point2D'
+                'x'
+                'y'
+                '_t'
+                'q'
+                'pts_now'
+                'inside'
+                'outside'
+                'col'
+                'sx'
+                'sy'
+                'hud'
+                'line'
+                'surf'
+            [Constants]
+                None
+                '--config'
+                'caminho do config.yaml (default: ./config.yaml)'
+                (
+                    'default'
+                    'help'
+                )
+                '--port'
+                'sobrescreve sensor.port do YAML'
+                (
+                    'port'
+                    'baud'
+                )
+                '[viz] não iniciou: '
+                (
+                    'file'
+                )
+                1
+                'LidarMapper — Etapa 2 (filtragem + ROI)'
+                'consolas'
+                14
+                True
+                0
+                False
+                1
+                0.8
+                200
+                1.25
+                0
+                2
+                (
+                    'Point2D'
+                )
+                (
+                    'x'
+                    'y'
+                    'quality'
+                    'angle'
+                    'distance'
+                )
+                (
+                    10
+                    10
+                    14
+                )
+                (
+                    90
+                    90
+                    100
+                )
+                (
+                    60
+                    220
+                    90
+                )
+                (
+                    240
+                    80
+                    80
+                )
+                5
+                'port='
+                '  status='
+                60
+                'meas/s='
+                '7.0f'
+                '   scans/s='
+                '5.1f'
+                '   viz_fps='
+                '4.1f'
+                'trail='
+                '5d'
+                '   in_roi='
+                '4d'
+                '   out='
+                '   show_outside='
+                'on'
+                'off'
+                'scale='
+                ' mm/px   trail_window='
+                '.2f'
+                's'
+                'keys: +/- zoom   R reset   TAB hide-outside   ESC/Q quit'
+                (
+                    220
+                    220
+                    220
+                )
+                8
+                16
+                2
+                '[viz] meas/s='
+                '.0f'
+                '  scans/s='
+                '.1f'
+                '  trail='
+                '  in='
+                '  out='
+                '  viz_fps='
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     0: argparse
+                12      LOAD_ATTR                       2: ArgumentParser
+                32      PUSH_NULL                       
+                34      CALL                            0
+                42      STORE_FAST                      0: ap
+                44      LOAD_FAST                       0: ap
+                46      LOAD_ATTR                       5: add_argument
+                66      LOAD_CONST                      1: '--config'
+                68      LOAD_CONST                      0: None
+                70      LOAD_CONST                      2: 'caminho do config.yaml (default: ./config.yaml)'
+                72      LOAD_CONST                      3: ('default', 'help')
+                74      CALL_KW                         3
+                76      POP_TOP                         
+                78      LOAD_FAST                       0: ap
+                80      LOAD_ATTR                       5: add_argument
+                100     LOAD_CONST                      4: '--port'
+                102     LOAD_CONST                      0: None
+                104     LOAD_CONST                      5: 'sobrescreve sensor.port do YAML'
+                106     LOAD_CONST                      3: ('default', 'help')
+                108     CALL_KW                         3
+                110     POP_TOP                         
+                112     LOAD_FAST                       0: ap
+                114     LOAD_ATTR                       7: parse_args
+                134     CALL                            0
+                142     STORE_FAST                      1: args
+                144     LOAD_GLOBAL                     8: cfg_mod
+                154     LOAD_ATTR                       10: load
+                174     PUSH_NULL                       
+                176     LOAD_FAST                       1: args
+                178     LOAD_ATTR                       12: config
+                198     CALL                            1
+                206     STORE_FAST                      2: cfg
+                208     LOAD_FAST                       1: args
+                210     LOAD_ATTR                       14: port
+                230     COPY                            1
+                232     TO_BOOL                         
+                240     POP_JUMP_IF_TRUE                22 (to 286)
+                244     POP_TOP                         
+                246     LOAD_FAST                       2: cfg
+                248     LOAD_ATTR                       16: sensor
+                268     LOAD_ATTR                       14: port
+                288     STORE_FAST                      3: port_override
+                290     LOAD_GLOBAL                     19: NULL + LidarReader
+                300     LOAD_FAST_LOAD_FAST             50: port_override, cfg
+                302     LOAD_ATTR                       16: sensor
+                322     LOAD_ATTR                       20: baud
+                342     LOAD_CONST                      6: ('port', 'baud')
+                344     CALL_KW                         2
+                346     STORE_FAST                      4: rdr
+                348     LOAD_FAST                       4: rdr
+                350     LOAD_ATTR                       23: start
+                370     CALL                            0
+                378     TO_BOOL                         
+                386     POP_JUMP_IF_TRUE                38 (to 464)
+                390     LOAD_GLOBAL                     25: NULL + print
+                400     LOAD_CONST                      7: '[viz] não iniciou: '
+                402     LOAD_FAST                       4: rdr
+                404     LOAD_ATTR                       26: status
+                424     FORMAT_SIMPLE                   
+                426     BUILD_STRING                    2
+                428     LOAD_GLOBAL                     28: sys
+                438     LOAD_ATTR                       30: stderr
+                458     LOAD_CONST                      8: ('file',)
+                460     CALL_KW                         2
+                462     POP_TOP                         
+                464     RETURN_CONST                    9: 1
+                466     LOAD_GLOBAL                     32: pygame
+                476     LOAD_ATTR                       34: init
+                496     PUSH_NULL                       
+                498     CALL                            0
+                506     POP_TOP                         
+                508     LOAD_GLOBAL                     32: pygame
+                518     LOAD_ATTR                       36: display
+                538     LOAD_ATTR                       39: set_caption
+                558     LOAD_CONST                      10: 'LidarMapper — Etapa 2 (filtragem + ROI)'
+                560     CALL                            1
+                568     POP_TOP                         
+                570     LOAD_FAST                       2: cfg
+                572     LOAD_ATTR                       40: viz
+                592     LOAD_ATTR                       42: width
+                612     LOAD_FAST                       2: cfg
+                614     LOAD_ATTR                       40: viz
+                634     LOAD_ATTR                       44: height
+                654     STORE_FAST_STORE_FAST           101: h, w
+                656     LOAD_GLOBAL                     32: pygame
+                666     LOAD_ATTR                       36: display
+                686     LOAD_ATTR                       47: set_mode
+                706     LOAD_FAST_LOAD_FAST             86: w, h
+                708     BUILD_TUPLE                     2
+                710     CALL                            1
+                718     STORE_FAST                      7: screen
+                720     LOAD_GLOBAL                     32: pygame
+                730     LOAD_ATTR                       48: font
+                750     LOAD_ATTR                       51: SysFont
+                770     LOAD_CONST                      11: 'consolas'
+                772     LOAD_CONST                      12: 14
+                774     CALL                            2
+                782     STORE_FAST                      8: font
+                784     LOAD_GLOBAL                     32: pygame
+                794     LOAD_ATTR                       52: time
+                814     LOAD_ATTR                       55: Clock
+                834     CALL                            0
+                842     STORE_FAST                      9: clock
+                844     LOAD_FAST                       2: cfg
+                846     LOAD_ATTR                       40: viz
+                866     LOAD_ATTR                       56: scale_mm_per_px
+                886     STORE_FAST                      10: scale
+                888     LOAD_FAST                       10: scale
+                890     STORE_FAST                      11: scale_default
+                892     LOAD_CONST                      13: True
+                894     STORE_FAST                      12: show_outside
+                896     BUILD_LIST                      0
+                898     STORE_FAST                      13: trail
+                900     LOAD_CONST                      14: 0
+                902     STORE_FAST                      14: last_print
+                904     LOAD_CONST                      14: 0
+                906     STORE_FAST                      15: viz_fps
+                908     LOAD_CONST                      13: True
+                910     STORE_FAST                      16: running
+                912     NOP                             
+                914     LOAD_FAST                       16: running
+                916     TO_BOOL                         
+                924     POP_JUMP_IF_FALSE               1353 (to 3634)
+                930     LOAD_GLOBAL                     32: pygame
+                940     LOAD_ATTR                       58: event
+                960     LOAD_ATTR                       61: get
+                980     CALL                            0
+                988     GET_ITER                        
+                990     FOR_ITER                        337 (to 1668)
+                996     STORE_FAST                      17: ev
+                998     LOAD_FAST                       17: ev
+                1000    LOAD_ATTR                       62: type
+                1020    LOAD_GLOBAL                     32: pygame
+                1030    LOAD_ATTR                       64: QUIT
+                1050    COMPARE_OP                      88 (==)
+                1054    POP_JUMP_IF_FALSE               4 (to 1064)
+                1058    LOAD_CONST                      15: False
+                1060    STORE_FAST                      16: running
+                1062    JUMP_BACKWARD                   38 (to 988)
+                1066    LOAD_FAST                       17: ev
+                1068    LOAD_ATTR                       62: type
+                1088    LOAD_GLOBAL                     32: pygame
+                1098    LOAD_ATTR                       66: KEYDOWN
+                1118    COMPARE_OP                      88 (==)
+                1122    POP_JUMP_IF_TRUE                2 (to 1128)
+                1126    JUMP_BACKWARD                   70 (to 988)
+                1130    LOAD_FAST                       17: ev
+                1132    LOAD_ATTR                       68: key
+                1152    LOAD_GLOBAL                     32: pygame
+                1162    LOAD_ATTR                       70: K_ESCAPE
+                1182    LOAD_GLOBAL                     32: pygame
+                1192    LOAD_ATTR                       72: K_q
+                1212    BUILD_TUPLE                     2
+                1214    CONTAINS_OP                     0 (in)
+                1218    POP_JUMP_IF_FALSE               4 (to 1228)
+                1222    LOAD_CONST                      15: False
+                1224    STORE_FAST                      16: running
+                1226    JUMP_BACKWARD                   120 (to 988)
+                1230    LOAD_FAST                       17: ev
+                1232    LOAD_ATTR                       68: key
+                1252    LOAD_GLOBAL                     32: pygame
+                1262    LOAD_ATTR                       74: K_PLUS
+                1282    LOAD_GLOBAL                     32: pygame
+                1292    LOAD_ATTR                       76: K_EQUALS
+                1312    LOAD_GLOBAL                     32: pygame
+                1322    LOAD_ATTR                       78: K_KP_PLUS
+                1342    BUILD_TUPLE                     3
+                1344    CONTAINS_OP                     0 (in)
+                1348    POP_JUMP_IF_FALSE               17 (to 1384)
+                1352    LOAD_GLOBAL                     81: NULL + max
+                1362    LOAD_CONST                      16: 1
+                1364    LOAD_FAST                       10: scale
+                1366    LOAD_CONST                      17: 0.8
+                1368    BINARY_OP                       5 (*)
+                1372    CALL                            2
+                1380    STORE_FAST                      10: scale
+                1382    JUMP_BACKWARD                   198 (to 988)
+                1386    LOAD_FAST                       17: ev
+                1388    LOAD_ATTR                       68: key
+                1408    LOAD_GLOBAL                     32: pygame
+                1418    LOAD_ATTR                       82: K_MINUS
+                1438    LOAD_GLOBAL                     32: pygame
+                1448    LOAD_ATTR                       84: K_KP_MINUS
+                1468    BUILD_TUPLE                     2
+                1470    CONTAINS_OP                     0 (in)
+                1474    POP_JUMP_IF_FALSE               18 (to 1512)
+                1478    LOAD_GLOBAL                     87: NULL + min
+                1488    LOAD_CONST                      18: 200
+                1490    LOAD_FAST                       10: scale
+                1492    LOAD_CONST                      19: 1.25
+                1494    BINARY_OP                       5 (*)
+                1498    CALL                            2
+                1506    STORE_FAST                      10: scale
+                1508    JUMP_BACKWARD                   262 (to 988)
+                1514    LOAD_FAST                       17: ev
+                1516    LOAD_ATTR                       68: key
+                1536    LOAD_GLOBAL                     32: pygame
+                1546    LOAD_ATTR                       88: K_r
+                1566    COMPARE_OP                      88 (==)
+                1570    POP_JUMP_IF_FALSE               5 (to 1582)
+                1574    LOAD_FAST                       11: scale_default
+                1576    STORE_FAST                      10: scale
+                1578    JUMP_BACKWARD                   297 (to 988)
+                1584    LOAD_FAST                       17: ev
+                1586    LOAD_ATTR                       68: key
+                1606    LOAD_GLOBAL                     32: pygame
+                1616    LOAD_ATTR                       90: K_TAB
+                1636    COMPARE_OP                      88 (==)
+                1640    POP_JUMP_IF_TRUE                3 (to 1648)
+                1644    JUMP_BACKWARD                   330 (to 988)
+                1650    LOAD_FAST                       12: show_outside
+                1652    TO_BOOL                         
+                1660    UNARY_NOT                       
+                1662    STORE_FAST                      12: show_outside
+                1664    JUMP_BACKWARD                   340 (to 988)
+                1670    END_FOR                         
+                1672    POP_TOP                         
+                1674    LOAD_FAST                       4: rdr
+                1676    LOAD_ATTR                       93: drain
+                1696    CALL                            0
+                1704    STORE_FAST                      18: measurements
+                1706    LOAD_GLOBAL                     95: NULL + project_batch
+                1716    LOAD_FAST                       18: measurements
+                1718    LOAD_FAST                       2: cfg
+                1720    LOAD_ATTR                       96: processing
+                1740    CALL                            2
+                1748    STORE_FAST                      19: points
+                1750    LOAD_GLOBAL                     52: time
+                1760    LOAD_ATTR                       98: monotonic
+                1780    PUSH_NULL                       
+                1782    CALL                            0
+                1790    STORE_FAST                      20: now
+                1792    LOAD_FAST                       19: points
+                1794    GET_ITER                        
+                1796    FOR_ITER                        54 (to 1906)
+                1800    STORE_FAST                      21: p
+                1802    LOAD_FAST                       13: trail
+                1804    LOAD_ATTR                       101: append
+                1824    LOAD_FAST                       21: p
+                1826    LOAD_ATTR                       102: x
+                1846    LOAD_FAST                       21: p
+                1848    LOAD_ATTR                       104: y
+                1868    LOAD_FAST                       20: now
+                1870    LOAD_FAST                       21: p
+                1872    LOAD_ATTR                       106: quality
+                1892    BUILD_TUPLE                     4
+                1894    CALL                            1
+                1902    POP_TOP                         
+                1904    JUMP_BACKWARD                   56 (to 1794)
+                1908    END_FOR                         
+                1910    POP_TOP                         
+                1912    LOAD_FAST                       20: now
+                1914    LOAD_FAST                       2: cfg
+                1916    LOAD_ATTR                       40: viz
+                1936    LOAD_ATTR                       108: trail_window_s
+                1956    BINARY_OP                       10 (-)
+                1960    STORE_FAST                      22: cutoff
+                1962    LOAD_CONST                      20: 0
+                1964    STORE_FAST                      23: i
+                1966    LOAD_GLOBAL                     111: NULL + range
+                1976    LOAD_GLOBAL                     113: NULL + len
+                1986    LOAD_FAST                       13: trail
+                1988    CALL                            1
+                1996    CALL                            1
+                2004    GET_ITER                        
+                2006    FOR_ITER                        17 (to 2042)
+                2010    STORE_FAST                      23: i
+                2012    LOAD_FAST                       13: trail
+                2014    LOAD_FAST                       23: i
+                2016    BINARY_SUBSCR                   
+                2020    LOAD_CONST                      21: 2
+                2022    BINARY_SUBSCR                   
+                2026    LOAD_FAST                       22: cutoff
+                2028    COMPARE_OP                      188 (>=)
+                2032    POP_JUMP_IF_TRUE                2 (to 2038)
+                2036    JUMP_BACKWARD                   17 (to 2004)
+                2040    POP_TOP                         
+                2042    JUMP_FORWARD                    2 (to 2048)
+                2044    END_FOR                         
+                2046    POP_TOP                         
+                2048    LOAD_FAST                       23: i
+                2050    LOAD_CONST                      20: 0
+                2052    COMPARE_OP                      148 (>)
+                2056    POP_JUMP_IF_FALSE               5 (to 2068)
+                2060    LOAD_FAST                       13: trail
+                2062    LOAD_FAST                       23: i
+                2064    LOAD_CONST                      0: None
+                2066    BINARY_SLICE                    
+                2068    STORE_FAST                      13: trail
+                2070    LOAD_CONST                      20: 0
+                2072    LOAD_CONST                      22: ('Point2D',)
+                2074    IMPORT_NAME                     48: processing
+                2076    IMPORT_FROM                     57: Point2D
+                2078    STORE_FAST                      24: Point2D
+                2080    POP_TOP                         
+                2082    LOAD_FAST                       13: trail
+                2084    GET_ITER                        
+                2086    LOAD_FAST_AND_CLEAR             25: x
+                2088    LOAD_FAST_AND_CLEAR             26: y
+                2090    LOAD_FAST_AND_CLEAR             27: _t
+                2092    LOAD_FAST_AND_CLEAR             28: q
+                2094    SWAP                            5
+                2096    BUILD_LIST                      0
+                2098    SWAP                            2
+                2100    GET_ITER                        
+                2102    FOR_ITER                        18 (to 2140)
+                2106    UNPACK_SEQUENCE                 4
+                2110    STORE_FAST                      25: x
+                2112    STORE_FAST                      26: y
+                2114    STORE_FAST                      27: _t
+                2116    STORE_FAST                      28: q
+                2118    LOAD_FAST                       24: Point2D
+                2120    PUSH_NULL                       
+                2122    LOAD_FAST                       25: x
+                2124    LOAD_FAST                       26: y
+                2126    LOAD_FAST                       28: q
+                2128    LOAD_CONST                      20: 0
+                2130    LOAD_CONST                      20: 0
+                2132    LOAD_CONST                      23: ('x', 'y', 'quality', 'angle', 'distance')
+                2134    CALL_KW                         5
+                2136    LIST_APPEND                     2
+                2138    JUMP_BACKWARD                   20 (to 2100)
+                2142    END_FOR                         
+                2144    POP_TOP                         
+                2146    STORE_FAST                      29: pts_now
+                2148    STORE_FAST                      27: _t
+                2150    STORE_FAST                      26: y
+                2152    STORE_FAST                      25: x
+                2154    STORE_FAST                      28: q
+                2156    LOAD_GLOBAL                     117: NULL + split_by_roi
+                2166    LOAD_FAST                       29: pts_now
+                2168    LOAD_FAST                       2: cfg
+                2170    LOAD_ATTR                       118: roi
+                2190    CALL                            2
+                2198    UNPACK_SEQUENCE                 2
+                2202    STORE_FAST                      30: inside
+                2204    STORE_FAST                      31: outside
+                2206    LOAD_FAST                       7: screen
+                2208    LOAD_ATTR                       121: fill
+                2228    LOAD_CONST                      24: (10, 10, 14)
+                2230    CALL                            1
+                2238    POP_TOP                         
+                2240    LOAD_GLOBAL                     123: NULL + draw_grid
+                2250    LOAD_FAST_LOAD_FAST             117: screen, w
+                2252    LOAD_FAST_LOAD_FAST             106: h, scale
+                2254    CALL                            4
+                2262    POP_TOP                         
+                2264    LOAD_GLOBAL                     125: NULL + draw_roi
+                2274    LOAD_FAST_LOAD_FAST             114: screen, cfg
+                2276    LOAD_ATTR                       118: roi
+                2296    LOAD_FAST_LOAD_FAST             86: w, h
+                2298    LOAD_FAST                       10: scale
+                2300    CALL                            5
+                2308    POP_TOP                         
+                2310    LOAD_FAST                       12: show_outside
+                2312    TO_BOOL                         
+                2320    POP_JUMP_IF_FALSE               106 (to 2534)
+                2324    LOAD_CONST                      25: (90, 90, 100)
+                2326    STORE_FAST                      32: col
+                2328    LOAD_FAST                       31: outside
+                2330    GET_ITER                        
+                2332    FOR_ITER                        98 (to 2530)
+                2336    STORE_FAST                      21: p
+                2338    LOAD_GLOBAL                     127: NULL + world_to_screen
+                2348    LOAD_FAST                       21: p
+                2350    LOAD_ATTR                       102: x
+                2370    LOAD_FAST                       21: p
+                2372    LOAD_ATTR                       104: y
+                2392    LOAD_FAST_LOAD_FAST             86: w, h
+                2394    LOAD_FAST                       10: scale
+                2396    CALL                            5
+                2404    UNPACK_SEQUENCE                 2
+                2408    STORE_FAST                      33: sx
+                2410    STORE_FAST                      34: sy
+                2412    LOAD_CONST                      20: 0
+                2414    LOAD_FAST                       33: sx
+                2416    SWAP                            2
+                2418    COPY                            2
+                2420    COMPARE_OP                      58 (<=)
+                2424    POP_JUMP_IF_FALSE               8 (to 2442)
+                2428    LOAD_FAST                       5: w
+                2430    COMPARE_OP                      18 (<)
+                2434    POP_JUMP_IF_TRUE                2 (to 2440)
+                2438    JUMP_BACKWARD                   55 (to 2330)
+                2442    JUMP_FORWARD                    3 (to 2450)
+                2444    POP_TOP                         
+                2446    JUMP_BACKWARD                   59 (to 2330)
+                2450    LOAD_CONST                      20: 0
+                2452    LOAD_FAST                       34: sy
+                2454    SWAP                            2
+                2456    COPY                            2
+                2458    COMPARE_OP                      58 (<=)
+                2462    POP_JUMP_IF_FALSE               8 (to 2480)
+                2466    LOAD_FAST                       6: h
+                2468    COMPARE_OP                      18 (<)
+                2472    POP_JUMP_IF_TRUE                2 (to 2478)
+                2476    JUMP_BACKWARD                   74 (to 2330)
+                2480    JUMP_FORWARD                    3 (to 2488)
+                2482    POP_TOP                         
+                2484    JUMP_BACKWARD                   78 (to 2330)
+                2488    LOAD_FAST                       7: screen
+                2490    LOAD_ATTR                       129: set_at
+                2510    LOAD_FAST                       33: sx
+                2512    LOAD_FAST                       34: sy
+                2514    BUILD_TUPLE                     2
+                2516    LOAD_FAST                       32: col
+                2518    CALL                            2
+                2526    POP_TOP                         
+                2528    JUMP_BACKWARD                   100 (to 2330)
+                2532    END_FOR                         
+                2534    POP_TOP                         
+                2536    LOAD_FAST                       30: inside
+                2538    GET_ITER                        
+                2540    FOR_ITER                        114 (to 2770)
+                2544    STORE_FAST                      21: p
+                2546    LOAD_GLOBAL                     127: NULL + world_to_screen
+                2556    LOAD_FAST                       21: p
+                2558    LOAD_ATTR                       102: x
+                2578    LOAD_FAST                       21: p
+                2580    LOAD_ATTR                       104: y
+                2600    LOAD_FAST_LOAD_FAST             86: w, h
+                2602    LOAD_FAST                       10: scale
+                2604    CALL                            5
+                2612    UNPACK_SEQUENCE                 2
+                2616    STORE_FAST                      33: sx
+                2618    STORE_FAST                      34: sy
+                2620    LOAD_CONST                      20: 0
+                2622    LOAD_FAST                       33: sx
+                2624    SWAP                            2
+                2626    COPY                            2
+                2628    COMPARE_OP                      58 (<=)
+                2632    POP_JUMP_IF_FALSE               8 (to 2650)
+                2636    LOAD_FAST                       5: w
+                2638    COMPARE_OP                      18 (<)
+                2642    POP_JUMP_IF_TRUE                2 (to 2648)
+                2646    JUMP_BACKWARD                   55 (to 2538)
+                2650    JUMP_FORWARD                    3 (to 2658)
+                2652    POP_TOP                         
+                2654    JUMP_BACKWARD                   59 (to 2538)
+                2658    LOAD_CONST                      20: 0
+                2660    LOAD_FAST                       34: sy
+                2662    SWAP                            2
+                2664    COPY                            2
+                2666    COMPARE_OP                      58 (<=)
+                2670    POP_JUMP_IF_FALSE               8 (to 2688)
+                2674    LOAD_FAST                       6: h
+                2676    COMPARE_OP                      18 (<)
+                2680    POP_JUMP_IF_TRUE                2 (to 2686)
+                2684    JUMP_BACKWARD                   74 (to 2538)
+                2688    JUMP_FORWARD                    3 (to 2696)
+                2690    POP_TOP                         
+                2692    JUMP_BACKWARD                   78 (to 2538)
+                2696    LOAD_GLOBAL                     32: pygame
+                2706    LOAD_ATTR                       130: draw
+                2726    LOAD_ATTR                       133: circle
+                2746    LOAD_FAST                       7: screen
+                2748    LOAD_CONST                      26: (60, 220, 90)
+                2750    LOAD_FAST                       33: sx
+                2752    LOAD_FAST                       34: sy
+                2754    BUILD_TUPLE                     2
+                2756    LOAD_CONST                      21: 2
+                2758    CALL                            4
+                2766    POP_TOP                         
+                2768    JUMP_BACKWARD                   116 (to 2538)
+                2772    END_FOR                         
+                2774    POP_TOP                         
+                2776    LOAD_GLOBAL                     127: NULL + world_to_screen
+                2786    LOAD_CONST                      20: 0
+                2788    LOAD_CONST                      20: 0
+                2790    LOAD_FAST_LOAD_FAST             86: w, h
+                2792    LOAD_FAST                       10: scale
+                2794    CALL                            5
+                2802    UNPACK_SEQUENCE                 2
+                2806    STORE_FAST                      33: sx
+                2808    STORE_FAST                      34: sy
+                2810    LOAD_GLOBAL                     32: pygame
+                2820    LOAD_ATTR                       130: draw
+                2840    LOAD_ATTR                       133: circle
+                2860    LOAD_FAST                       7: screen
+                2862    LOAD_CONST                      27: (240, 80, 80)
+                2864    LOAD_FAST                       33: sx
+                2866    LOAD_FAST                       34: sy
+                2868    BUILD_TUPLE                     2
+                2870    LOAD_CONST                      28: 5
+                2872    CALL                            4
+                2880    POP_TOP                         
+                2882    LOAD_FAST                       9: clock
+                2884    LOAD_ATTR                       135: get_fps
+                2904    CALL                            0
+                2912    STORE_FAST                      15: viz_fps
+                2914    LOAD_CONST                      29: 'port='
+                2916    LOAD_FAST                       4: rdr
+                2918    LOAD_ATTR                       14: port
+                2938    FORMAT_SIMPLE                   
+                2940    LOAD_CONST                      30: '  status='
+                2942    LOAD_FAST                       4: rdr
+                2944    LOAD_ATTR                       26: status
+                2964    LOAD_CONST                      0: None
+                2966    LOAD_CONST                      31: 60
+                2968    BINARY_SLICE                    
+                2970    FORMAT_SIMPLE                   
+                2972    BUILD_STRING                    4
+                2974    LOAD_CONST                      32: 'meas/s='
+                2976    LOAD_FAST                       4: rdr
+                2978    LOAD_ATTR                       136: meas_per_sec
+                2998    LOAD_CONST                      33: '7.0f'
+                3000    FORMAT_WITH_SPEC                
+                3002    LOAD_CONST                      34: '   scans/s='
+                3004    LOAD_FAST                       4: rdr
+                3006    LOAD_ATTR                       138: scans_per_sec
+                3026    LOAD_CONST                      35: '5.1f'
+                3028    FORMAT_WITH_SPEC                
+                3030    LOAD_CONST                      36: '   viz_fps='
+                3032    LOAD_FAST                       15: viz_fps
+                3034    LOAD_CONST                      37: '4.1f'
+                3036    FORMAT_WITH_SPEC                
+                3038    BUILD_STRING                    6
+                3040    LOAD_CONST                      38: 'trail='
+                3042    LOAD_GLOBAL                     113: NULL + len
+                3052    LOAD_FAST                       13: trail
+                3054    CALL                            1
+                3062    LOAD_CONST                      39: '5d'
+                3064    FORMAT_WITH_SPEC                
+                3066    LOAD_CONST                      40: '   in_roi='
+                3068    LOAD_GLOBAL                     113: NULL + len
+                3078    LOAD_FAST                       30: inside
+                3080    CALL                            1
+                3088    LOAD_CONST                      41: '4d'
+                3090    FORMAT_WITH_SPEC                
+                3092    LOAD_CONST                      42: '   out='
+                3094    LOAD_GLOBAL                     113: NULL + len
+                3104    LOAD_FAST                       31: outside
+                3106    CALL                            1
+                3114    LOAD_CONST                      41: '4d'
+                3116    FORMAT_WITH_SPEC                
+                3118    LOAD_CONST                      43: '   show_outside='
+                3120    LOAD_FAST                       12: show_outside
+                3122    TO_BOOL                         
+                3130    POP_JUMP_IF_FALSE               2 (to 3136)
+                3134    LOAD_CONST                      44: 'on'
+                3136    JUMP_FORWARD                    1 (to 3140)
+                3138    LOAD_CONST                      45: 'off'
+                3140    FORMAT_SIMPLE                   
+                3142    BUILD_STRING                    8
+                3144    LOAD_CONST                      46: 'scale='
+                3146    LOAD_FAST                       10: scale
+                3148    LOAD_CONST                      35: '5.1f'
+                3150    FORMAT_WITH_SPEC                
+                3152    LOAD_CONST                      47: ' mm/px   trail_window='
+                3154    LOAD_FAST                       2: cfg
+                3156    LOAD_ATTR                       40: viz
+                3176    LOAD_ATTR                       108: trail_window_s
+                3196    LOAD_CONST                      48: '.2f'
+                3198    FORMAT_WITH_SPEC                
+                3200    LOAD_CONST                      49: 's'
+                3202    BUILD_STRING                    5
+                3204    LOAD_CONST                      50: 'keys: +/- zoom   R reset   TAB hide-outside   ESC/Q quit'
+                3206    BUILD_LIST                      5
+                3208    STORE_FAST                      35: hud
+                3210    LOAD_GLOBAL                     141: NULL + enumerate
+                3220    LOAD_FAST                       35: hud
+                3222    CALL                            1
+                3230    GET_ITER                        
+                3232    FOR_ITER                        51 (to 3336)
+                3236    UNPACK_SEQUENCE                 2
+                3240    STORE_FAST                      23: i
+                3242    STORE_FAST                      36: line
+                3244    LOAD_FAST                       8: font
+                3246    LOAD_ATTR                       143: render
+                3266    LOAD_FAST                       36: line
+                3268    LOAD_CONST                      13: True
+                3270    LOAD_CONST                      51: (220, 220, 220)
+                3272    CALL                            3
+                3280    STORE_FAST                      37: surf
+                3282    LOAD_FAST                       7: screen
+                3284    LOAD_ATTR                       145: blit
+                3304    LOAD_FAST                       37: surf
+                3306    LOAD_CONST                      52: 8
+                3308    LOAD_CONST                      52: 8
+                3310    LOAD_FAST                       23: i
+                3312    LOAD_CONST                      53: 16
+                3314    BINARY_OP                       5 (*)
+                3318    BINARY_OP                       0 (+)
+                3322    BUILD_TUPLE                     2
+                3324    CALL                            2
+                3332    POP_TOP                         
+                3334    JUMP_BACKWARD                   53 (to 3230)
+                3338    END_FOR                         
+                3340    POP_TOP                         
+                3342    LOAD_GLOBAL                     32: pygame
+                3352    LOAD_ATTR                       36: display
+                3372    LOAD_ATTR                       147: flip
+                3392    CALL                            0
+                3400    POP_TOP                         
+                3402    LOAD_FAST                       9: clock
+                3404    LOAD_ATTR                       149: tick
+                3424    LOAD_CONST                      31: 60
+                3426    CALL                            1
+                3434    POP_TOP                         
+                3436    LOAD_FAST                       20: now
+                3438    LOAD_FAST                       14: last_print
+                3440    BINARY_OP                       10 (-)
+                3444    LOAD_CONST                      54: 2
+                3446    COMPARE_OP                      188 (>=)
+                3450    POP_JUMP_IF_FALSE               81 (to 3614)
+                3454    LOAD_GLOBAL                     25: NULL + print
+                3464    LOAD_CONST                      55: '[viz] meas/s='
+                3466    LOAD_FAST                       4: rdr
+                3468    LOAD_ATTR                       136: meas_per_sec
+                3488    LOAD_CONST                      56: '.0f'
+                3490    FORMAT_WITH_SPEC                
+                3492    LOAD_CONST                      57: '  scans/s='
+                3494    LOAD_FAST                       4: rdr
+                3496    LOAD_ATTR                       138: scans_per_sec
+                3516    LOAD_CONST                      58: '.1f'
+                3518    FORMAT_WITH_SPEC                
+                3520    LOAD_CONST                      59: '  trail='
+                3522    LOAD_GLOBAL                     113: NULL + len
+                3532    LOAD_FAST                       13: trail
+                3534    CALL                            1
+                3542    FORMAT_SIMPLE                   
+                3544    LOAD_CONST                      60: '  in='
+                3546    LOAD_GLOBAL                     113: NULL + len
+                3556    LOAD_FAST                       30: inside
+                3558    CALL                            1
+                3566    FORMAT_SIMPLE                   
+                3568    LOAD_CONST                      61: '  out='
+                3570    LOAD_GLOBAL                     113: NULL + len
+                3580    LOAD_FAST                       31: outside
+                3582    CALL                            1
+                3590    FORMAT_SIMPLE                   
+                3592    LOAD_CONST                      62: '  viz_fps='
+                3594    LOAD_FAST                       15: viz_fps
+                3596    LOAD_CONST                      58: '.1f'
+                3598    FORMAT_WITH_SPEC                
+                3600    BUILD_STRING                    12
+                3602    CALL                            1
+                3610    POP_TOP                         
+                3612    LOAD_FAST                       20: now
+                3614    STORE_FAST                      14: last_print
+                3616    LOAD_FAST                       16: running
+                3618    TO_BOOL                         
+                3626    POP_JUMP_IF_FALSE               3 (to 3634)
+                3630    JUMP_BACKWARD                   1353 (to 928)
+                3636    LOAD_FAST                       4: rdr
+                3638    LOAD_ATTR                       153: stop
+                3658    CALL                            0
+                3666    POP_TOP                         
+                3668    LOAD_GLOBAL                     32: pygame
+                3678    LOAD_ATTR                       154: quit
+                3698    PUSH_NULL                       
+                3700    CALL                            0
+                3708    POP_TOP                         
+                3710    RETURN_CONST                    20: 0
+                3712    SWAP                            2
+                3714    POP_TOP                         
+                3716    SWAP                            5
+                3718    STORE_FAST                      28: q
+                3720    STORE_FAST                      27: _t
+                3722    STORE_FAST                      26: y
+                3724    STORE_FAST                      25: x
+                3726    RERAISE                         0
+                3728    PUSH_EXC_INFO                   
+                3730    LOAD_GLOBAL                     150: KeyboardInterrupt
+                3740    CHECK_EXC_MATCH                 
+                3742    POP_JUMP_IF_FALSE               3 (to 3750)
+                3746    POP_TOP                         
+                3748    POP_EXCEPT                      
+                3750    JUMP_BACKWARD_NO_INTERRUPT      58 (to 3636)
+                3752    RERAISE                         0
+                3754    COPY                            3
+                3756    POP_EXCEPT                      
+                3758    RERAISE                         1
+                3760    PUSH_EXC_INFO                   
+                3762    LOAD_FAST                       4: rdr
+                3764    LOAD_ATTR                       153: stop
+                3784    CALL                            0
+                3792    POP_TOP                         
+                3794    LOAD_GLOBAL                     32: pygame
+                3804    LOAD_ATTR                       154: quit
+                3824    PUSH_NULL                       
+                3826    CALL                            0
+                3834    POP_TOP                         
+                3836    RERAISE                         0
+                3838    COPY                            3
+                3840    POP_EXCEPT                      
+                3842    RERAISE                         1
+            [Exception Table]
+                914 to 1122 -> 3728 [0] 
+                1130 to 1640 -> 3728 [0] 
+                1650 to 2032 -> 3728 [0] 
+                2040 to 2096 -> 3728 [0] 
+                2096 to 2146 -> 3712 [5] 
+                2146 to 2434 -> 3728 [0] 
+                2442 to 2472 -> 3728 [0] 
+                2480 to 2642 -> 3728 [0] 
+                2650 to 2680 -> 3728 [0] 
+                2688 to 3630 -> 3728 [0] 
+                3712 to 3728 -> 3728 [0] 
+                3728 to 3748 -> 3754 [1] lasti
+                3748 to 3752 -> 3760 [0] 
+                3752 to 3754 -> 3754 [1] lasti
+                3754 to 3760 -> 3760 [0] 
+                3760 to 3838 -> 3838 [1] lasti
+        '__main__'
+        (
+            'x_mm'
+            'float'
+            'y_mm'
+            'float'
+            'w'
+            'int'
+            'h'
+            'int'
+            'scale'
+            'float'
+            'return'
+            'tuple[int, int]'
+        )
+        (
+            'surf'
+            'pygame.Surface'
+            'w'
+            'int'
+            'h'
+            'int'
+            'scale'
+            'float'
+            'return'
+            'None'
+        )
+        (
+            'return'
+            'int'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — teste da Etapa 2: visualização 2D dos pontos filtrados.\n\nJanela pygame mostrando, ao vivo:\n  - sensor no centro\n  - eixos cinza + grade a cada 1 m\n  - ROI configurada (config.yaml) desenhada em amarelo\n  - pontos DENTRO da ROI em verde, pontos FORA em cinza\n  - HUD com FPS de leitura, FPS de viz, scans/s, contagem de pontos,\n    porta e status\n\nTeclas:\n  ESC, Q : sair\n  + / -  : zoom (altera scale_mm_per_px em runtime)\n  R      : reset zoom (volta ao valor do config)\n  TAB    : alterna mostrar/ocultar pontos fora da ROI\n\nConvenção visual: +x do sensor aponta pra DIREITA, +y aponta pra CIMA\n(coordenadas matemáticas). O pygame tem y crescendo pra baixo, então\nfazemos `py = h/2 - y/scale`.\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: argparse
+        24      STORE_NAME                      3: argparse
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: math
+        32      STORE_NAME                      4: math
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      3: None
+        38      IMPORT_NAME                     5: sys
+        40      STORE_NAME                      5: sys
+        42      LOAD_CONST                      1: 0
+        44      LOAD_CONST                      3: None
+        46      IMPORT_NAME                     6: time
+        48      STORE_NAME                      6: time
+        50      LOAD_CONST                      1: 0
+        52      LOAD_CONST                      3: None
+        54      IMPORT_NAME                     7: pygame
+        56      STORE_NAME                      7: pygame
+        58      LOAD_CONST                      1: 0
+        60      LOAD_CONST                      3: None
+        62      IMPORT_NAME                     8: config
+        64      STORE_NAME                      9: cfg_mod
+        66      LOAD_CONST                      1: 0
+        68      LOAD_CONST                      4: ('LidarReader',)
+        70      IMPORT_NAME                     10: lidar_reader
+        72      IMPORT_FROM                     11: LidarReader
+        74      STORE_NAME                      11: LidarReader
+        76      POP_TOP                         
+        78      LOAD_CONST                      1: 0
+        80      LOAD_CONST                      5: ('project_batch', 'split_by_roi')
+        82      IMPORT_NAME                     12: processing
+        84      IMPORT_FROM                     13: project_batch
+        86      STORE_NAME                      13: project_batch
+        88      IMPORT_FROM                     14: split_by_roi
+        90      STORE_NAME                      14: split_by_roi
+        92      POP_TOP                         
+        94      NOP                             
+        96      NOP                             
+        98      NOP                             
+        100     NOP                             
+        102     NOP                             
+        104     NOP                             
+        106     NOP                             
+        108     NOP                             
+        110     LOAD_CONST                      11: ('x_mm', 'float', 'y_mm', 'float', 'w', 'int', 'h', 'int', 'scale', 'float', 'return', 'tuple[int, int]')
+        112     LOAD_CONST                      6: <CODE> world_to_screen
+        114     MAKE_FUNCTION                   
+        116     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        118     STORE_NAME                      15: world_to_screen
+        120     LOAD_CONST                      12: ('surf', 'pygame.Surface', 'w', 'int', 'h', 'int', 'scale', 'float', 'return', 'None')
+        122     LOAD_CONST                      7: <CODE> draw_grid
+        124     MAKE_FUNCTION                   
+        126     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        128     STORE_NAME                      16: draw_grid
+        130     LOAD_CONST                      12: ('surf', 'pygame.Surface', 'w', 'int', 'h', 'int', 'scale', 'float', 'return', 'None')
+        132     LOAD_CONST                      8: <CODE> draw_roi
+        134     MAKE_FUNCTION                   
+        136     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        138     STORE_NAME                      17: draw_roi
+        140     LOAD_CONST                      13: ('return', 'int')
+        142     LOAD_CONST                      9: <CODE> main
+        144     MAKE_FUNCTION                   
+        146     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        148     STORE_NAME                      18: main
+        150     LOAD_NAME                       19: __name__
+        152     LOAD_CONST                      10: '__main__'
+        154     COMPARE_OP                      88 (==)
+        158     POP_JUMP_IF_FALSE               13 (to 186)
+        162     LOAD_NAME                       20: SystemExit
+        164     PUSH_NULL                       
+        166     LOAD_NAME                       18: main
+        168     PUSH_NULL                       
+        170     CALL                            0
+        178     CALL                            1
+        186     RAISE_VARARGS                   1
+        188     RETURN_CONST                    3: None
+    [Exception Table]

@@ -1,0 +1,1094 @@
+homography.pyc (Python 3.13)
+[Code]
+    File Name: homography.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 11
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'json'
+        'os'
+        'dataclasses'
+        'dataclass'
+        'numpy'
+        'np'
+        'tuple'
+        'float'
+        'Point'
+        'CORNER_NAMES'
+        'CORNERS_NORM'
+        '__annotations__'
+        'compute_homography'
+        'apply_h'
+        'apply_h_batch'
+        'Calibration'
+        'save_calibration'
+        'load_calibration'
+        '__name__'
+        'src'
+        'list'
+        'dst'
+        'H'
+        'zip'
+        'p'
+        'q'
+        'proj'
+        'err'
+        'print'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — Etapa 3: homografia 4 pontos + persistência.\n\nA homografia H é uma matriz 3×3 que mapeia (x_lidar_mm, y_lidar_mm) para\n(u, v) em coordenadas normalizadas da tela (0..1). 4 correspondências\ndeterminam H exatamente (DLT por SVD, numpy puro — sem dependência de cv2).\n\nPersistência:\n  calibration.json\n  {\n    "version": 1,\n    "screen_width_px": 1920,\n    "screen_height_px": 1080,\n    "corners_lidar_mm":  [[x_TL,y_TL], [x_TR,y_TR], [x_BR,y_BR], [x_BL,y_BL]],\n    "corners_screen_norm": [[0,0], [1,0], [1,1], [0,1]],\n    "H": [[...],[...],[...]]\n  }\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'dataclass'
+        )
+        (
+            'TOP-LEFT'
+            'TOP-RIGHT'
+            'BOTTOM-RIGHT'
+            'BOTTOM-LEFT'
+        )
+        (
+            (
+                0
+                0
+            )
+            (
+                1
+                0
+            )
+            (
+                1
+                1
+            )
+            (
+                0
+                1
+            )
+        )
+        'tuple[Point, Point, Point, Point]'
+        'CORNERS_NORM'
+        [Code]
+            File Name: homography.py
+            Object Name: compute_homography
+            Qualified Name: compute_homography
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 12
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'len'
+                'ValueError'
+                'zip'
+                'append'
+                'np'
+                'array'
+                'float'
+                'linalg'
+                'svd'
+                'reshape'
+                'abs'
+            [Locals+Names]
+                'src'
+                'dst'
+                'rows'
+                'x'
+                'y'
+                'u'
+                'v'
+                'A'
+                '_'
+                'vt'
+                'H'
+            [Constants]
+                'Homografia H (3×3) tal que dst ≈ H · src (DLT por SVD).\n\nCada par (x,y) → (u,v) gera 2 linhas no sistema A·h = 0:\n    [-x, -y, -1,  0,  0,  0,  ux, uy, u]\n    [ 0,  0,  0, -x, -y, -1,  vx, vy, v]\n'
+                4
+                'são necessários exatamente 4 pontos em src e dst'
+                -1
+                0
+                (
+                    'dtype'
+                )
+                3
+                (
+                    2
+                    2
+                )
+                1e-12
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     1: NULL + len
+                12      LOAD_FAST                       0: src
+                14      CALL                            1
+                22      LOAD_CONST                      1: 4
+                24      COMPARE_OP                      119 (!=)
+                28      POP_JUMP_IF_TRUE                15 (to 60)
+                32      LOAD_GLOBAL                     1: NULL + len
+                42      LOAD_FAST                       1: dst
+                44      CALL                            1
+                52      LOAD_CONST                      1: 4
+                54      COMPARE_OP                      119 (!=)
+                58      POP_JUMP_IF_FALSE               11 (to 82)
+                62      LOAD_GLOBAL                     3: NULL + ValueError
+                72      LOAD_CONST                      2: 'são necessários exatamente 4 pontos em src e dst'
+                74      CALL                            1
+                82      RAISE_VARARGS                   1
+                84      BUILD_LIST                      0
+                86      STORE_FAST                      2: rows
+                88      LOAD_GLOBAL                     5: NULL + zip
+                98      LOAD_FAST_LOAD_FAST             1: src, dst
+                100     CALL                            2
+                108     GET_ITER                        
+                110     FOR_ITER                        74 (to 260)
+                114     UNPACK_SEQUENCE                 2
+                118     UNPACK_SEQUENCE                 2
+                122     STORE_FAST_STORE_FAST           52: x, y
+                124     UNPACK_SEQUENCE                 2
+                128     STORE_FAST_STORE_FAST           86: u, v
+                130     LOAD_FAST                       2: rows
+                132     LOAD_ATTR                       7: append
+                152     LOAD_FAST                       3: x
+                154     UNARY_NEGATIVE                  
+                156     LOAD_FAST                       4: y
+                158     UNARY_NEGATIVE                  
+                160     LOAD_CONST                      3: -1
+                162     LOAD_CONST                      4: 0
+                164     LOAD_CONST                      4: 0
+                166     LOAD_CONST                      4: 0
+                168     LOAD_FAST_LOAD_FAST             83: u, x
+                170     BINARY_OP                       5 (*)
+                174     LOAD_FAST_LOAD_FAST             84: u, y
+                176     BINARY_OP                       5 (*)
+                180     LOAD_FAST                       5: u
+                182     BUILD_LIST                      9
+                184     CALL                            1
+                192     POP_TOP                         
+                194     LOAD_FAST                       2: rows
+                196     LOAD_ATTR                       7: append
+                216     LOAD_CONST                      4: 0
+                218     LOAD_CONST                      4: 0
+                220     LOAD_CONST                      4: 0
+                222     LOAD_FAST                       3: x
+                224     UNARY_NEGATIVE                  
+                226     LOAD_FAST                       4: y
+                228     UNARY_NEGATIVE                  
+                230     LOAD_CONST                      3: -1
+                232     LOAD_FAST_LOAD_FAST             99: v, x
+                234     BINARY_OP                       5 (*)
+                238     LOAD_FAST_LOAD_FAST             100: v, y
+                240     BINARY_OP                       5 (*)
+                244     LOAD_FAST                       6: v
+                246     BUILD_LIST                      9
+                248     CALL                            1
+                256     POP_TOP                         
+                258     JUMP_BACKWARD                   76 (to 108)
+                262     END_FOR                         
+                264     POP_TOP                         
+                266     LOAD_GLOBAL                     8: np
+                276     LOAD_ATTR                       10: array
+                296     PUSH_NULL                       
+                298     LOAD_FAST                       2: rows
+                300     LOAD_GLOBAL                     12: float
+                310     LOAD_CONST                      5: ('dtype',)
+                312     CALL_KW                         2
+                314     STORE_FAST                      7: A
+                316     LOAD_GLOBAL                     8: np
+                326     LOAD_ATTR                       14: linalg
+                346     LOAD_ATTR                       17: svd
+                366     LOAD_FAST                       7: A
+                368     CALL                            1
+                376     UNPACK_SEQUENCE                 3
+                380     POP_TOP                         
+                382     STORE_FAST_STORE_FAST           137: _, vt
+                384     LOAD_FAST                       9: vt
+                386     LOAD_CONST                      3: -1
+                388     BINARY_SUBSCR                   
+                392     LOAD_ATTR                       19: reshape
+                412     LOAD_CONST                      6: 3
+                414     LOAD_CONST                      6: 3
+                416     CALL                            2
+                424     STORE_FAST                      10: H
+                426     LOAD_GLOBAL                     21: NULL + abs
+                436     LOAD_FAST                       10: H
+                438     LOAD_CONST                      7: (2, 2)
+                440     BINARY_SUBSCR                   
+                444     CALL                            1
+                452     LOAD_CONST                      8: 1e-12
+                454     COMPARE_OP                      148 (>)
+                458     POP_JUMP_IF_FALSE               7 (to 474)
+                462     LOAD_FAST_LOAD_FAST             170: H, H
+                464     LOAD_CONST                      7: (2, 2)
+                466     BINARY_SUBSCR                   
+                470     BINARY_OP                       11 (/)
+                474     STORE_FAST                      10: H
+                476     LOAD_FAST                       10: H
+                478     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: homography.py
+            Object Name: apply_h
+            Qualified Name: apply_h
+            Arg Count: 3
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 6
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'np'
+                'array'
+                'abs'
+                'float'
+            [Locals+Names]
+                'H'
+                'x'
+                'y'
+                'v'
+                'w'
+            [Constants]
+                'Aplica H a um ponto (x, y) → (u, v).'
+                1
+                2
+                1e-12
+                0
+                1
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       0: H
+                4       LOAD_GLOBAL                     0: np
+                14      LOAD_ATTR                       2: array
+                34      PUSH_NULL                       
+                36      LOAD_FAST_LOAD_FAST             18: x, y
+                38      LOAD_CONST                      1: 1
+                40      BUILD_LIST                      3
+                42      CALL                            1
+                50      BINARY_OP                       4 (@)
+                54      STORE_FAST                      3: v
+                56      LOAD_GLOBAL                     5: NULL + abs
+                66      LOAD_FAST                       3: v
+                68      LOAD_CONST                      2: 2
+                70      BINARY_SUBSCR                   
+                74      CALL                            1
+                82      LOAD_CONST                      3: 1e-12
+                84      COMPARE_OP                      148 (>)
+                88      POP_JUMP_IF_FALSE               5 (to 100)
+                92      LOAD_FAST                       3: v
+                94      LOAD_CONST                      2: 2
+                96      BINARY_SUBSCR                   
+                100     JUMP_FORWARD                    1 (to 104)
+                102     LOAD_CONST                      3: 1e-12
+                104     STORE_FAST                      4: w
+                106     LOAD_GLOBAL                     7: NULL + float
+                116     LOAD_FAST                       3: v
+                118     LOAD_CONST                      4: 0
+                120     BINARY_SUBSCR                   
+                124     LOAD_FAST                       4: w
+                126     BINARY_OP                       11 (/)
+                130     CALL                            1
+                138     LOAD_GLOBAL                     7: NULL + float
+                148     LOAD_FAST                       3: v
+                150     LOAD_CONST                      5: 1
+                152     BINARY_SUBSCR                   
+                156     LOAD_FAST                       4: w
+                158     BINARY_OP                       11 (/)
+                162     CALL                            1
+                170     BUILD_TUPLE                     2
+                172     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: homography.py
+            Object Name: apply_h_batch
+            Qualified Name: apply_h_batch
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 8
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'size'
+                'np'
+                'column_stack'
+                'ones'
+                'len'
+                'T'
+                'copy'
+                'abs'
+            [Locals+Names]
+                'H'
+                'pts_xy'
+                'homog'
+                'proj'
+                'w'
+            [Constants]
+                'Aplica H a N pontos (shape (N,2)) e devolve (N,2) projetado.'
+                0
+                None
+                2
+                1e-12
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       1: pts_xy
+                4       LOAD_ATTR                       0: size
+                24      LOAD_CONST                      1: 0
+                26      COMPARE_OP                      88 (==)
+                30      POP_JUMP_IF_FALSE               2 (to 36)
+                34      LOAD_FAST                       1: pts_xy
+                36      RETURN_VALUE                    
+                38      LOAD_GLOBAL                     2: np
+                48      LOAD_ATTR                       4: column_stack
+                68      PUSH_NULL                       
+                70      LOAD_FAST                       1: pts_xy
+                72      LOAD_GLOBAL                     2: np
+                82      LOAD_ATTR                       6: ones
+                102     PUSH_NULL                       
+                104     LOAD_GLOBAL                     9: NULL + len
+                114     LOAD_FAST                       1: pts_xy
+                116     CALL                            1
+                124     CALL                            1
+                132     BUILD_LIST                      2
+                134     CALL                            1
+                142     STORE_FAST                      2: homog
+                144     LOAD_FAST_LOAD_FAST             32: homog, H
+                146     LOAD_ATTR                       10: T
+                166     BINARY_OP                       4 (@)
+                170     STORE_FAST                      3: proj
+                172     LOAD_FAST                       3: proj
+                174     LOAD_CONST                      2: None
+                176     LOAD_CONST                      2: None
+                178     BUILD_SLICE                     2
+                180     LOAD_CONST                      3: 2
+                182     BUILD_TUPLE                     2
+                184     BINARY_SUBSCR                   
+                188     LOAD_ATTR                       13: copy
+                208     CALL                            0
+                216     STORE_FAST                      4: w
+                218     LOAD_CONST                      4: 1e-12
+                220     LOAD_FAST                       4: w
+                222     LOAD_GLOBAL                     2: np
+                232     LOAD_ATTR                       14: abs
+                252     PUSH_NULL                       
+                254     LOAD_FAST                       4: w
+                256     CALL                            1
+                264     LOAD_CONST                      4: 1e-12
+                266     COMPARE_OP                      2 (<)
+                270     STORE_SUBSCR                    
+                274     LOAD_FAST                       3: proj
+                276     LOAD_CONST                      2: None
+                278     LOAD_CONST                      2: None
+                280     BUILD_SLICE                     2
+                282     LOAD_CONST                      2: None
+                284     LOAD_CONST                      3: 2
+                286     BUILD_SLICE                     2
+                288     BUILD_TUPLE                     2
+                290     BINARY_SUBSCR                   
+                294     LOAD_FAST                       4: w
+                296     LOAD_CONST                      2: None
+                298     LOAD_CONST                      2: None
+                300     BUILD_SLICE                     2
+                302     LOAD_CONST                      2: None
+                304     BUILD_TUPLE                     2
+                306     BINARY_SUBSCR                   
+                310     BINARY_OP                       11 (/)
+                314     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: homography.py
+            Object Name: Calibration
+            Qualified Name: Calibration
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__annotations__'
+                'version'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'Calibration'
+                79
+                'np.ndarray'
+                'H'
+                'list[Point]'
+                'corners_lidar_mm'
+                'corners_screen_norm'
+                'int'
+                'screen_width_px'
+                'screen_height_px'
+                1
+                'version'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'Calibration'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 79
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 'np.ndarray'
+                18      LOAD_NAME                       4: __annotations__
+                20      LOAD_CONST                      3: 'H'
+                22      STORE_SUBSCR                    
+                26      LOAD_CONST                      4: 'list[Point]'
+                28      LOAD_NAME                       4: __annotations__
+                30      LOAD_CONST                      5: 'corners_lidar_mm'
+                32      STORE_SUBSCR                    
+                36      LOAD_CONST                      4: 'list[Point]'
+                38      LOAD_NAME                       4: __annotations__
+                40      LOAD_CONST                      6: 'corners_screen_norm'
+                42      STORE_SUBSCR                    
+                46      LOAD_CONST                      7: 'int'
+                48      LOAD_NAME                       4: __annotations__
+                50      LOAD_CONST                      8: 'screen_width_px'
+                52      STORE_SUBSCR                    
+                56      LOAD_CONST                      7: 'int'
+                58      LOAD_NAME                       4: __annotations__
+                60      LOAD_CONST                      9: 'screen_height_px'
+                62      STORE_SUBSCR                    
+                66      LOAD_CONST                      10: 1
+                68      STORE_NAME                      5: version
+                70      LOAD_CONST                      7: 'int'
+                72      LOAD_NAME                       4: __annotations__
+                74      LOAD_CONST                      11: 'version'
+                76      STORE_SUBSCR                    
+                80      LOAD_CONST                      12: ()
+                82      STORE_NAME                      6: __static_attributes__
+                84      RETURN_CONST                    13: None
+            [Exception Table]
+        'Calibration'
+        [Code]
+            File Name: homography.py
+            Object Name: save_calibration
+            Qualified Name: save_calibration
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 10
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'version'
+                'screen_width_px'
+                'screen_height_px'
+                'corners_lidar_mm'
+                'list'
+                'corners_screen_norm'
+                'H'
+                'tolist'
+                'open'
+                'json'
+                'dump'
+            [Locals+Names]
+                'path'
+                'calib'
+                'p'
+                'data'
+                'f'
+            [Constants]
+                None
+                (
+                    'version'
+                    'screen_width_px'
+                    'screen_height_px'
+                    'corners_lidar_mm'
+                    'corners_screen_norm'
+                    'H'
+                )
+                'w'
+                'utf-8'
+                (
+                    'encoding'
+                )
+                2
+                (
+                    'indent'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       1: calib
+                4       LOAD_ATTR                       0: version
+                24      LOAD_FAST                       1: calib
+                26      LOAD_ATTR                       2: screen_width_px
+                46      LOAD_FAST                       1: calib
+                48      LOAD_ATTR                       4: screen_height_px
+                68      LOAD_FAST                       1: calib
+                70      LOAD_ATTR                       6: corners_lidar_mm
+                90      GET_ITER                        
+                92      LOAD_FAST_AND_CLEAR             2: p
+                94      SWAP                            2
+                96      BUILD_LIST                      0
+                98      SWAP                            2
+                100     GET_ITER                        
+                102     FOR_ITER                        14 (to 132)
+                106     STORE_FAST                      2: p
+                108     LOAD_GLOBAL                     9: NULL + list
+                118     LOAD_FAST                       2: p
+                120     CALL                            1
+                128     LIST_APPEND                     2
+                130     JUMP_BACKWARD                   16 (to 100)
+                134     END_FOR                         
+                136     POP_TOP                         
+                138     SWAP                            2
+                140     STORE_FAST                      2: p
+                142     LOAD_FAST                       1: calib
+                144     LOAD_ATTR                       10: corners_screen_norm
+                164     GET_ITER                        
+                166     LOAD_FAST_AND_CLEAR             2: p
+                168     SWAP                            2
+                170     BUILD_LIST                      0
+                172     SWAP                            2
+                174     GET_ITER                        
+                176     FOR_ITER                        14 (to 206)
+                180     STORE_FAST                      2: p
+                182     LOAD_GLOBAL                     9: NULL + list
+                192     LOAD_FAST                       2: p
+                194     CALL                            1
+                202     LIST_APPEND                     2
+                204     JUMP_BACKWARD                   16 (to 174)
+                208     END_FOR                         
+                210     POP_TOP                         
+                212     SWAP                            2
+                214     STORE_FAST                      2: p
+                216     LOAD_FAST                       1: calib
+                218     LOAD_ATTR                       12: H
+                238     LOAD_ATTR                       15: tolist
+                258     CALL                            0
+                266     LOAD_CONST                      1: ('version', 'screen_width_px', 'screen_height_px', 'corners_lidar_mm', 'corners_screen_norm', 'H')
+                268     BUILD_CONST_KEY_MAP             6
+                270     STORE_FAST                      3: data
+                272     LOAD_GLOBAL                     17: NULL + open
+                282     LOAD_FAST                       0: path
+                284     LOAD_CONST                      2: 'w'
+                286     LOAD_CONST                      3: 'utf-8'
+                288     LOAD_CONST                      4: ('encoding',)
+                290     CALL_KW                         3
+                292     BEFORE_WITH                     
+                294     STORE_FAST                      4: f
+                296     LOAD_GLOBAL                     18: json
+                306     LOAD_ATTR                       20: dump
+                326     PUSH_NULL                       
+                328     LOAD_FAST_LOAD_FAST             52: data, f
+                330     LOAD_CONST                      5: 2
+                332     LOAD_CONST                      6: ('indent',)
+                334     CALL_KW                         3
+                336     POP_TOP                         
+                338     LOAD_CONST                      0: None
+                340     LOAD_CONST                      0: None
+                342     LOAD_CONST                      0: None
+                344     CALL                            2
+                352     POP_TOP                         
+                354     RETURN_CONST                    0: None
+                356     SWAP                            2
+                358     POP_TOP                         
+                360     SWAP                            2
+                362     STORE_FAST                      2: p
+                364     RERAISE                         0
+                366     SWAP                            2
+                368     POP_TOP                         
+                370     SWAP                            2
+                372     STORE_FAST                      2: p
+                374     RERAISE                         0
+                376     PUSH_EXC_INFO                   
+                378     WITH_EXCEPT_START               
+                380     TO_BOOL                         
+                388     POP_JUMP_IF_TRUE                1 (to 392)
+                392     RERAISE                         2
+                394     POP_TOP                         
+                396     POP_EXCEPT                      
+                398     POP_TOP                         
+                400     POP_TOP                         
+                402     RETURN_CONST                    0: None
+                404     COPY                            3
+                406     POP_EXCEPT                      
+                408     RERAISE                         1
+            [Exception Table]
+                96 to 138 -> 356 [5] 
+                170 to 212 -> 366 [6] 
+                294 to 338 -> 376 [1] lasti
+                376 to 396 -> 404 [3] lasti
+        [Code]
+            File Name: homography.py
+            Object Name: load_calibration
+            Qualified Name: load_calibration
+            Arg Count: 1
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 13
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'os'
+                'path'
+                'isfile'
+                'open'
+                'json'
+                'load'
+                'Calibration'
+                'np'
+                'array'
+                'float'
+                'tuple'
+                'int'
+                'get'
+                'ValueError'
+                'KeyError'
+                'print'
+            [Locals+Names]
+                'path'
+                'f'
+                'data'
+                'p'
+                'exc'
+            [Constants]
+                None
+                'r'
+                'utf-8'
+                (
+                    'encoding'
+                )
+                'H'
+                (
+                    'dtype'
+                )
+                'corners_lidar_mm'
+                'corners_screen_norm'
+                'screen_width_px'
+                1920
+                'screen_height_px'
+                1080
+                'version'
+                1
+                (
+                    'H'
+                    'corners_lidar_mm'
+                    'corners_screen_norm'
+                    'screen_width_px'
+                    'screen_height_px'
+                    'version'
+                )
+                '[calib] arquivo inválido ('
+                ').'
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     0: os
+                12      LOAD_ATTR                       2: path
+                32      LOAD_ATTR                       5: isfile
+                52      LOAD_FAST                       0: path
+                54      CALL                            1
+                62      TO_BOOL                         
+                70      POP_JUMP_IF_TRUE                1 (to 74)
+                74      RETURN_CONST                    0: None
+                76      NOP                             
+                78      LOAD_GLOBAL                     7: NULL + open
+                88      LOAD_FAST                       0: path
+                90      LOAD_CONST                      1: 'r'
+                92      LOAD_CONST                      2: 'utf-8'
+                94      LOAD_CONST                      3: ('encoding',)
+                96      CALL_KW                         3
+                98      BEFORE_WITH                     
+                100     STORE_FAST                      1: f
+                102     LOAD_GLOBAL                     8: json
+                112     LOAD_ATTR                       10: load
+                132     PUSH_NULL                       
+                134     LOAD_FAST                       1: f
+                136     CALL                            1
+                144     STORE_FAST                      2: data
+                146     LOAD_CONST                      0: None
+                148     LOAD_CONST                      0: None
+                150     LOAD_CONST                      0: None
+                152     CALL                            2
+                160     POP_TOP                         
+                162     LOAD_GLOBAL                     13: NULL + Calibration
+                172     LOAD_GLOBAL                     14: np
+                182     LOAD_ATTR                       16: array
+                202     PUSH_NULL                       
+                204     LOAD_FAST_CHECK                 2: data
+                206     LOAD_CONST                      4: 'H'
+                208     BINARY_SUBSCR                   
+                212     LOAD_GLOBAL                     18: float
+                222     LOAD_CONST                      5: ('dtype',)
+                224     CALL_KW                         2
+                226     LOAD_FAST                       2: data
+                228     LOAD_CONST                      6: 'corners_lidar_mm'
+                230     BINARY_SUBSCR                   
+                234     GET_ITER                        
+                236     LOAD_FAST_AND_CLEAR             3: p
+                238     SWAP                            2
+                240     BUILD_LIST                      0
+                242     SWAP                            2
+                244     GET_ITER                        
+                246     FOR_ITER                        14 (to 276)
+                250     STORE_FAST                      3: p
+                252     LOAD_GLOBAL                     21: NULL + tuple
+                262     LOAD_FAST                       3: p
+                264     CALL                            1
+                272     LIST_APPEND                     2
+                274     JUMP_BACKWARD                   16 (to 244)
+                278     END_FOR                         
+                280     POP_TOP                         
+                282     SWAP                            2
+                284     STORE_FAST                      3: p
+                286     LOAD_FAST                       2: data
+                288     LOAD_CONST                      7: 'corners_screen_norm'
+                290     BINARY_SUBSCR                   
+                294     GET_ITER                        
+                296     LOAD_FAST_AND_CLEAR             3: p
+                298     SWAP                            2
+                300     BUILD_LIST                      0
+                302     SWAP                            2
+                304     GET_ITER                        
+                306     FOR_ITER                        14 (to 336)
+                310     STORE_FAST                      3: p
+                312     LOAD_GLOBAL                     21: NULL + tuple
+                322     LOAD_FAST                       3: p
+                324     CALL                            1
+                332     LIST_APPEND                     2
+                334     JUMP_BACKWARD                   16 (to 304)
+                338     END_FOR                         
+                340     POP_TOP                         
+                342     SWAP                            2
+                344     STORE_FAST                      3: p
+                346     LOAD_GLOBAL                     23: NULL + int
+                356     LOAD_FAST                       2: data
+                358     LOAD_ATTR                       25: get
+                378     LOAD_CONST                      8: 'screen_width_px'
+                380     LOAD_CONST                      9: 1920
+                382     CALL                            2
+                390     CALL                            1
+                398     LOAD_GLOBAL                     23: NULL + int
+                408     LOAD_FAST                       2: data
+                410     LOAD_ATTR                       25: get
+                430     LOAD_CONST                      10: 'screen_height_px'
+                432     LOAD_CONST                      11: 1080
+                434     CALL                            2
+                442     CALL                            1
+                450     LOAD_GLOBAL                     23: NULL + int
+                460     LOAD_FAST                       2: data
+                462     LOAD_ATTR                       25: get
+                482     LOAD_CONST                      12: 'version'
+                484     LOAD_CONST                      13: 1
+                486     CALL                            2
+                494     CALL                            1
+                502     LOAD_CONST                      14: ('H', 'corners_lidar_mm', 'corners_screen_norm', 'screen_width_px', 'screen_height_px', 'version')
+                504     CALL_KW                         6
+                506     RETURN_VALUE                    
+                508     PUSH_EXC_INFO                   
+                510     WITH_EXCEPT_START               
+                512     TO_BOOL                         
+                520     POP_JUMP_IF_TRUE                1 (to 524)
+                524     RERAISE                         2
+                526     POP_TOP                         
+                528     POP_EXCEPT                      
+                530     POP_TOP                         
+                532     POP_TOP                         
+                534     JUMP_BACKWARD_NO_INTERRUPT      187 (to 162)
+                536     COPY                            3
+                538     POP_EXCEPT                      
+                540     RERAISE                         1
+                542     SWAP                            2
+                544     POP_TOP                         
+                546     SWAP                            2
+                548     STORE_FAST                      3: p
+                550     RERAISE                         0
+                552     SWAP                            2
+                554     POP_TOP                         
+                556     SWAP                            2
+                558     STORE_FAST                      3: p
+                560     RERAISE                         0
+                562     PUSH_EXC_INFO                   
+                564     LOAD_GLOBAL                     26: ValueError
+                574     LOAD_GLOBAL                     28: KeyError
+                584     BUILD_TUPLE                     2
+                586     CHECK_EXC_MATCH                 
+                588     POP_JUMP_IF_FALSE               25 (to 640)
+                592     STORE_FAST                      4: exc
+                594     LOAD_GLOBAL                     31: NULL + print
+                604     LOAD_CONST                      15: '[calib] arquivo inválido ('
+                606     LOAD_FAST                       4: exc
+                608     FORMAT_SIMPLE                   
+                610     LOAD_CONST                      16: ').'
+                612     BUILD_STRING                    3
+                614     CALL                            1
+                622     POP_TOP                         
+                624     POP_EXCEPT                      
+                626     LOAD_CONST                      0: None
+                628     STORE_FAST                      4: exc
+                630     DELETE_FAST                     4: exc
+                632     RETURN_CONST                    0: None
+                634     LOAD_CONST                      0: None
+                636     STORE_FAST                      4: exc
+                638     DELETE_FAST                     4: exc
+                640     RERAISE                         1
+                642     RERAISE                         0
+                644     COPY                            3
+                646     POP_EXCEPT                      
+                648     RERAISE                         1
+            [Exception Table]
+                78 to 100 -> 562 [0] 
+                100 to 146 -> 508 [1] lasti
+                146 to 240 -> 562 [0] 
+                240 to 282 -> 542 [5] 
+                282 to 300 -> 562 [0] 
+                300 to 342 -> 552 [6] 
+                342 to 506 -> 562 [0] 
+                508 to 528 -> 536 [3] lasti
+                528 to 562 -> 562 [0] 
+                562 to 594 -> 644 [1] lasti
+                594 to 624 -> 634 [1] lasti
+                634 to 644 -> 644 [1] lasti
+        '__main__'
+        (
+            (
+                0
+                0
+            )
+            (
+                1000
+                0
+            )
+            (
+                1000
+                1000
+            )
+            (
+                0
+                1000
+            )
+        )
+        2
+        1
+        0.5
+        ' -> '
+        ' (alvo '
+        ') erro='
+        '.2e'
+        'centro:'
+        500
+        (
+            'src'
+            'list[Point]'
+            'dst'
+            'list[Point]'
+            'return'
+            'np.ndarray'
+        )
+        (
+            'H'
+            'np.ndarray'
+            'x'
+            'float'
+            'y'
+            'float'
+            'return'
+            'Point'
+        )
+        (
+            'H'
+            'np.ndarray'
+            'pts_xy'
+            'np.ndarray'
+            'return'
+            'np.ndarray'
+        )
+        (
+            'path'
+            'str'
+            'calib'
+            'Calibration'
+            'return'
+            'None'
+        )
+        (
+            'path'
+            'str'
+            'return'
+            'Calibration | None'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       SETUP_ANNOTATIONS               
+        4       LOAD_CONST                      0: '\nLidarMapper — Etapa 3: homografia 4 pontos + persistência.\n\nA homografia H é uma matriz 3×3 que mapeia (x_lidar_mm, y_lidar_mm) para\n(u, v) em coordenadas normalizadas da tela (0..1). 4 correspondências\ndeterminam H exatamente (DLT por SVD, numpy puro — sem dependência de cv2).\n\nPersistência:\n  calibration.json\n  {\n    "version": 1,\n    "screen_width_px": 1920,\n    "screen_height_px": 1080,\n    "corners_lidar_mm":  [[x_TL,y_TL], [x_TR,y_TR], [x_BR,y_BR], [x_BL,y_BL]],\n    "corners_screen_norm": [[0,0], [1,0], [1,1], [0,1]],\n    "H": [[...],[...],[...]]\n  }\n'
+        6       STORE_NAME                      0: __doc__
+        8       LOAD_CONST                      1: 0
+        10      LOAD_CONST                      2: ('annotations',)
+        12      IMPORT_NAME                     1: __future__
+        14      IMPORT_FROM                     2: annotations
+        16      STORE_NAME                      2: annotations
+        18      POP_TOP                         
+        20      LOAD_CONST                      1: 0
+        22      LOAD_CONST                      3: None
+        24      IMPORT_NAME                     3: json
+        26      STORE_NAME                      3: json
+        28      LOAD_CONST                      1: 0
+        30      LOAD_CONST                      3: None
+        32      IMPORT_NAME                     4: os
+        34      STORE_NAME                      4: os
+        36      LOAD_CONST                      1: 0
+        38      LOAD_CONST                      4: ('dataclass',)
+        40      IMPORT_NAME                     5: dataclasses
+        42      IMPORT_FROM                     6: dataclass
+        44      STORE_NAME                      6: dataclass
+        46      POP_TOP                         
+        48      LOAD_CONST                      1: 0
+        50      LOAD_CONST                      3: None
+        52      IMPORT_NAME                     7: numpy
+        54      STORE_NAME                      8: np
+        56      LOAD_NAME                       9: tuple
+        58      LOAD_NAME                       10: float
+        60      LOAD_NAME                       10: float
+        62      BUILD_TUPLE                     2
+        64      BINARY_SUBSCR                   
+        68      STORE_NAME                      11: Point
+        70      LOAD_CONST                      5: ('TOP-LEFT', 'TOP-RIGHT', 'BOTTOM-RIGHT', 'BOTTOM-LEFT')
+        72      STORE_NAME                      12: CORNER_NAMES
+        74      LOAD_CONST                      6: ((0, 0), (1, 0), (1, 1), (0, 1))
+        76      STORE_NAME                      13: CORNERS_NORM
+        78      LOAD_CONST                      7: 'tuple[Point, Point, Point, Point]'
+        80      LOAD_NAME                       14: __annotations__
+        82      LOAD_CONST                      8: 'CORNERS_NORM'
+        84      STORE_SUBSCR                    
+        88      LOAD_CONST                      27: ('src', 'list[Point]', 'dst', 'list[Point]', 'return', 'np.ndarray')
+        90      LOAD_CONST                      9: <CODE> compute_homography
+        92      MAKE_FUNCTION                   
+        94      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        96      STORE_NAME                      15: compute_homography
+        98      LOAD_CONST                      28: ('H', 'np.ndarray', 'x', 'float', 'y', 'float', 'return', 'Point')
+        100     LOAD_CONST                      10: <CODE> apply_h
+        102     MAKE_FUNCTION                   
+        104     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        106     STORE_NAME                      16: apply_h
+        108     LOAD_CONST                      29: ('H', 'np.ndarray', 'pts_xy', 'np.ndarray', 'return', 'np.ndarray')
+        110     LOAD_CONST                      11: <CODE> apply_h_batch
+        112     MAKE_FUNCTION                   
+        114     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        116     STORE_NAME                      17: apply_h_batch
+        118     LOAD_NAME                       6: dataclass
+        120     LOAD_BUILD_CLASS                
+        122     PUSH_NULL                       
+        124     LOAD_CONST                      12: <CODE> Calibration
+        126     MAKE_FUNCTION                   
+        128     LOAD_CONST                      13: 'Calibration'
+        130     CALL                            2
+        138     CALL                            0
+        146     STORE_NAME                      18: Calibration
+        148     LOAD_CONST                      30: ('path', 'str', 'calib', 'Calibration', 'return', 'None')
+        150     LOAD_CONST                      14: <CODE> save_calibration
+        152     MAKE_FUNCTION                   
+        154     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        156     STORE_NAME                      19: save_calibration
+        158     LOAD_CONST                      31: ('path', 'str', 'return', 'Calibration | None')
+        160     LOAD_CONST                      15: <CODE> load_calibration
+        162     MAKE_FUNCTION                   
+        164     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        166     STORE_NAME                      20: load_calibration
+        168     LOAD_NAME                       21: __name__
+        170     LOAD_CONST                      16: '__main__'
+        172     COMPARE_OP                      88 (==)
+        176     POP_JUMP_IF_FALSE               119 (to 416)
+        180     BUILD_LIST                      0
+        182     LOAD_CONST                      17: ((0, 0), (1000, 0), (1000, 1000), (0, 1000))
+        184     LIST_EXTEND                     1
+        186     STORE_NAME                      22: src
+        188     LOAD_NAME                       23: list
+        190     PUSH_NULL                       
+        192     LOAD_NAME                       13: CORNERS_NORM
+        194     CALL                            1
+        202     STORE_NAME                      24: dst
+        204     LOAD_NAME                       15: compute_homography
+        206     PUSH_NULL                       
+        208     LOAD_NAME                       22: src
+        210     LOAD_NAME                       24: dst
+        212     CALL                            2
+        220     STORE_NAME                      25: H
+        222     LOAD_NAME                       26: zip
+        224     PUSH_NULL                       
+        226     LOAD_NAME                       22: src
+        228     LOAD_NAME                       24: dst
+        230     CALL                            2
+        238     GET_ITER                        
+        240     FOR_ITER                        67 (to 376)
+        244     UNPACK_SEQUENCE                 2
+        248     STORE_NAME                      27: p
+        250     STORE_NAME                      28: q
+        252     LOAD_NAME                       16: apply_h
+        254     PUSH_NULL                       
+        256     LOAD_NAME                       25: H
+        258     BUILD_LIST                      1
+        260     LOAD_NAME                       27: p
+        262     LIST_EXTEND                     1
+        264     CALL_INTRINSIC_1                6 (INTRINSIC_LIST_TO_TUPLE)
+        266     CALL_FUNCTION_EX                0
+        268     STORE_NAME                      29: proj
+        270     LOAD_NAME                       29: proj
+        272     LOAD_CONST                      1: 0
+        274     BINARY_SUBSCR                   
+        278     LOAD_NAME                       28: q
+        280     LOAD_CONST                      1: 0
+        282     BINARY_SUBSCR                   
+        286     BINARY_OP                       10 (-)
+        290     LOAD_CONST                      18: 2
+        292     BINARY_OP                       8 (**)
+        296     LOAD_NAME                       29: proj
+        298     LOAD_CONST                      19: 1
+        300     BINARY_SUBSCR                   
+        304     LOAD_NAME                       28: q
+        306     LOAD_CONST                      19: 1
+        308     BINARY_SUBSCR                   
+        312     BINARY_OP                       10 (-)
+        316     LOAD_CONST                      18: 2
+        318     BINARY_OP                       8 (**)
+        322     BINARY_OP                       0 (+)
+        326     LOAD_CONST                      20: 0.5
+        328     BINARY_OP                       8 (**)
+        332     STORE_NAME                      30: err
+        334     LOAD_NAME                       31: print
+        336     PUSH_NULL                       
+        338     LOAD_NAME                       27: p
+        340     FORMAT_SIMPLE                   
+        342     LOAD_CONST                      21: ' -> '
+        344     LOAD_NAME                       29: proj
+        346     FORMAT_SIMPLE                   
+        348     LOAD_CONST                      22: ' (alvo '
+        350     LOAD_NAME                       28: q
+        352     FORMAT_SIMPLE                   
+        354     LOAD_CONST                      23: ') erro='
+        356     LOAD_NAME                       30: err
+        358     LOAD_CONST                      24: '.2e'
+        360     FORMAT_WITH_SPEC                
+        362     BUILD_STRING                    7
+        364     CALL                            1
+        372     POP_TOP                         
+        374     JUMP_BACKWARD                   69 (to 238)
+        378     END_FOR                         
+        380     POP_TOP                         
+        382     LOAD_NAME                       31: print
+        384     PUSH_NULL                       
+        386     LOAD_CONST                      25: 'centro:'
+        388     LOAD_NAME                       16: apply_h
+        390     PUSH_NULL                       
+        392     LOAD_NAME                       25: H
+        394     LOAD_CONST                      26: 500
+        396     LOAD_CONST                      26: 500
+        398     CALL                            3
+        406     CALL                            2
+        414     POP_TOP                         
+        416     RETURN_CONST                    3: None
+        418     RETURN_CONST                    3: None
+    [Exception Table]

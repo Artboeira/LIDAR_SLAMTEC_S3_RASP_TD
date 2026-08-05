@@ -1,0 +1,827 @@
+test_udp_receiver.pyc (Python 3.13)
+[Code]
+    File Name: test_udp_receiver.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 4
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'argparse'
+        'socket'
+        'sys'
+        'time'
+        'config'
+        'cfg_mod'
+        'publisher'
+        'unpack_frame'
+        '_HEADER'
+        '_POINT'
+        'main'
+        '__name__'
+        'SystemExit'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — teste da Etapa 5: receptor UDP binário de validação.\n\nRecebe datagramas do publisher, faz struct.unpack do formato LIDAR_MAPPER_V1\ne imprime FPS, latência (timestamp do pacote vs time.time() local), e\nopcionalmente o conteúdo decodificado.\n\nUso:\n    python test_udp_receiver.py\n    python test_udp_receiver.py --host 0.0.0.0 --port 5555\n    python test_udp_receiver.py --raw                # imprime cada pacote\n    python test_udp_receiver.py --duration 10        # roda 10s e sai\n\nPara latência fazer sentido, o relógio do publisher e do receiver têm que\nestar sincronizados — em localhost é trivial; entre máquinas, NTP ajuda.\n\nBind:\n  Por default, escuta em 0.0.0.0 (todas as interfaces) na porta `--port`.\n  Use --host 127.0.0.1 pra restringir ao localhost.\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'unpack_frame'
+            '_HEADER'
+            '_POINT'
+        )
+        [Code]
+            File Name: test_udp_receiver.py
+            Object Name: main
+            Qualified Name: main
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 16
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'cfg_mod'
+                'load'
+                'argparse'
+                'ArgumentParser'
+                'add_argument'
+                'int'
+                'udp'
+                'port'
+                'float'
+                'parse_args'
+                'socket'
+                'AF_INET'
+                'SOCK_DGRAM'
+                'setsockopt'
+                'SOL_SOCKET'
+                'SO_REUSEADDR'
+                'bind'
+                'host'
+                'settimeout'
+                'print'
+                '_HEADER'
+                'size'
+                '_POINT'
+                'time'
+                'monotonic'
+                'recvfrom'
+                'timeout'
+                'unpack_frame'
+                'ValueError'
+                'sys'
+                'stderr'
+                'len'
+                'raw'
+                'join'
+                'max'
+                'duration'
+                'KeyboardInterrupt'
+                'close'
+            [Locals+Names]
+                'cfg'
+                'ap'
+                'args'
+                'sock'
+                't0'
+                'last_status'
+                'n_total'
+                'n_window'
+                'n_bad'
+                'sum_lat'
+                'max_lat'
+                'last_pkt'
+                'first_seen'
+                'data'
+                'peer'
+                'now_mono'
+                'now_wall'
+                'pkt'
+                'exc'
+                'lat'
+                'pts_s'
+                'elapsed'
+                'fps'
+                'avg_lat_ms'
+                'max_lat_ms'
+                'pts'
+            [Constants]
+                None
+                '--host'
+                '0.0.0.0'
+                'interface pra escutar (0.0.0.0=todas)'
+                (
+                    'default'
+                    'help'
+                )
+                '--port'
+                (
+                    'type'
+                    'default'
+                )
+                '--raw'
+                'store_true'
+                'imprime cada frame decodificado'
+                (
+                    'action'
+                    'help'
+                )
+                '--duration'
+                0
+                1
+                0.2
+                '[udp-sub] escutando em '
+                ':'
+                '[udp-sub] formato: header '
+                'B + '
+                'B/ponto'
+                '[udp-sub] aguardando datagramas... Ctrl+C pra sair.'
+                0
+                False
+                True
+                8192
+                5
+                '[udp-sub] pacote inválido ('
+                ')'
+                (
+                    'file'
+                )
+                'timestamp'
+                '[udp-sub] primeiro pacote de '
+                ' ok: frame='
+                'frame'
+                ' points='
+                'points'
+                '  bytes='
+                '  '
+                [Code]
+                    File Name: test_udp_receiver.py
+                    Object Name: <genexpr>
+                    Qualified Name: main.<locals>.<genexpr>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 10
+                    Flags: 0x01000033 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_GENERATOR | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '.0'
+                        'p'
+                    [Constants]
+                        '#'
+                        'id'
+                        '('
+                        'x'
+                        '.2f'
+                        ','
+                        'y'
+                        ',c='
+                        'confidence'
+                        ')'
+                        None
+                    [Disassembly]
+                        0       RETURN_GENERATOR                
+                        2       POP_TOP                         
+                        4       RESUME                          0
+                        6       LOAD_FAST                       0: .0
+                        8       GET_ITER                        
+                        10      FOR_ITER                        35 (to 82)
+                        14      STORE_FAST                      1: p
+                        16      LOAD_CONST                      0: '#'
+                        18      LOAD_FAST                       1: p
+                        20      LOAD_CONST                      1: 'id'
+                        22      BINARY_SUBSCR                   
+                        26      FORMAT_SIMPLE                   
+                        28      LOAD_CONST                      2: '('
+                        30      LOAD_FAST                       1: p
+                        32      LOAD_CONST                      3: 'x'
+                        34      BINARY_SUBSCR                   
+                        38      LOAD_CONST                      4: '.2f'
+                        40      FORMAT_WITH_SPEC                
+                        42      LOAD_CONST                      5: ','
+                        44      LOAD_FAST                       1: p
+                        46      LOAD_CONST                      6: 'y'
+                        48      BINARY_SUBSCR                   
+                        52      LOAD_CONST                      4: '.2f'
+                        54      FORMAT_WITH_SPEC                
+                        56      LOAD_CONST                      7: ',c='
+                        58      LOAD_FAST                       1: p
+                        60      LOAD_CONST                      8: 'confidence'
+                        62      BINARY_SUBSCR                   
+                        66      LOAD_CONST                      4: '.2f'
+                        68      FORMAT_WITH_SPEC                
+                        70      LOAD_CONST                      9: ')'
+                        72      BUILD_STRING                    9
+                        74      YIELD_VALUE                     0
+                        76      RESUME                          5
+                        78      POP_TOP                         
+                        80      JUMP_BACKWARD                   37 (to 8)
+                        84      END_FOR                         
+                        86      POP_TOP                         
+                        88      RETURN_CONST                    10: None
+                        90      CALL_INTRINSIC_1                3 (INTRINSIC_STOPITERATION_ERROR)
+                        92      RERAISE                         1
+                    [Exception Table]
+                        4 to 90 -> 90 [0] lasti
+                '(vazio)'
+                'frame='
+                '5d'
+                '  ts='
+                '.3f'
+                '  N='
+                1
+                1000
+                '[udp-sub] fps='
+                '5.1f'
+                '  total='
+                '6d'
+                '  last_frame='
+                '-'
+                '  lat avg='
+                'ms max='
+                'ms  bad='
+                '[udp-sub] duração atingida ('
+                '.1f'
+                's); saindo.'
+                '\n[udp-sub] Ctrl+C — saindo.'
+                '[udp-sub] total: '
+                ' pacotes em '
+                's ('
+                1e-06
+                ' fps média, '
+                ' inválidos)'
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     0: cfg_mod
+                12      LOAD_ATTR                       2: load
+                32      PUSH_NULL                       
+                34      CALL                            0
+                42      STORE_FAST                      0: cfg
+                44      LOAD_GLOBAL                     4: argparse
+                54      LOAD_ATTR                       6: ArgumentParser
+                74      PUSH_NULL                       
+                76      CALL                            0
+                84      STORE_FAST                      1: ap
+                86      LOAD_FAST                       1: ap
+                88      LOAD_ATTR                       9: add_argument
+                108     LOAD_CONST                      1: '--host'
+                110     LOAD_CONST                      2: '0.0.0.0'
+                112     LOAD_CONST                      3: 'interface pra escutar (0.0.0.0=todas)'
+                114     LOAD_CONST                      4: ('default', 'help')
+                116     CALL_KW                         3
+                118     POP_TOP                         
+                120     LOAD_FAST                       1: ap
+                122     LOAD_ATTR                       9: add_argument
+                142     LOAD_CONST                      5: '--port'
+                144     LOAD_GLOBAL                     10: int
+                154     LOAD_FAST                       0: cfg
+                156     LOAD_ATTR                       12: udp
+                176     LOAD_ATTR                       14: port
+                196     LOAD_CONST                      6: ('type', 'default')
+                198     CALL_KW                         3
+                200     POP_TOP                         
+                202     LOAD_FAST                       1: ap
+                204     LOAD_ATTR                       9: add_argument
+                224     LOAD_CONST                      7: '--raw'
+                226     LOAD_CONST                      8: 'store_true'
+                228     LOAD_CONST                      9: 'imprime cada frame decodificado'
+                230     LOAD_CONST                      10: ('action', 'help')
+                232     CALL_KW                         3
+                234     POP_TOP                         
+                236     LOAD_FAST                       1: ap
+                238     LOAD_ATTR                       9: add_argument
+                258     LOAD_CONST                      11: '--duration'
+                260     LOAD_GLOBAL                     16: float
+                270     LOAD_CONST                      12: 0
+                272     LOAD_CONST                      6: ('type', 'default')
+                274     CALL_KW                         3
+                276     POP_TOP                         
+                278     LOAD_FAST                       1: ap
+                280     LOAD_ATTR                       19: parse_args
+                300     CALL                            0
+                308     STORE_FAST                      2: args
+                310     LOAD_GLOBAL                     20: socket
+                320     LOAD_ATTR                       20: socket
+                340     PUSH_NULL                       
+                342     LOAD_GLOBAL                     20: socket
+                352     LOAD_ATTR                       22: AF_INET
+                372     LOAD_GLOBAL                     20: socket
+                382     LOAD_ATTR                       24: SOCK_DGRAM
+                402     CALL                            2
+                410     STORE_FAST                      3: sock
+                412     LOAD_FAST                       3: sock
+                414     LOAD_ATTR                       27: setsockopt
+                434     LOAD_GLOBAL                     20: socket
+                444     LOAD_ATTR                       28: SOL_SOCKET
+                464     LOAD_GLOBAL                     20: socket
+                474     LOAD_ATTR                       30: SO_REUSEADDR
+                494     LOAD_CONST                      13: 1
+                496     CALL                            3
+                504     POP_TOP                         
+                506     LOAD_FAST                       3: sock
+                508     LOAD_ATTR                       33: bind
+                528     LOAD_FAST                       2: args
+                530     LOAD_ATTR                       34: host
+                550     LOAD_FAST                       2: args
+                552     LOAD_ATTR                       14: port
+                572     BUILD_TUPLE                     2
+                574     CALL                            1
+                582     POP_TOP                         
+                584     LOAD_FAST                       3: sock
+                586     LOAD_ATTR                       37: settimeout
+                606     LOAD_CONST                      14: 0.2
+                608     CALL                            1
+                616     POP_TOP                         
+                618     LOAD_GLOBAL                     39: NULL + print
+                628     LOAD_CONST                      15: '[udp-sub] escutando em '
+                630     LOAD_FAST                       2: args
+                632     LOAD_ATTR                       34: host
+                652     FORMAT_SIMPLE                   
+                654     LOAD_CONST                      16: ':'
+                656     LOAD_FAST                       2: args
+                658     LOAD_ATTR                       14: port
+                678     FORMAT_SIMPLE                   
+                680     BUILD_STRING                    4
+                682     CALL                            1
+                690     POP_TOP                         
+                692     LOAD_GLOBAL                     39: NULL + print
+                702     LOAD_CONST                      17: '[udp-sub] formato: header '
+                704     LOAD_GLOBAL                     40: _HEADER
+                714     LOAD_ATTR                       42: size
+                734     FORMAT_SIMPLE                   
+                736     LOAD_CONST                      18: 'B + '
+                738     LOAD_GLOBAL                     44: _POINT
+                748     LOAD_ATTR                       42: size
+                768     FORMAT_SIMPLE                   
+                770     LOAD_CONST                      19: 'B/ponto'
+                772     BUILD_STRING                    5
+                774     CALL                            1
+                782     POP_TOP                         
+                784     LOAD_GLOBAL                     39: NULL + print
+                794     LOAD_CONST                      20: '[udp-sub] aguardando datagramas... Ctrl+C pra sair.'
+                796     CALL                            1
+                804     POP_TOP                         
+                806     LOAD_GLOBAL                     46: time
+                816     LOAD_ATTR                       48: monotonic
+                836     PUSH_NULL                       
+                838     CALL                            0
+                846     STORE_FAST                      4: t0
+                848     LOAD_FAST                       4: t0
+                850     STORE_FAST                      5: last_status
+                852     LOAD_CONST                      21: 0
+                854     STORE_FAST                      6: n_total
+                856     LOAD_CONST                      21: 0
+                858     STORE_FAST                      7: n_window
+                860     LOAD_CONST                      21: 0
+                862     STORE_FAST                      8: n_bad
+                864     LOAD_CONST                      12: 0
+                866     STORE_FAST                      9: sum_lat
+                868     LOAD_CONST                      12: 0
+                870     STORE_FAST                      10: max_lat
+                872     LOAD_CONST                      0: None
+                874     STORE_FAST                      11: last_pkt
+                876     LOAD_CONST                      22: False
+                878     STORE_FAST                      12: first_seen
+                880     NOP                             
+                882     NOP                             
+                884     NOP                             
+                886     LOAD_FAST                       3: sock
+                888     LOAD_ATTR                       51: recvfrom
+                908     LOAD_CONST                      24: 8192
+                910     CALL                            1
+                918     UNPACK_SEQUENCE                 2
+                922     STORE_FAST_STORE_FAST           222: data, peer
+                924     LOAD_GLOBAL                     46: time
+                934     LOAD_ATTR                       48: monotonic
+                954     PUSH_NULL                       
+                956     CALL                            0
+                964     STORE_FAST                      15: now_mono
+                966     LOAD_GLOBAL                     46: time
+                976     LOAD_ATTR                       46: time
+                996     PUSH_NULL                       
+                998     CALL                            0
+                1006    STORE_FAST                      16: now_wall
+                1008    LOAD_FAST                       13: data
+                1010    TO_BOOL                         
+                1018    POP_JUMP_IF_FALSE               218 (to 1456)
+                1022    NOP                             
+                1024    LOAD_GLOBAL                     55: NULL + unpack_frame
+                1034    LOAD_FAST                       13: data
+                1036    CALL                            1
+                1044    STORE_FAST                      17: pkt
+                1046    LOAD_FAST                       17: pkt
+                1048    STORE_FAST                      11: last_pkt
+                1050    LOAD_FAST                       6: n_total
+                1052    LOAD_CONST                      13: 1
+                1054    BINARY_OP                       13 (+=)
+                1058    STORE_FAST                      6: n_total
+                1060    LOAD_FAST                       7: n_window
+                1062    LOAD_CONST                      13: 1
+                1064    BINARY_OP                       13 (+=)
+                1068    STORE_FAST                      7: n_window
+                1070    LOAD_FAST                       16: now_wall
+                1072    LOAD_FAST                       17: pkt
+                1074    LOAD_CONST                      29: 'timestamp'
+                1076    BINARY_SUBSCR                   
+                1080    BINARY_OP                       10 (-)
+                1084    STORE_FAST                      19: lat
+                1086    LOAD_FAST                       9: sum_lat
+                1088    LOAD_FAST                       19: lat
+                1090    BINARY_OP                       13 (+=)
+                1094    STORE_FAST                      9: sum_lat
+                1096    LOAD_FAST                       19: lat
+                1098    LOAD_FAST                       10: max_lat
+                1100    COMPARE_OP                      148 (>)
+                1104    POP_JUMP_IF_FALSE               2 (to 1110)
+                1108    LOAD_FAST                       19: lat
+                1110    STORE_FAST                      10: max_lat
+                1112    LOAD_FAST                       12: first_seen
+                1114    TO_BOOL                         
+                1122    POP_JUMP_IF_TRUE                58 (to 1240)
+                1126    LOAD_GLOBAL                     39: NULL + print
+                1136    LOAD_CONST                      30: '[udp-sub] primeiro pacote de '
+                1138    LOAD_FAST_CHECK                 14: peer
+                1140    LOAD_CONST                      21: 0
+                1142    BINARY_SUBSCR                   
+                1146    FORMAT_SIMPLE                   
+                1148    LOAD_CONST                      16: ':'
+                1150    LOAD_FAST                       14: peer
+                1152    LOAD_CONST                      13: 1
+                1154    BINARY_SUBSCR                   
+                1158    FORMAT_SIMPLE                   
+                1160    LOAD_CONST                      31: ' ok: frame='
+                1162    LOAD_FAST                       17: pkt
+                1164    LOAD_CONST                      32: 'frame'
+                1166    BINARY_SUBSCR                   
+                1170    FORMAT_SIMPLE                   
+                1172    LOAD_CONST                      33: ' points='
+                1174    LOAD_GLOBAL                     63: NULL + len
+                1184    LOAD_FAST                       17: pkt
+                1186    LOAD_CONST                      34: 'points'
+                1188    BINARY_SUBSCR                   
+                1192    CALL                            1
+                1200    FORMAT_SIMPLE                   
+                1202    LOAD_CONST                      35: '  bytes='
+                1204    LOAD_GLOBAL                     63: NULL + len
+                1214    LOAD_FAST                       13: data
+                1216    CALL                            1
+                1224    FORMAT_SIMPLE                   
+                1226    BUILD_STRING                    10
+                1228    CALL                            1
+                1236    POP_TOP                         
+                1238    LOAD_CONST                      23: True
+                1240    STORE_FAST                      12: first_seen
+                1242    LOAD_FAST                       2: args
+                1244    LOAD_ATTR                       64: raw
+                1264    TO_BOOL                         
+                1272    POP_JUMP_IF_FALSE               91 (to 1456)
+                1276    LOAD_CONST                      36: '  '
+                1278    LOAD_ATTR                       67: join
+                1298    LOAD_CONST                      37: <CODE> <genexpr>
+                1300    MAKE_FUNCTION                   
+                1302    LOAD_FAST                       17: pkt
+                1304    LOAD_CONST                      34: 'points'
+                1306    BINARY_SUBSCR                   
+                1310    GET_ITER                        
+                1312    CALL                            0
+                1320    CALL                            1
+                1328    COPY                            1
+                1330    TO_BOOL                         
+                1338    POP_JUMP_IF_TRUE                2 (to 1344)
+                1342    POP_TOP                         
+                1344    LOAD_CONST                      38: '(vazio)'
+                1346    STORE_FAST                      20: pts_s
+                1348    LOAD_GLOBAL                     39: NULL + print
+                1358    LOAD_CONST                      39: 'frame='
+                1360    LOAD_FAST                       17: pkt
+                1362    LOAD_CONST                      32: 'frame'
+                1364    BINARY_SUBSCR                   
+                1368    LOAD_CONST                      40: '5d'
+                1370    FORMAT_WITH_SPEC                
+                1372    LOAD_CONST                      41: '  ts='
+                1374    LOAD_FAST                       17: pkt
+                1376    LOAD_CONST                      29: 'timestamp'
+                1378    BINARY_SUBSCR                   
+                1382    LOAD_CONST                      42: '.3f'
+                1384    FORMAT_WITH_SPEC                
+                1386    LOAD_CONST                      43: '  N='
+                1388    LOAD_GLOBAL                     63: NULL + len
+                1398    LOAD_FAST                       17: pkt
+                1400    LOAD_CONST                      34: 'points'
+                1402    BINARY_SUBSCR                   
+                1406    CALL                            1
+                1414    FORMAT_SIMPLE                   
+                1416    LOAD_CONST                      35: '  bytes='
+                1418    LOAD_GLOBAL                     63: NULL + len
+                1428    LOAD_FAST                       13: data
+                1430    CALL                            1
+                1438    FORMAT_SIMPLE                   
+                1440    LOAD_CONST                      36: '  '
+                1442    LOAD_FAST                       20: pts_s
+                1444    FORMAT_SIMPLE                   
+                1446    BUILD_STRING                    10
+                1448    CALL                            1
+                1456    POP_TOP                         
+                1458    LOAD_FAST_LOAD_FAST             245: now_mono, last_status
+                1460    BINARY_OP                       10 (-)
+                1464    LOAD_CONST                      44: 1
+                1466    COMPARE_OP                      188 (>=)
+                1470    POP_JUMP_IF_FALSE               107 (to 1686)
+                1474    LOAD_FAST_LOAD_FAST             245: now_mono, last_status
+                1476    BINARY_OP                       10 (-)
+                1480    STORE_FAST                      21: elapsed
+                1482    LOAD_FAST                       7: n_window
+                1484    LOAD_FAST                       21: elapsed
+                1486    BINARY_OP                       11 (/)
+                1490    STORE_FAST                      22: fps
+                1492    LOAD_FAST                       9: sum_lat
+                1494    LOAD_GLOBAL                     69: NULL + max
+                1504    LOAD_FAST                       6: n_total
+                1506    LOAD_CONST                      13: 1
+                1508    CALL                            2
+                1516    BINARY_OP                       11 (/)
+                1520    LOAD_CONST                      45: 1000
+                1522    BINARY_OP                       5 (*)
+                1526    STORE_FAST                      23: avg_lat_ms
+                1528    LOAD_FAST                       10: max_lat
+                1530    LOAD_CONST                      45: 1000
+                1532    BINARY_OP                       5 (*)
+                1536    STORE_FAST                      24: max_lat_ms
+                1538    LOAD_FAST                       11: last_pkt
+                1540    TO_BOOL                         
+                1548    POP_JUMP_IF_FALSE               14 (to 1578)
+                1552    LOAD_GLOBAL                     63: NULL + len
+                1562    LOAD_FAST                       11: last_pkt
+                1564    LOAD_CONST                      34: 'points'
+                1566    BINARY_SUBSCR                   
+                1570    CALL                            1
+                1578    JUMP_FORWARD                    1 (to 1582)
+                1580    LOAD_CONST                      21: 0
+                1582    STORE_FAST                      25: pts
+                1584    LOAD_GLOBAL                     39: NULL + print
+                1594    LOAD_CONST                      46: '[udp-sub] fps='
+                1596    LOAD_FAST                       22: fps
+                1598    LOAD_CONST                      47: '5.1f'
+                1600    FORMAT_WITH_SPEC                
+                1602    LOAD_CONST                      48: '  total='
+                1604    LOAD_FAST                       6: n_total
+                1606    LOAD_CONST                      49: '6d'
+                1608    FORMAT_WITH_SPEC                
+                1610    LOAD_CONST                      50: '  last_frame='
+                1612    LOAD_FAST                       11: last_pkt
+                1614    TO_BOOL                         
+                1622    POP_JUMP_IF_FALSE               5 (to 1634)
+                1626    LOAD_FAST                       11: last_pkt
+                1628    LOAD_CONST                      32: 'frame'
+                1630    BINARY_SUBSCR                   
+                1634    JUMP_FORWARD                    1 (to 1638)
+                1636    LOAD_CONST                      51: '-'
+                1638    FORMAT_SIMPLE                   
+                1640    LOAD_CONST                      43: '  N='
+                1642    LOAD_FAST                       25: pts
+                1644    FORMAT_SIMPLE                   
+                1646    LOAD_CONST                      52: '  lat avg='
+                1648    LOAD_FAST                       23: avg_lat_ms
+                1650    LOAD_CONST                      47: '5.1f'
+                1652    FORMAT_WITH_SPEC                
+                1654    LOAD_CONST                      53: 'ms max='
+                1656    LOAD_FAST                       24: max_lat_ms
+                1658    LOAD_CONST                      47: '5.1f'
+                1660    FORMAT_WITH_SPEC                
+                1662    LOAD_CONST                      54: 'ms  bad='
+                1664    LOAD_FAST                       8: n_bad
+                1666    FORMAT_SIMPLE                   
+                1668    BUILD_STRING                    14
+                1670    CALL                            1
+                1678    POP_TOP                         
+                1680    LOAD_CONST                      21: 0
+                1682    STORE_FAST                      7: n_window
+                1684    LOAD_FAST                       15: now_mono
+                1686    STORE_FAST                      5: last_status
+                1688    LOAD_FAST                       2: args
+                1690    LOAD_ATTR                       70: duration
+                1710    LOAD_CONST                      21: 0
+                1712    COMPARE_OP                      148 (>)
+                1716    POP_JUMP_IF_FALSE               45 (to 1808)
+                1720    LOAD_FAST_LOAD_FAST             244: now_mono, t0
+                1722    BINARY_OP                       10 (-)
+                1726    LOAD_FAST                       2: args
+                1728    LOAD_ATTR                       70: duration
+                1748    COMPARE_OP                      188 (>=)
+                1752    POP_JUMP_IF_FALSE               27 (to 1808)
+                1756    LOAD_GLOBAL                     39: NULL + print
+                1766    LOAD_CONST                      55: '[udp-sub] duração atingida ('
+                1768    LOAD_FAST                       2: args
+                1770    LOAD_ATTR                       70: duration
+                1790    LOAD_CONST                      56: '.1f'
+                1792    FORMAT_WITH_SPEC                
+                1794    LOAD_CONST                      57: 's); saindo.'
+                1796    BUILD_STRING                    3
+                1798    CALL                            1
+                1806    POP_TOP                         
+                1808    JUMP_FORWARD                    3 (to 1816)
+                1810    JUMP_BACKWARD                   466 (to 882)
+                1816    LOAD_FAST                       3: sock
+                1818    LOAD_ATTR                       75: close
+                1838    CALL                            0
+                1846    POP_TOP                         
+                1848    LOAD_GLOBAL                     46: time
+                1858    LOAD_ATTR                       48: monotonic
+                1878    PUSH_NULL                       
+                1880    CALL                            0
+                1888    LOAD_FAST                       4: t0
+                1890    BINARY_OP                       10 (-)
+                1894    STORE_FAST                      21: elapsed
+                1896    LOAD_GLOBAL                     39: NULL + print
+                1906    LOAD_CONST                      59: '[udp-sub] total: '
+                1908    LOAD_FAST                       6: n_total
+                1910    FORMAT_SIMPLE                   
+                1912    LOAD_CONST                      60: ' pacotes em '
+                1914    LOAD_FAST                       21: elapsed
+                1916    LOAD_CONST                      56: '.1f'
+                1918    FORMAT_WITH_SPEC                
+                1920    LOAD_CONST                      61: 's ('
+                1922    LOAD_FAST                       6: n_total
+                1924    LOAD_GLOBAL                     69: NULL + max
+                1934    LOAD_FAST                       21: elapsed
+                1936    LOAD_CONST                      62: 1e-06
+                1938    CALL                            2
+                1946    BINARY_OP                       11 (/)
+                1950    LOAD_CONST                      56: '.1f'
+                1952    FORMAT_WITH_SPEC                
+                1954    LOAD_CONST                      63: ' fps média, '
+                1956    LOAD_FAST                       8: n_bad
+                1958    FORMAT_SIMPLE                   
+                1960    LOAD_CONST                      64: ' inválidos)'
+                1962    BUILD_STRING                    9
+                1964    CALL                            1
+                1972    POP_TOP                         
+                1974    RETURN_CONST                    21: 0
+                1976    PUSH_EXC_INFO                   
+                1978    LOAD_GLOBAL                     20: socket
+                1988    LOAD_ATTR                       52: timeout
+                2008    CHECK_EXC_MATCH                 
+                2010    POP_JUMP_IF_FALSE               6 (to 2024)
+                2014    POP_TOP                         
+                2016    LOAD_CONST                      0: None
+                2018    STORE_FAST                      13: data
+                2020    POP_EXCEPT                      
+                2022    JUMP_BACKWARD_NO_INTERRUPT      551 (to 924)
+                2026    RERAISE                         0
+                2028    COPY                            3
+                2030    POP_EXCEPT                      
+                2032    RERAISE                         1
+                2034    PUSH_EXC_INFO                   
+                2036    LOAD_GLOBAL                     56: ValueError
+                2046    CHECK_EXC_MATCH                 
+                2048    POP_JUMP_IF_FALSE               51 (to 2152)
+                2052    STORE_FAST                      18: exc
+                2054    LOAD_FAST                       8: n_bad
+                2056    LOAD_CONST                      13: 1
+                2058    BINARY_OP                       13 (+=)
+                2062    STORE_FAST                      8: n_bad
+                2064    LOAD_FAST                       8: n_bad
+                2066    LOAD_CONST                      25: 5
+                2068    COMPARE_OP                      58 (<=)
+                2072    POP_JUMP_IF_FALSE               28 (to 2130)
+                2076    LOAD_GLOBAL                     39: NULL + print
+                2086    LOAD_CONST                      26: '[udp-sub] pacote inválido ('
+                2088    LOAD_FAST                       18: exc
+                2090    FORMAT_SIMPLE                   
+                2092    LOAD_CONST                      27: ')'
+                2094    BUILD_STRING                    3
+                2096    LOAD_GLOBAL                     58: sys
+                2106    LOAD_ATTR                       60: stderr
+                2126    LOAD_CONST                      28: ('file',)
+                2128    CALL_KW                         2
+                2130    POP_TOP                         
+                2132    POP_EXCEPT                      
+                2134    LOAD_CONST                      0: None
+                2136    STORE_FAST                      18: exc
+                2138    DELETE_FAST                     18: exc
+                2140    JUMP_BACKWARD                   632 (to 880)
+                2146    LOAD_CONST                      0: None
+                2148    STORE_FAST                      18: exc
+                2150    DELETE_FAST                     18: exc
+                2152    RERAISE                         1
+                2154    RERAISE                         0
+                2156    COPY                            3
+                2158    POP_EXCEPT                      
+                2160    RERAISE                         1
+                2162    PUSH_EXC_INFO                   
+                2164    LOAD_GLOBAL                     72: KeyboardInterrupt
+                2174    CHECK_EXC_MATCH                 
+                2176    POP_JUMP_IF_FALSE               14 (to 2206)
+                2180    POP_TOP                         
+                2182    LOAD_GLOBAL                     39: NULL + print
+                2192    LOAD_CONST                      58: '\n[udp-sub] Ctrl+C — saindo.'
+                2194    CALL                            1
+                2202    POP_TOP                         
+                2204    POP_EXCEPT                      
+                2206    JUMP_BACKWARD_NO_INTERRUPT      196 (to 1816)
+                2208    RERAISE                         0
+                2210    COPY                            3
+                2212    POP_EXCEPT                      
+                2214    RERAISE                         1
+                2216    PUSH_EXC_INFO                   
+                2218    LOAD_FAST                       3: sock
+                2220    LOAD_ATTR                       75: close
+                2240    CALL                            0
+                2248    POP_TOP                         
+                2250    RERAISE                         0
+                2252    COPY                            3
+                2254    POP_EXCEPT                      
+                2256    RERAISE                         1
+            [Exception Table]
+                882 to 884 -> 2162 [0] 
+                886 to 924 -> 1976 [0] 
+                924 to 1022 -> 2162 [0] 
+                1024 to 1046 -> 2034 [0] 
+                1046 to 1808 -> 2162 [0] 
+                1808 to 1810 -> 2216 [0] 
+                1810 to 1816 -> 2162 [0] 
+                1976 to 2020 -> 2028 [1] lasti
+                2020 to 2026 -> 2162 [0] 
+                2026 to 2028 -> 2028 [1] lasti
+                2028 to 2034 -> 2162 [0] 
+                2034 to 2054 -> 2156 [1] lasti
+                2054 to 2132 -> 2146 [1] lasti
+                2132 to 2146 -> 2162 [0] 
+                2146 to 2156 -> 2156 [1] lasti
+                2156 to 2162 -> 2162 [0] 
+                2162 to 2204 -> 2210 [1] lasti
+                2204 to 2208 -> 2216 [0] 
+                2208 to 2210 -> 2210 [1] lasti
+                2210 to 2216 -> 2216 [0] 
+                2216 to 2252 -> 2252 [1] lasti
+        '__main__'
+        (
+            'return'
+            'int'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — teste da Etapa 5: receptor UDP binário de validação.\n\nRecebe datagramas do publisher, faz struct.unpack do formato LIDAR_MAPPER_V1\ne imprime FPS, latência (timestamp do pacote vs time.time() local), e\nopcionalmente o conteúdo decodificado.\n\nUso:\n    python test_udp_receiver.py\n    python test_udp_receiver.py --host 0.0.0.0 --port 5555\n    python test_udp_receiver.py --raw                # imprime cada pacote\n    python test_udp_receiver.py --duration 10        # roda 10s e sai\n\nPara latência fazer sentido, o relógio do publisher e do receiver têm que\nestar sincronizados — em localhost é trivial; entre máquinas, NTP ajuda.\n\nBind:\n  Por default, escuta em 0.0.0.0 (todas as interfaces) na porta `--port`.\n  Use --host 127.0.0.1 pra restringir ao localhost.\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: argparse
+        24      STORE_NAME                      3: argparse
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: socket
+        32      STORE_NAME                      4: socket
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      3: None
+        38      IMPORT_NAME                     5: sys
+        40      STORE_NAME                      5: sys
+        42      LOAD_CONST                      1: 0
+        44      LOAD_CONST                      3: None
+        46      IMPORT_NAME                     6: time
+        48      STORE_NAME                      6: time
+        50      LOAD_CONST                      1: 0
+        52      LOAD_CONST                      3: None
+        54      IMPORT_NAME                     7: config
+        56      STORE_NAME                      8: cfg_mod
+        58      LOAD_CONST                      1: 0
+        60      LOAD_CONST                      4: ('unpack_frame', '_HEADER', '_POINT')
+        62      IMPORT_NAME                     9: publisher
+        64      IMPORT_FROM                     10: unpack_frame
+        66      STORE_NAME                      10: unpack_frame
+        68      IMPORT_FROM                     11: _HEADER
+        70      STORE_NAME                      11: _HEADER
+        72      IMPORT_FROM                     12: _POINT
+        74      STORE_NAME                      12: _POINT
+        76      POP_TOP                         
+        78      LOAD_CONST                      7: ('return', 'int')
+        80      LOAD_CONST                      5: <CODE> main
+        82      MAKE_FUNCTION                   
+        84      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        86      STORE_NAME                      13: main
+        88      LOAD_NAME                       14: __name__
+        90      LOAD_CONST                      6: '__main__'
+        92      COMPARE_OP                      88 (==)
+        96      POP_JUMP_IF_FALSE               13 (to 124)
+        100     LOAD_NAME                       15: SystemExit
+        102     PUSH_NULL                       
+        104     LOAD_NAME                       13: main
+        106     PUSH_NULL                       
+        108     CALL                            0
+        116     CALL                            1
+        124     RAISE_VARARGS                   1
+        126     RETURN_CONST                    3: None
+    [Exception Table]

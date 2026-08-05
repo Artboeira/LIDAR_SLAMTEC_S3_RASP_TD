@@ -1,0 +1,536 @@
+test_lidar.pyc (Python 3.13)
+[Code]
+    File Name: test_lidar.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 4
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'argparse'
+        'sys'
+        'time'
+        'lidar_reader'
+        'LidarReader'
+        'main'
+        '__name__'
+        'SystemExit'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — teste da Etapa 1.\n\nConecta o RPLIDAR S3, lê em loop e imprime:\n  - status da conexão\n  - medidas/s (throughput do sensor) e scans/s (≈ rotações por segundo)\n  - amostra rotativa das últimas medidas (ângulo°, distância mm, qualidade)\n  - contador de reconexões / desyncs (estabilidade)\n\nUso:\n    python test_lidar.py                       # auto-detecta a porta\n    python test_lidar.py --port COM12          # força a porta\n    python test_lidar.py --port COM12 --raw    # imprime CADA medida\n                                                # (verboso; bom pra sanity check)\n    python test_lidar.py --duration 10         # roda 10s e sai (CI/smoke)\n\nCritério de validação (humano):\n  - status "conectado @ COMx"\n  - scans/s ≈ 8–15 Hz (S3 típico)\n  - medidas/s na faixa de milhares (S3 a 1 Mbps faz ~32 kHz em teoria,\n    a leitura via pyserial geralmente fica em alguns milhares)\n  - reconnects = 0, desyncs baixos ou zero por 30s+ sem mexer\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'LidarReader'
+        )
+        [Code]
+            File Name: test_lidar.py
+            Object Name: main
+            Qualified Name: main
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 18
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'argparse'
+                'ArgumentParser'
+                'add_argument'
+                'int'
+                'float'
+                'parse_args'
+                'LidarReader'
+                'port'
+                'baud'
+                'start'
+                'print'
+                'status'
+                'sys'
+                'stderr'
+                'time'
+                'monotonic'
+                'drain'
+                'angle'
+                'distance'
+                'quality'
+                'raw'
+                'new_scan'
+                'meas_per_sec'
+                'scans_per_sec'
+                'desyncs'
+                'reconnects'
+                'stdout'
+                'write'
+                'flush'
+                'duration'
+                'sleep'
+                'KeyboardInterrupt'
+                'stop'
+            [Locals+Names]
+                'ap'
+                'args'
+                'rdr'
+                't0'
+                'last_print'
+                'sample'
+                'n_seen'
+                'measurements'
+                'm'
+                'now'
+                'line'
+                'a'
+                'd'
+                'q'
+            [Constants]
+                None
+                '--port'
+                'porta serial (ex.: COM12). Default: auto-detecta CP210x'
+                (
+                    'default'
+                    'help'
+                )
+                '--baud'
+                1000000
+                'baud rate (S3 = 1000000)'
+                (
+                    'type'
+                    'default'
+                    'help'
+                )
+                '--raw'
+                'store_true'
+                'imprime CADA medida (muito verboso)'
+                (
+                    'action'
+                    'help'
+                )
+                '--duration'
+                0
+                'se >0, roda esse tempo (s) e sai. 0 = até Ctrl+C'
+                (
+                    'port'
+                    'baud'
+                )
+                '[lidar] não iniciou: '
+                (
+                    'file'
+                )
+                1
+                '[lidar] '
+                '[lidar] lendo... Ctrl+C pra sair.'
+                0
+                '  '
+                '7.2f'
+                '°  '
+                '8.1f'
+                'mm  q='
+                '3d'
+                '  new_scan='
+                0.5
+                '\r[lidar] '
+                '  | aguardando primeira medida...'
+                '\r[lidar] port='
+                '  meas/s='
+                '7.0f'
+                '  scans/s='
+                '5.1f'
+                '  last='
+                '6.1f'
+                '° '
+                '7.1f'
+                'mm q='
+                '  desync='
+                ' recon='
+                '  total='
+                '        '
+                '[lidar] duração atingida ('
+                '.1f'
+                's); saindo.'
+                0.01
+                '[lidar] Ctrl+C — parando.'
+                '. total medidas: '
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     0: argparse
+                12      LOAD_ATTR                       2: ArgumentParser
+                32      PUSH_NULL                       
+                34      CALL                            0
+                42      STORE_FAST                      0: ap
+                44      LOAD_FAST                       0: ap
+                46      LOAD_ATTR                       5: add_argument
+                66      LOAD_CONST                      1: '--port'
+                68      LOAD_CONST                      0: None
+                70      LOAD_CONST                      2: 'porta serial (ex.: COM12). Default: auto-detecta CP210x'
+                72      LOAD_CONST                      3: ('default', 'help')
+                74      CALL_KW                         3
+                76      POP_TOP                         
+                78      LOAD_FAST                       0: ap
+                80      LOAD_ATTR                       5: add_argument
+                100     LOAD_CONST                      4: '--baud'
+                102     LOAD_GLOBAL                     6: int
+                112     LOAD_CONST                      5: 1000000
+                114     LOAD_CONST                      6: 'baud rate (S3 = 1000000)'
+                116     LOAD_CONST                      7: ('type', 'default', 'help')
+                118     CALL_KW                         4
+                120     POP_TOP                         
+                122     LOAD_FAST                       0: ap
+                124     LOAD_ATTR                       5: add_argument
+                144     LOAD_CONST                      8: '--raw'
+                146     LOAD_CONST                      9: 'store_true'
+                148     LOAD_CONST                      10: 'imprime CADA medida (muito verboso)'
+                150     LOAD_CONST                      11: ('action', 'help')
+                152     CALL_KW                         3
+                154     POP_TOP                         
+                156     LOAD_FAST                       0: ap
+                158     LOAD_ATTR                       5: add_argument
+                178     LOAD_CONST                      12: '--duration'
+                180     LOAD_GLOBAL                     8: float
+                190     LOAD_CONST                      13: 0
+                192     LOAD_CONST                      14: 'se >0, roda esse tempo (s) e sai. 0 = até Ctrl+C'
+                194     LOAD_CONST                      7: ('type', 'default', 'help')
+                196     CALL_KW                         4
+                198     POP_TOP                         
+                200     LOAD_FAST                       0: ap
+                202     LOAD_ATTR                       11: parse_args
+                222     CALL                            0
+                230     STORE_FAST                      1: args
+                232     LOAD_GLOBAL                     13: NULL + LidarReader
+                242     LOAD_FAST                       1: args
+                244     LOAD_ATTR                       14: port
+                264     LOAD_FAST                       1: args
+                266     LOAD_ATTR                       16: baud
+                286     LOAD_CONST                      15: ('port', 'baud')
+                288     CALL_KW                         2
+                290     STORE_FAST                      2: rdr
+                292     LOAD_FAST                       2: rdr
+                294     LOAD_ATTR                       19: start
+                314     CALL                            0
+                322     TO_BOOL                         
+                330     POP_JUMP_IF_TRUE                38 (to 408)
+                334     LOAD_GLOBAL                     21: NULL + print
+                344     LOAD_CONST                      16: '[lidar] não iniciou: '
+                346     LOAD_FAST                       2: rdr
+                348     LOAD_ATTR                       22: status
+                368     FORMAT_SIMPLE                   
+                370     BUILD_STRING                    2
+                372     LOAD_GLOBAL                     24: sys
+                382     LOAD_ATTR                       26: stderr
+                402     LOAD_CONST                      17: ('file',)
+                404     CALL_KW                         2
+                406     POP_TOP                         
+                408     RETURN_CONST                    18: 1
+                410     LOAD_GLOBAL                     21: NULL + print
+                420     LOAD_CONST                      19: '[lidar] '
+                422     LOAD_FAST                       2: rdr
+                424     LOAD_ATTR                       22: status
+                444     FORMAT_SIMPLE                   
+                446     BUILD_STRING                    2
+                448     CALL                            1
+                456     POP_TOP                         
+                458     LOAD_GLOBAL                     21: NULL + print
+                468     LOAD_CONST                      20: '[lidar] lendo... Ctrl+C pra sair.'
+                470     CALL                            1
+                478     POP_TOP                         
+                480     LOAD_GLOBAL                     28: time
+                490     LOAD_ATTR                       30: monotonic
+                510     PUSH_NULL                       
+                512     CALL                            0
+                520     STORE_FAST                      3: t0
+                522     LOAD_CONST                      13: 0
+                524     STORE_FAST                      4: last_print
+                526     LOAD_CONST                      0: None
+                528     STORE_FAST                      5: sample
+                530     LOAD_CONST                      21: 0
+                532     STORE_FAST                      6: n_seen
+                534     NOP                             
+                536     NOP                             
+                538     LOAD_FAST                       2: rdr
+                540     LOAD_ATTR                       33: drain
+                560     CALL                            0
+                568     STORE_FAST                      7: measurements
+                570     LOAD_FAST                       7: measurements
+                572     GET_ITER                        
+                574     FOR_ITER                        137 (to 850)
+                578     STORE_FAST                      8: m
+                580     LOAD_FAST                       6: n_seen
+                582     LOAD_CONST                      18: 1
+                584     BINARY_OP                       13 (+=)
+                588     STORE_FAST                      6: n_seen
+                590     LOAD_FAST                       8: m
+                592     LOAD_ATTR                       34: angle
+                612     LOAD_FAST                       8: m
+                614     LOAD_ATTR                       36: distance
+                634     LOAD_FAST                       8: m
+                636     LOAD_ATTR                       38: quality
+                656     BUILD_TUPLE                     3
+                658     STORE_FAST                      5: sample
+                660     LOAD_FAST                       1: args
+                662     LOAD_ATTR                       40: raw
+                682     TO_BOOL                         
+                690     POP_JUMP_IF_TRUE                2 (to 696)
+                694     JUMP_BACKWARD                   62 (to 572)
+                698     LOAD_GLOBAL                     21: NULL + print
+                708     LOAD_CONST                      22: '  '
+                710     LOAD_FAST                       8: m
+                712     LOAD_ATTR                       34: angle
+                732     LOAD_CONST                      23: '7.2f'
+                734     FORMAT_WITH_SPEC                
+                736     LOAD_CONST                      24: '°  '
+                738     LOAD_FAST                       8: m
+                740     LOAD_ATTR                       36: distance
+                760     LOAD_CONST                      25: '8.1f'
+                762     FORMAT_WITH_SPEC                
+                764     LOAD_CONST                      26: 'mm  q='
+                766     LOAD_FAST                       8: m
+                768     LOAD_ATTR                       38: quality
+                788     LOAD_CONST                      27: '3d'
+                790     FORMAT_WITH_SPEC                
+                792     LOAD_CONST                      28: '  new_scan='
+                794     LOAD_GLOBAL                     7: NULL + int
+                804     LOAD_FAST                       8: m
+                806     LOAD_ATTR                       42: new_scan
+                826     CALL                            1
+                834     FORMAT_SIMPLE                   
+                836     BUILD_STRING                    8
+                838     CALL                            1
+                846     POP_TOP                         
+                848     JUMP_BACKWARD                   139 (to 572)
+                852     END_FOR                         
+                854     POP_TOP                         
+                856     LOAD_GLOBAL                     28: time
+                866     LOAD_ATTR                       30: monotonic
+                886     PUSH_NULL                       
+                888     CALL                            0
+                896     STORE_FAST                      9: now
+                898     LOAD_FAST_LOAD_FAST             148: now, last_print
+                900     BINARY_OP                       10 (-)
+                904     LOAD_CONST                      29: 0.5
+                906     COMPARE_OP                      188 (>=)
+                910     POP_JUMP_IF_FALSE               192 (to 1296)
+                914     LOAD_FAST                       1: args
+                916     LOAD_ATTR                       40: raw
+                936     TO_BOOL                         
+                944     POP_JUMP_IF_TRUE                175 (to 1296)
+                948     LOAD_FAST                       5: sample
+                950     POP_JUMP_IF_NOT_NONE            17 (to 986)
+                954     LOAD_CONST                      30: '\r[lidar] '
+                956     LOAD_FAST                       2: rdr
+                958     LOAD_ATTR                       22: status
+                978     FORMAT_SIMPLE                   
+                980     LOAD_CONST                      31: '  | aguardando primeira medida...'
+                982     BUILD_STRING                    3
+                984     STORE_FAST                      10: line
+                986     JUMP_FORWARD                    89 (to 1166)
+                988     LOAD_FAST                       5: sample
+                990     UNPACK_SEQUENCE                 3
+                994     STORE_FAST_STORE_FAST           188: a, d
+                996     STORE_FAST                      13: q
+                998     LOAD_CONST                      32: '\r[lidar] port='
+                1000    LOAD_FAST                       2: rdr
+                1002    LOAD_ATTR                       14: port
+                1022    FORMAT_SIMPLE                   
+                1024    LOAD_CONST                      33: '  meas/s='
+                1026    LOAD_FAST                       2: rdr
+                1028    LOAD_ATTR                       44: meas_per_sec
+                1048    LOAD_CONST                      34: '7.0f'
+                1050    FORMAT_WITH_SPEC                
+                1052    LOAD_CONST                      35: '  scans/s='
+                1054    LOAD_FAST                       2: rdr
+                1056    LOAD_ATTR                       46: scans_per_sec
+                1076    LOAD_CONST                      36: '5.1f'
+                1078    FORMAT_WITH_SPEC                
+                1080    LOAD_CONST                      37: '  last='
+                1082    LOAD_FAST                       11: a
+                1084    LOAD_CONST                      38: '6.1f'
+                1086    FORMAT_WITH_SPEC                
+                1088    LOAD_CONST                      39: '° '
+                1090    LOAD_FAST                       12: d
+                1092    LOAD_CONST                      40: '7.1f'
+                1094    FORMAT_WITH_SPEC                
+                1096    LOAD_CONST                      41: 'mm q='
+                1098    LOAD_FAST                       13: q
+                1100    LOAD_CONST                      27: '3d'
+                1102    FORMAT_WITH_SPEC                
+                1104    LOAD_CONST                      42: '  desync='
+                1106    LOAD_FAST                       2: rdr
+                1108    LOAD_ATTR                       48: desyncs
+                1128    FORMAT_SIMPLE                   
+                1130    LOAD_CONST                      43: ' recon='
+                1132    LOAD_FAST                       2: rdr
+                1134    LOAD_ATTR                       50: reconnects
+                1154    FORMAT_SIMPLE                   
+                1156    LOAD_CONST                      44: '  total='
+                1158    LOAD_FAST                       6: n_seen
+                1160    FORMAT_SIMPLE                   
+                1162    BUILD_STRING                    18
+                1164    STORE_FAST                      10: line
+                1166    LOAD_GLOBAL                     24: sys
+                1176    LOAD_ATTR                       52: stdout
+                1196    LOAD_ATTR                       55: write
+                1216    LOAD_FAST                       10: line
+                1218    LOAD_CONST                      45: '        '
+                1220    BINARY_OP                       0 (+)
+                1224    CALL                            1
+                1232    POP_TOP                         
+                1234    LOAD_GLOBAL                     24: sys
+                1244    LOAD_ATTR                       52: stdout
+                1264    LOAD_ATTR                       57: flush
+                1284    CALL                            0
+                1292    POP_TOP                         
+                1294    LOAD_FAST                       9: now
+                1296    STORE_FAST                      4: last_print
+                1298    LOAD_FAST                       1: args
+                1300    LOAD_ATTR                       58: duration
+                1320    LOAD_CONST                      21: 0
+                1322    COMPARE_OP                      148 (>)
+                1326    POP_JUMP_IF_FALSE               55 (to 1438)
+                1330    LOAD_FAST_LOAD_FAST             147: now, t0
+                1332    BINARY_OP                       10 (-)
+                1336    LOAD_FAST                       1: args
+                1338    LOAD_ATTR                       58: duration
+                1358    COMPARE_OP                      188 (>=)
+                1362    POP_JUMP_IF_FALSE               37 (to 1438)
+                1366    LOAD_GLOBAL                     21: NULL + print
+                1376    CALL                            0
+                1384    POP_TOP                         
+                1386    LOAD_GLOBAL                     21: NULL + print
+                1396    LOAD_CONST                      46: '[lidar] duração atingida ('
+                1398    LOAD_FAST                       1: args
+                1400    LOAD_ATTR                       58: duration
+                1420    LOAD_CONST                      47: '.1f'
+                1422    FORMAT_WITH_SPEC                
+                1424    LOAD_CONST                      48: 's); saindo.'
+                1426    BUILD_STRING                    3
+                1428    CALL                            1
+                1436    POP_TOP                         
+                1438    JUMP_FORWARD                    25 (to 1490)
+                1440    LOAD_GLOBAL                     28: time
+                1450    LOAD_ATTR                       60: sleep
+                1470    PUSH_NULL                       
+                1472    LOAD_CONST                      49: 0.01
+                1474    CALL                            1
+                1482    POP_TOP                         
+                1484    JUMP_BACKWARD                   476 (to 536)
+                1490    LOAD_FAST                       2: rdr
+                1492    LOAD_ATTR                       65: stop
+                1512    CALL                            0
+                1520    POP_TOP                         
+                1522    LOAD_GLOBAL                     21: NULL + print
+                1532    LOAD_CONST                      19: '[lidar] '
+                1534    LOAD_FAST                       2: rdr
+                1536    LOAD_ATTR                       22: status
+                1556    FORMAT_SIMPLE                   
+                1558    LOAD_CONST                      51: '. total medidas: '
+                1560    LOAD_FAST                       6: n_seen
+                1562    FORMAT_SIMPLE                   
+                1564    BUILD_STRING                    4
+                1566    CALL                            1
+                1574    POP_TOP                         
+                1576    RETURN_CONST                    21: 0
+                1578    PUSH_EXC_INFO                   
+                1580    LOAD_GLOBAL                     62: KeyboardInterrupt
+                1590    CHECK_EXC_MATCH                 
+                1592    POP_JUMP_IF_FALSE               24 (to 1642)
+                1596    POP_TOP                         
+                1598    LOAD_GLOBAL                     21: NULL + print
+                1608    CALL                            0
+                1616    POP_TOP                         
+                1618    LOAD_GLOBAL                     21: NULL + print
+                1628    LOAD_CONST                      50: '[lidar] Ctrl+C — parando.'
+                1630    CALL                            1
+                1638    POP_TOP                         
+                1640    POP_EXCEPT                      
+                1642    JUMP_BACKWARD_NO_INTERRUPT      77 (to 1490)
+                1644    RERAISE                         0
+                1646    COPY                            3
+                1648    POP_EXCEPT                      
+                1650    RERAISE                         1
+                1652    PUSH_EXC_INFO                   
+                1654    LOAD_FAST                       2: rdr
+                1656    LOAD_ATTR                       65: stop
+                1676    CALL                            0
+                1684    POP_TOP                         
+                1686    LOAD_GLOBAL                     21: NULL + print
+                1696    LOAD_CONST                      19: '[lidar] '
+                1698    LOAD_FAST                       2: rdr
+                1700    LOAD_ATTR                       22: status
+                1720    FORMAT_SIMPLE                   
+                1722    LOAD_CONST                      51: '. total medidas: '
+                1724    LOAD_FAST                       6: n_seen
+                1726    FORMAT_SIMPLE                   
+                1728    BUILD_STRING                    4
+                1730    CALL                            1
+                1738    POP_TOP                         
+                1740    RERAISE                         0
+                1742    COPY                            3
+                1744    POP_EXCEPT                      
+                1746    RERAISE                         1
+            [Exception Table]
+                536 to 690 -> 1578 [0] 
+                698 to 1438 -> 1578 [0] 
+                1438 to 1440 -> 1652 [0] 
+                1440 to 1490 -> 1578 [0] 
+                1578 to 1640 -> 1646 [1] lasti
+                1640 to 1644 -> 1652 [0] 
+                1644 to 1646 -> 1646 [1] lasti
+                1646 to 1652 -> 1652 [0] 
+                1652 to 1742 -> 1742 [1] lasti
+        '__main__'
+        (
+            'return'
+            'int'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — teste da Etapa 1.\n\nConecta o RPLIDAR S3, lê em loop e imprime:\n  - status da conexão\n  - medidas/s (throughput do sensor) e scans/s (≈ rotações por segundo)\n  - amostra rotativa das últimas medidas (ângulo°, distância mm, qualidade)\n  - contador de reconexões / desyncs (estabilidade)\n\nUso:\n    python test_lidar.py                       # auto-detecta a porta\n    python test_lidar.py --port COM12          # força a porta\n    python test_lidar.py --port COM12 --raw    # imprime CADA medida\n                                                # (verboso; bom pra sanity check)\n    python test_lidar.py --duration 10         # roda 10s e sai (CI/smoke)\n\nCritério de validação (humano):\n  - status "conectado @ COMx"\n  - scans/s ≈ 8–15 Hz (S3 típico)\n  - medidas/s na faixa de milhares (S3 a 1 Mbps faz ~32 kHz em teoria,\n    a leitura via pyserial geralmente fica em alguns milhares)\n  - reconnects = 0, desyncs baixos ou zero por 30s+ sem mexer\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: argparse
+        24      STORE_NAME                      3: argparse
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: sys
+        32      STORE_NAME                      4: sys
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      3: None
+        38      IMPORT_NAME                     5: time
+        40      STORE_NAME                      5: time
+        42      LOAD_CONST                      1: 0
+        44      LOAD_CONST                      4: ('LidarReader',)
+        46      IMPORT_NAME                     6: lidar_reader
+        48      IMPORT_FROM                     7: LidarReader
+        50      STORE_NAME                      7: LidarReader
+        52      POP_TOP                         
+        54      LOAD_CONST                      7: ('return', 'int')
+        56      LOAD_CONST                      5: <CODE> main
+        58      MAKE_FUNCTION                   
+        60      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        62      STORE_NAME                      8: main
+        64      LOAD_NAME                       9: __name__
+        66      LOAD_CONST                      6: '__main__'
+        68      COMPARE_OP                      88 (==)
+        72      POP_JUMP_IF_FALSE               13 (to 100)
+        76      LOAD_NAME                       10: SystemExit
+        78      PUSH_NULL                       
+        80      LOAD_NAME                       8: main
+        82      PUSH_NULL                       
+        84      CALL                            0
+        92      CALL                            1
+        100     RAISE_VARARGS                   1
+        102     RETURN_CONST                    3: None
+    [Exception Table]

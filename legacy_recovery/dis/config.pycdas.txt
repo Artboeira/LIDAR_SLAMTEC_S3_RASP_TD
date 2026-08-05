@@ -1,0 +1,1576 @@
+config.pyc (Python 3.13)
+[Code]
+    File Name: config.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 8
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'dataclasses'
+        'os'
+        'dataclass'
+        'field'
+        'typing'
+        'Optional'
+        'yaml'
+        'ruamel.yaml'
+        'YAML'
+        '_RuamelYAML'
+        'ImportError'
+        'paths'
+        'CONFIG_PATH'
+        '_DEFAULT_PATH'
+        'LoggingCfg'
+        'SensorCfg'
+        'ProcessingCfg'
+        'ROICfg'
+        'VizCfg'
+        'ScreenCfg'
+        'UdpCfg'
+        'TrackerCfg'
+        'Config'
+        '_merge'
+        'load'
+        '_update_inplace'
+        'save'
+        '__name__'
+        'cfg'
+        'json'
+        'print'
+        'dumps'
+        'asdict'
+        'str'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — carregamento e persistência de configuração.\n\nLê `config.yaml` (se existir) e devolve um objeto tipado. Tudo que não\nestiver no YAML cai no default definido aqui.\n\nA função `save(cfg)` reescreve o YAML preservando comentários e ordem\nquando ruamel.yaml está disponível (instalado pelo control panel). Fallback\npra PyYAML quando não tem.\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'dataclass'
+            'field'
+        )
+        (
+            'Optional'
+        )
+        (
+            'YAML'
+        )
+        [Code]
+            File Name: config.py
+            Object Name: LoggingCfg
+            Qualified Name: LoggingCfg
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                'level'
+                '__annotations__'
+                'format'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'LoggingCfg'
+                31
+                'info'
+                'str'
+                'level'
+                '[%(asctime)s] %(levelname)-7s %(name)s: %(message)s'
+                'format'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'LoggingCfg'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 31
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 'info'
+                18      STORE_NAME                      4: level
+                20      LOAD_CONST                      3: 'str'
+                22      LOAD_NAME                       5: __annotations__
+                24      LOAD_CONST                      4: 'level'
+                26      STORE_SUBSCR                    
+                30      LOAD_CONST                      5: '[%(asctime)s] %(levelname)-7s %(name)s: %(message)s'
+                32      STORE_NAME                      6: format
+                34      LOAD_CONST                      3: 'str'
+                36      LOAD_NAME                       5: __annotations__
+                38      LOAD_CONST                      6: 'format'
+                40      STORE_SUBSCR                    
+                44      LOAD_CONST                      7: ()
+                46      STORE_NAME                      7: __static_attributes__
+                48      RETURN_CONST                    8: None
+            [Exception Table]
+        'LoggingCfg'
+        [Code]
+            File Name: config.py
+            Object Name: SensorCfg
+            Qualified Name: SensorCfg
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                'port'
+                '__annotations__'
+                'baud'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'SensorCfg'
+                37
+                None
+                'Optional[str]'
+                'port'
+                1000000
+                'int'
+                'baud'
+                (
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'SensorCfg'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 37
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: None
+                18      STORE_NAME                      4: port
+                20      LOAD_CONST                      3: 'Optional[str]'
+                22      LOAD_NAME                       5: __annotations__
+                24      LOAD_CONST                      4: 'port'
+                26      STORE_SUBSCR                    
+                30      LOAD_CONST                      5: 1000000
+                32      STORE_NAME                      6: baud
+                34      LOAD_CONST                      6: 'int'
+                36      LOAD_NAME                       5: __annotations__
+                38      LOAD_CONST                      7: 'baud'
+                40      STORE_SUBSCR                    
+                44      LOAD_CONST                      8: ()
+                46      STORE_NAME                      7: __static_attributes__
+                48      RETURN_CONST                    2: None
+            [Exception Table]
+        'SensorCfg'
+        [Code]
+            File Name: config.py
+            Object Name: ProcessingCfg
+            Qualified Name: ProcessingCfg
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                'min_dist_mm'
+                '__annotations__'
+                'max_dist_mm'
+                'min_quality'
+                'angle_offset_deg'
+                'mirror'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'ProcessingCfg'
+                43
+                80
+                'float'
+                'min_dist_mm'
+                6000
+                'max_dist_mm'
+                5
+                'int'
+                'min_quality'
+                0
+                'angle_offset_deg'
+                False
+                'bool'
+                'mirror'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'ProcessingCfg'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 43
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 80
+                18      STORE_NAME                      4: min_dist_mm
+                20      LOAD_CONST                      3: 'float'
+                22      LOAD_NAME                       5: __annotations__
+                24      LOAD_CONST                      4: 'min_dist_mm'
+                26      STORE_SUBSCR                    
+                30      LOAD_CONST                      5: 6000
+                32      STORE_NAME                      6: max_dist_mm
+                34      LOAD_CONST                      3: 'float'
+                36      LOAD_NAME                       5: __annotations__
+                38      LOAD_CONST                      6: 'max_dist_mm'
+                40      STORE_SUBSCR                    
+                44      LOAD_CONST                      7: 5
+                46      STORE_NAME                      7: min_quality
+                48      LOAD_CONST                      8: 'int'
+                50      LOAD_NAME                       5: __annotations__
+                52      LOAD_CONST                      9: 'min_quality'
+                54      STORE_SUBSCR                    
+                58      LOAD_CONST                      10: 0
+                60      STORE_NAME                      8: angle_offset_deg
+                62      LOAD_CONST                      3: 'float'
+                64      LOAD_NAME                       5: __annotations__
+                66      LOAD_CONST                      11: 'angle_offset_deg'
+                68      STORE_SUBSCR                    
+                72      LOAD_CONST                      12: False
+                74      STORE_NAME                      9: mirror
+                76      LOAD_CONST                      13: 'bool'
+                78      LOAD_NAME                       5: __annotations__
+                80      LOAD_CONST                      14: 'mirror'
+                82      STORE_SUBSCR                    
+                86      LOAD_CONST                      15: ()
+                88      STORE_NAME                      10: __static_attributes__
+                90      RETURN_CONST                    16: None
+            [Exception Table]
+        'ProcessingCfg'
+        [Code]
+            File Name: config.py
+            Object Name: ROICfg
+            Qualified Name: ROICfg
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__doc__'
+                'x_min'
+                '__annotations__'
+                'x_max'
+                'y_min'
+                'y_max'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'ROICfg'
+                52
+                'ROI em coordenadas cartesianas (mm) no referencial do sensor.\nNone em qualquer lado = sem filtro nesse limite.'
+                -3000
+                'Optional[float]'
+                'x_min'
+                3000
+                'x_max'
+                'y_min'
+                'y_max'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'ROICfg'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 52
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 'ROI em coordenadas cartesianas (mm) no referencial do sensor.\nNone em qualquer lado = sem filtro nesse limite.'
+                18      STORE_NAME                      4: __doc__
+                20      LOAD_CONST                      3: -3000
+                22      STORE_NAME                      5: x_min
+                24      LOAD_CONST                      4: 'Optional[float]'
+                26      LOAD_NAME                       6: __annotations__
+                28      LOAD_CONST                      5: 'x_min'
+                30      STORE_SUBSCR                    
+                34      LOAD_CONST                      6: 3000
+                36      STORE_NAME                      7: x_max
+                38      LOAD_CONST                      4: 'Optional[float]'
+                40      LOAD_NAME                       6: __annotations__
+                42      LOAD_CONST                      7: 'x_max'
+                44      STORE_SUBSCR                    
+                48      LOAD_CONST                      3: -3000
+                50      STORE_NAME                      8: y_min
+                52      LOAD_CONST                      4: 'Optional[float]'
+                54      LOAD_NAME                       6: __annotations__
+                56      LOAD_CONST                      8: 'y_min'
+                58      STORE_SUBSCR                    
+                62      LOAD_CONST                      6: 3000
+                64      STORE_NAME                      9: y_max
+                66      LOAD_CONST                      4: 'Optional[float]'
+                68      LOAD_NAME                       6: __annotations__
+                70      LOAD_CONST                      9: 'y_max'
+                72      STORE_SUBSCR                    
+                76      LOAD_CONST                      10: ()
+                78      STORE_NAME                      10: __static_attributes__
+                80      RETURN_CONST                    11: None
+            [Exception Table]
+        'ROICfg'
+        [Code]
+            File Name: config.py
+            Object Name: VizCfg
+            Qualified Name: VizCfg
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                'width'
+                '__annotations__'
+                'height'
+                'scale_mm_per_px'
+                'trail_window_s'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'VizCfg'
+                62
+                900
+                'int'
+                'width'
+                'height'
+                10
+                'float'
+                'scale_mm_per_px'
+                0.2
+                'trail_window_s'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'VizCfg'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 62
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 900
+                18      STORE_NAME                      4: width
+                20      LOAD_CONST                      3: 'int'
+                22      LOAD_NAME                       5: __annotations__
+                24      LOAD_CONST                      4: 'width'
+                26      STORE_SUBSCR                    
+                30      LOAD_CONST                      2: 900
+                32      STORE_NAME                      6: height
+                34      LOAD_CONST                      3: 'int'
+                36      LOAD_NAME                       5: __annotations__
+                38      LOAD_CONST                      5: 'height'
+                40      STORE_SUBSCR                    
+                44      LOAD_CONST                      6: 10
+                46      STORE_NAME                      7: scale_mm_per_px
+                48      LOAD_CONST                      7: 'float'
+                50      LOAD_NAME                       5: __annotations__
+                52      LOAD_CONST                      8: 'scale_mm_per_px'
+                54      STORE_SUBSCR                    
+                58      LOAD_CONST                      9: 0.2
+                60      STORE_NAME                      8: trail_window_s
+                62      LOAD_CONST                      7: 'float'
+                64      LOAD_NAME                       5: __annotations__
+                66      LOAD_CONST                      10: 'trail_window_s'
+                68      STORE_SUBSCR                    
+                72      LOAD_CONST                      11: ()
+                74      STORE_NAME                      9: __static_attributes__
+                76      RETURN_CONST                    12: None
+            [Exception Table]
+        'VizCfg'
+        [Code]
+            File Name: config.py
+            Object Name: ScreenCfg
+            Qualified Name: ScreenCfg
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                'width_px'
+                '__annotations__'
+                'height_px'
+                'display_index'
+                'fullscreen'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'ScreenCfg'
+                70
+                1920
+                'int'
+                'width_px'
+                1080
+                'height_px'
+                1
+                'display_index'
+                True
+                'bool'
+                'fullscreen'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'ScreenCfg'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 70
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 1920
+                18      STORE_NAME                      4: width_px
+                20      LOAD_CONST                      3: 'int'
+                22      LOAD_NAME                       5: __annotations__
+                24      LOAD_CONST                      4: 'width_px'
+                26      STORE_SUBSCR                    
+                30      LOAD_CONST                      5: 1080
+                32      STORE_NAME                      6: height_px
+                34      LOAD_CONST                      3: 'int'
+                36      LOAD_NAME                       5: __annotations__
+                38      LOAD_CONST                      6: 'height_px'
+                40      STORE_SUBSCR                    
+                44      LOAD_CONST                      7: 1
+                46      STORE_NAME                      7: display_index
+                48      LOAD_CONST                      3: 'int'
+                50      LOAD_NAME                       5: __annotations__
+                52      LOAD_CONST                      8: 'display_index'
+                54      STORE_SUBSCR                    
+                58      LOAD_CONST                      9: True
+                60      STORE_NAME                      8: fullscreen
+                62      LOAD_CONST                      10: 'bool'
+                64      LOAD_NAME                       5: __annotations__
+                66      LOAD_CONST                      11: 'fullscreen'
+                68      STORE_SUBSCR                    
+                72      LOAD_CONST                      12: ()
+                74      STORE_NAME                      9: __static_attributes__
+                76      RETURN_CONST                    13: None
+            [Exception Table]
+        'ScreenCfg'
+        [Code]
+            File Name: config.py
+            Object Name: UdpCfg
+            Qualified Name: UdpCfg
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                'host'
+                '__annotations__'
+                'port'
+                'publish_rate_hz'
+                'max_points'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'UdpCfg'
+                78
+                '127.0.0.1'
+                'str'
+                'host'
+                5555
+                'int'
+                'port'
+                30
+                'float'
+                'publish_rate_hz'
+                32
+                'max_points'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'UdpCfg'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 78
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: '127.0.0.1'
+                18      STORE_NAME                      4: host
+                20      LOAD_CONST                      3: 'str'
+                22      LOAD_NAME                       5: __annotations__
+                24      LOAD_CONST                      4: 'host'
+                26      STORE_SUBSCR                    
+                30      LOAD_CONST                      5: 5555
+                32      STORE_NAME                      6: port
+                34      LOAD_CONST                      6: 'int'
+                36      LOAD_NAME                       5: __annotations__
+                38      LOAD_CONST                      7: 'port'
+                40      STORE_SUBSCR                    
+                44      LOAD_CONST                      8: 30
+                46      STORE_NAME                      7: publish_rate_hz
+                48      LOAD_CONST                      9: 'float'
+                50      LOAD_NAME                       5: __annotations__
+                52      LOAD_CONST                      10: 'publish_rate_hz'
+                54      STORE_SUBSCR                    
+                58      LOAD_CONST                      11: 32
+                60      STORE_NAME                      8: max_points
+                62      LOAD_CONST                      6: 'int'
+                64      LOAD_NAME                       5: __annotations__
+                66      LOAD_CONST                      12: 'max_points'
+                68      STORE_SUBSCR                    
+                72      LOAD_CONST                      13: ()
+                74      STORE_NAME                      9: __static_attributes__
+                76      RETURN_CONST                    14: None
+            [Exception Table]
+        'UdpCfg'
+        [Code]
+            File Name: config.py
+            Object Name: TrackerCfg
+            Qualified Name: TrackerCfg
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                'dbscan_eps_mm'
+                '__annotations__'
+                'dbscan_min_samples'
+                'match_dist_mm'
+                'timeout_s'
+                'max_tracks'
+                'confidence_frames'
+                'smoothing'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'TrackerCfg'
+                86
+                150
+                'float'
+                'dbscan_eps_mm'
+                4
+                'int'
+                'dbscan_min_samples'
+                220
+                'match_dist_mm'
+                0.18
+                'timeout_s'
+                10
+                'max_tracks'
+                5
+                'confidence_frames'
+                0.35
+                'smoothing'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'TrackerCfg'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 86
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 150
+                18      STORE_NAME                      4: dbscan_eps_mm
+                20      LOAD_CONST                      3: 'float'
+                22      LOAD_NAME                       5: __annotations__
+                24      LOAD_CONST                      4: 'dbscan_eps_mm'
+                26      STORE_SUBSCR                    
+                30      LOAD_CONST                      5: 4
+                32      STORE_NAME                      6: dbscan_min_samples
+                34      LOAD_CONST                      6: 'int'
+                36      LOAD_NAME                       5: __annotations__
+                38      LOAD_CONST                      7: 'dbscan_min_samples'
+                40      STORE_SUBSCR                    
+                44      LOAD_CONST                      8: 220
+                46      STORE_NAME                      7: match_dist_mm
+                48      LOAD_CONST                      3: 'float'
+                50      LOAD_NAME                       5: __annotations__
+                52      LOAD_CONST                      9: 'match_dist_mm'
+                54      STORE_SUBSCR                    
+                58      LOAD_CONST                      10: 0.18
+                60      STORE_NAME                      8: timeout_s
+                62      LOAD_CONST                      3: 'float'
+                64      LOAD_NAME                       5: __annotations__
+                66      LOAD_CONST                      11: 'timeout_s'
+                68      STORE_SUBSCR                    
+                72      LOAD_CONST                      12: 10
+                74      STORE_NAME                      9: max_tracks
+                76      LOAD_CONST                      6: 'int'
+                78      LOAD_NAME                       5: __annotations__
+                80      LOAD_CONST                      13: 'max_tracks'
+                82      STORE_SUBSCR                    
+                86      LOAD_CONST                      14: 5
+                88      STORE_NAME                      10: confidence_frames
+                90      LOAD_CONST                      6: 'int'
+                92      LOAD_NAME                       5: __annotations__
+                94      LOAD_CONST                      15: 'confidence_frames'
+                96      STORE_SUBSCR                    
+                100     LOAD_CONST                      16: 0.35
+                102     STORE_NAME                      11: smoothing
+                104     LOAD_CONST                      3: 'float'
+                106     LOAD_NAME                       5: __annotations__
+                108     LOAD_CONST                      17: 'smoothing'
+                110     STORE_SUBSCR                    
+                114     LOAD_CONST                      18: ()
+                116     STORE_NAME                      12: __static_attributes__
+                118     RETURN_CONST                    19: None
+            [Exception Table]
+        'TrackerCfg'
+        [Code]
+            File Name: config.py
+            Object Name: Config
+            Qualified Name: Config
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 4
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                'field'
+                'LoggingCfg'
+                'logging'
+                '__annotations__'
+                'SensorCfg'
+                'sensor'
+                'ProcessingCfg'
+                'processing'
+                'ROICfg'
+                'roi'
+                'VizCfg'
+                'viz'
+                'ScreenCfg'
+                'screen'
+                'TrackerCfg'
+                'tracker'
+                'UdpCfg'
+                'udp'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'Config'
+                97
+                (
+                    'default_factory'
+                )
+                'LoggingCfg'
+                'logging'
+                'SensorCfg'
+                'sensor'
+                'ProcessingCfg'
+                'processing'
+                'ROICfg'
+                'roi'
+                'VizCfg'
+                'viz'
+                'ScreenCfg'
+                'screen'
+                'TrackerCfg'
+                'tracker'
+                'UdpCfg'
+                'udp'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'Config'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 97
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_NAME                       4: field
+                18      PUSH_NULL                       
+                20      LOAD_NAME                       5: LoggingCfg
+                22      LOAD_CONST                      2: ('default_factory',)
+                24      CALL_KW                         1
+                26      STORE_NAME                      6: logging
+                28      LOAD_CONST                      3: 'LoggingCfg'
+                30      LOAD_NAME                       7: __annotations__
+                32      LOAD_CONST                      4: 'logging'
+                34      STORE_SUBSCR                    
+                38      LOAD_NAME                       4: field
+                40      PUSH_NULL                       
+                42      LOAD_NAME                       8: SensorCfg
+                44      LOAD_CONST                      2: ('default_factory',)
+                46      CALL_KW                         1
+                48      STORE_NAME                      9: sensor
+                50      LOAD_CONST                      5: 'SensorCfg'
+                52      LOAD_NAME                       7: __annotations__
+                54      LOAD_CONST                      6: 'sensor'
+                56      STORE_SUBSCR                    
+                60      LOAD_NAME                       4: field
+                62      PUSH_NULL                       
+                64      LOAD_NAME                       10: ProcessingCfg
+                66      LOAD_CONST                      2: ('default_factory',)
+                68      CALL_KW                         1
+                70      STORE_NAME                      11: processing
+                72      LOAD_CONST                      7: 'ProcessingCfg'
+                74      LOAD_NAME                       7: __annotations__
+                76      LOAD_CONST                      8: 'processing'
+                78      STORE_SUBSCR                    
+                82      LOAD_NAME                       4: field
+                84      PUSH_NULL                       
+                86      LOAD_NAME                       12: ROICfg
+                88      LOAD_CONST                      2: ('default_factory',)
+                90      CALL_KW                         1
+                92      STORE_NAME                      13: roi
+                94      LOAD_CONST                      9: 'ROICfg'
+                96      LOAD_NAME                       7: __annotations__
+                98      LOAD_CONST                      10: 'roi'
+                100     STORE_SUBSCR                    
+                104     LOAD_NAME                       4: field
+                106     PUSH_NULL                       
+                108     LOAD_NAME                       14: VizCfg
+                110     LOAD_CONST                      2: ('default_factory',)
+                112     CALL_KW                         1
+                114     STORE_NAME                      15: viz
+                116     LOAD_CONST                      11: 'VizCfg'
+                118     LOAD_NAME                       7: __annotations__
+                120     LOAD_CONST                      12: 'viz'
+                122     STORE_SUBSCR                    
+                126     LOAD_NAME                       4: field
+                128     PUSH_NULL                       
+                130     LOAD_NAME                       16: ScreenCfg
+                132     LOAD_CONST                      2: ('default_factory',)
+                134     CALL_KW                         1
+                136     STORE_NAME                      17: screen
+                138     LOAD_CONST                      13: 'ScreenCfg'
+                140     LOAD_NAME                       7: __annotations__
+                142     LOAD_CONST                      14: 'screen'
+                144     STORE_SUBSCR                    
+                148     LOAD_NAME                       4: field
+                150     PUSH_NULL                       
+                152     LOAD_NAME                       18: TrackerCfg
+                154     LOAD_CONST                      2: ('default_factory',)
+                156     CALL_KW                         1
+                158     STORE_NAME                      19: tracker
+                160     LOAD_CONST                      15: 'TrackerCfg'
+                162     LOAD_NAME                       7: __annotations__
+                164     LOAD_CONST                      16: 'tracker'
+                166     STORE_SUBSCR                    
+                170     LOAD_NAME                       4: field
+                172     PUSH_NULL                       
+                174     LOAD_NAME                       20: UdpCfg
+                176     LOAD_CONST                      2: ('default_factory',)
+                178     CALL_KW                         1
+                180     STORE_NAME                      21: udp
+                182     LOAD_CONST                      17: 'UdpCfg'
+                184     LOAD_NAME                       7: __annotations__
+                186     LOAD_CONST                      18: 'udp'
+                188     STORE_SUBSCR                    
+                192     LOAD_CONST                      19: ()
+                194     STORE_NAME                      22: __static_attributes__
+                196     RETURN_CONST                    20: None
+            [Exception Table]
+        'Config'
+        [Code]
+            File Name: config.py
+            Object Name: _merge
+            Qualified Name: _merge
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 6
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__dataclass_fields__'
+                'items'
+            [Locals+Names]
+                'target_cls'
+                'data'
+                'f'
+                'valid'
+                'k'
+                'v'
+                'kwargs'
+            [Constants]
+                'Cria a dataclass `target_cls` aplicando apenas os campos presentes em `data`.\nCampos ausentes ficam com o default. Campos com valor `null` no YAML viram\nNone (útil pra desligar limites da ROI ou auto-detectar porta).'
+                (
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       1: data
+                4       TO_BOOL                         
+                12      POP_JUMP_IF_TRUE                7 (to 28)
+                16      LOAD_FAST                       0: target_cls
+                18      PUSH_NULL                       
+                20      CALL                            0
+                28      RETURN_VALUE                    
+                30      LOAD_FAST                       0: target_cls
+                32      LOAD_ATTR                       0: __dataclass_fields__
+                52      GET_ITER                        
+                54      LOAD_FAST_AND_CLEAR             2: f
+                56      SWAP                            2
+                58      BUILD_SET                       0
+                60      SWAP                            2
+                62      GET_ITER                        
+                64      FOR_ITER                        4 (to 74)
+                68      STORE_FAST_LOAD_FAST            34: f, f
+                70      SET_ADD                         2
+                72      JUMP_BACKWARD                   6 (to 62)
+                76      END_FOR                         
+                78      POP_TOP                         
+                80      STORE_FAST                      3: valid
+                82      STORE_FAST                      2: f
+                84      LOAD_FAST                       1: data
+                86      LOAD_ATTR                       3: items
+                106     CALL                            0
+                114     GET_ITER                        
+                116     LOAD_FAST_AND_CLEAR             4: k
+                118     LOAD_FAST_AND_CLEAR             5: v
+                120     SWAP                            3
+                122     BUILD_MAP                       0
+                124     SWAP                            2
+                126     GET_ITER                        
+                128     FOR_ITER                        14 (to 158)
+                132     UNPACK_SEQUENCE                 2
+                136     STORE_FAST_STORE_FAST           69: k, v
+                138     LOAD_FAST_LOAD_FAST             67: k, valid
+                140     CONTAINS_OP                     0 (in)
+                144     POP_JUMP_IF_TRUE                2 (to 150)
+                148     JUMP_BACKWARD                   12 (to 126)
+                152     LOAD_FAST_LOAD_FAST             69: k, v
+                154     MAP_ADD                         2
+                156     JUMP_BACKWARD                   16 (to 126)
+                160     END_FOR                         
+                162     POP_TOP                         
+                164     STORE_FAST                      6: kwargs
+                166     STORE_FAST                      4: k
+                168     STORE_FAST                      5: v
+                170     LOAD_FAST                       0: target_cls
+                172     PUSH_NULL                       
+                174     LOAD_CONST                      1: ()
+                176     BUILD_MAP                       0
+                178     LOAD_FAST                       6: kwargs
+                180     DICT_MERGE                      1
+                182     CALL_FUNCTION_EX                1
+                184     RETURN_VALUE                    
+                186     SWAP                            2
+                188     POP_TOP                         
+                190     SWAP                            2
+                192     STORE_FAST                      2: f
+                194     RERAISE                         0
+                196     SWAP                            2
+                198     POP_TOP                         
+                200     SWAP                            3
+                202     STORE_FAST                      5: v
+                204     STORE_FAST                      4: k
+                206     RERAISE                         0
+            [Exception Table]
+                58 to 80 -> 186 [2] 
+                122 to 144 -> 196 [3] 
+                152 to 164 -> 196 [3] 
+        [Code]
+            File Name: config.py
+            Object Name: load
+            Qualified Name: load
+            Arg Count: 1
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 15
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '_DEFAULT_PATH'
+                'os'
+                'path'
+                'isfile'
+                'Config'
+                'open'
+                'yaml'
+                'safe_load'
+                '_merge'
+                'LoggingCfg'
+                'get'
+                'SensorCfg'
+                'ProcessingCfg'
+                'ROICfg'
+                'VizCfg'
+                'ScreenCfg'
+                'TrackerCfg'
+                'UdpCfg'
+            [Locals+Names]
+                'path'
+                'p'
+                'f'
+                'raw'
+            [Constants]
+                'Lê o YAML. Se o arquivo não existir, devolve defaults.'
+                'r'
+                'utf-8'
+                (
+                    'encoding'
+                )
+                None
+                'logging'
+                'sensor'
+                'processing'
+                'roi'
+                'viz'
+                'screen'
+                'tracker'
+                'udp'
+                (
+                    'logging'
+                    'sensor'
+                    'processing'
+                    'roi'
+                    'viz'
+                    'screen'
+                    'tracker'
+                    'udp'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       0: path
+                4       COPY                            1
+                6       TO_BOOL                         
+                14      POP_JUMP_IF_TRUE                6 (to 28)
+                18      POP_TOP                         
+                20      LOAD_GLOBAL                     0: _DEFAULT_PATH
+                30      STORE_FAST                      1: p
+                32      LOAD_GLOBAL                     2: os
+                42      LOAD_ATTR                       4: path
+                62      LOAD_ATTR                       7: isfile
+                82      LOAD_FAST                       1: p
+                84      CALL                            1
+                92      TO_BOOL                         
+                100     POP_JUMP_IF_TRUE                10 (to 122)
+                104     LOAD_GLOBAL                     9: NULL + Config
+                114     CALL                            0
+                122     RETURN_VALUE                    
+                124     LOAD_GLOBAL                     11: NULL + open
+                134     LOAD_FAST                       1: p
+                136     LOAD_CONST                      1: 'r'
+                138     LOAD_CONST                      2: 'utf-8'
+                140     LOAD_CONST                      3: ('encoding',)
+                142     CALL_KW                         3
+                144     BEFORE_WITH                     
+                146     STORE_FAST                      2: f
+                148     LOAD_GLOBAL                     12: yaml
+                158     LOAD_ATTR                       14: safe_load
+                178     PUSH_NULL                       
+                180     LOAD_FAST                       2: f
+                182     CALL                            1
+                190     COPY                            1
+                192     TO_BOOL                         
+                200     POP_JUMP_IF_TRUE                2 (to 206)
+                204     POP_TOP                         
+                206     BUILD_MAP                       0
+                208     STORE_FAST                      3: raw
+                210     LOAD_CONST                      4: None
+                212     LOAD_CONST                      4: None
+                214     LOAD_CONST                      4: None
+                216     CALL                            2
+                224     POP_TOP                         
+                226     LOAD_GLOBAL                     9: NULL + Config
+                236     LOAD_GLOBAL                     17: NULL + _merge
+                246     LOAD_GLOBAL                     18: LoggingCfg
+                256     LOAD_FAST_CHECK                 3: raw
+                258     LOAD_ATTR                       21: get
+                278     LOAD_CONST                      5: 'logging'
+                280     CALL                            1
+                288     CALL                            2
+                296     LOAD_GLOBAL                     17: NULL + _merge
+                306     LOAD_GLOBAL                     22: SensorCfg
+                316     LOAD_FAST                       3: raw
+                318     LOAD_ATTR                       21: get
+                338     LOAD_CONST                      6: 'sensor'
+                340     CALL                            1
+                348     CALL                            2
+                356     LOAD_GLOBAL                     17: NULL + _merge
+                366     LOAD_GLOBAL                     24: ProcessingCfg
+                376     LOAD_FAST                       3: raw
+                378     LOAD_ATTR                       21: get
+                398     LOAD_CONST                      7: 'processing'
+                400     CALL                            1
+                408     CALL                            2
+                416     LOAD_GLOBAL                     17: NULL + _merge
+                426     LOAD_GLOBAL                     26: ROICfg
+                436     LOAD_FAST                       3: raw
+                438     LOAD_ATTR                       21: get
+                458     LOAD_CONST                      8: 'roi'
+                460     CALL                            1
+                468     CALL                            2
+                476     LOAD_GLOBAL                     17: NULL + _merge
+                486     LOAD_GLOBAL                     28: VizCfg
+                496     LOAD_FAST                       3: raw
+                498     LOAD_ATTR                       21: get
+                518     LOAD_CONST                      9: 'viz'
+                520     CALL                            1
+                528     CALL                            2
+                536     LOAD_GLOBAL                     17: NULL + _merge
+                546     LOAD_GLOBAL                     30: ScreenCfg
+                556     LOAD_FAST                       3: raw
+                558     LOAD_ATTR                       21: get
+                578     LOAD_CONST                      10: 'screen'
+                580     CALL                            1
+                588     CALL                            2
+                596     LOAD_GLOBAL                     17: NULL + _merge
+                606     LOAD_GLOBAL                     32: TrackerCfg
+                616     LOAD_FAST                       3: raw
+                618     LOAD_ATTR                       21: get
+                638     LOAD_CONST                      11: 'tracker'
+                640     CALL                            1
+                648     CALL                            2
+                656     LOAD_GLOBAL                     17: NULL + _merge
+                666     LOAD_GLOBAL                     34: UdpCfg
+                676     LOAD_FAST                       3: raw
+                678     LOAD_ATTR                       21: get
+                698     LOAD_CONST                      12: 'udp'
+                700     CALL                            1
+                708     CALL                            2
+                716     LOAD_CONST                      13: ('logging', 'sensor', 'processing', 'roi', 'viz', 'screen', 'tracker', 'udp')
+                718     CALL_KW                         8
+                720     RETURN_VALUE                    
+                722     PUSH_EXC_INFO                   
+                724     WITH_EXCEPT_START               
+                726     TO_BOOL                         
+                734     POP_JUMP_IF_TRUE                1 (to 738)
+                738     RERAISE                         2
+                740     POP_TOP                         
+                742     POP_EXCEPT                      
+                744     POP_TOP                         
+                746     POP_TOP                         
+                748     JUMP_BACKWARD_NO_INTERRUPT      263 (to 226)
+                752     COPY                            3
+                754     POP_EXCEPT                      
+                756     RERAISE                         1
+            [Exception Table]
+                146 to 210 -> 722 [1] lasti
+                722 to 742 -> 752 [3] lasti
+        [Code]
+            File Name: config.py
+            Object Name: _update_inplace
+            Qualified Name: _update_inplace
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 5
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'items'
+                'isinstance'
+                'dict'
+                '_update_inplace'
+            [Locals+Names]
+                'target'
+                'src'
+                'k'
+                'v'
+            [Constants]
+                'Atualiza `target` (CommentedMap ou dict) com valores de `src` recursivamente.\nPreserva chaves de target que não estão em src e mantém comentários do ruamel.'
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       1: src
+                4       LOAD_ATTR                       1: items
+                24      CALL                            0
+                32      GET_ITER                        
+                34      FOR_ITER                        74 (to 184)
+                38      UNPACK_SEQUENCE                 2
+                42      STORE_FAST_STORE_FAST           35: k, v
+                44      LOAD_GLOBAL                     3: NULL + isinstance
+                54      LOAD_FAST                       3: v
+                56      LOAD_GLOBAL                     4: dict
+                66      CALL                            2
+                74      TO_BOOL                         
+                82      POP_JUMP_IF_FALSE               44 (to 172)
+                86      LOAD_FAST_LOAD_FAST             32: k, target
+                88      CONTAINS_OP                     0 (in)
+                92      POP_JUMP_IF_FALSE               39 (to 172)
+                96      LOAD_GLOBAL                     3: NULL + isinstance
+                106     LOAD_FAST_LOAD_FAST             2: target, k
+                108     BINARY_SUBSCR                   
+                112     LOAD_GLOBAL                     4: dict
+                122     CALL                            2
+                130     TO_BOOL                         
+                138     POP_JUMP_IF_FALSE               16 (to 172)
+                142     LOAD_GLOBAL                     7: NULL + _update_inplace
+                152     LOAD_FAST_LOAD_FAST             2: target, k
+                154     BINARY_SUBSCR                   
+                158     LOAD_FAST                       3: v
+                160     CALL                            2
+                168     POP_TOP                         
+                170     JUMP_BACKWARD                   70 (to 32)
+                174     LOAD_FAST_LOAD_FAST             48: v, target
+                176     LOAD_FAST                       2: k
+                178     STORE_SUBSCR                    
+                182     JUMP_BACKWARD                   76 (to 32)
+                186     END_FOR                         
+                188     POP_TOP                         
+                190     RETURN_CONST                    1: None
+            [Exception Table]
+        [Code]
+            File Name: config.py
+            Object Name: save
+            Qualified Name: save
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 8
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '_DEFAULT_PATH'
+                'dataclasses'
+                'asdict'
+                '_RuamelYAML'
+                'os'
+                'path'
+                'isfile'
+                'preserve_quotes'
+                'open'
+                'load'
+                '_update_inplace'
+                'dump'
+                'yaml'
+                'safe_dump'
+            [Locals+Names]
+                'cfg'
+                'path'
+                'target'
+                'data_new'
+                'y'
+                'f'
+                'existing'
+            [Constants]
+                'Salva cfg no YAML. Preserva comentários se ruamel.yaml disponível\ne o arquivo já existir.'
+                None
+                True
+                'r'
+                'utf-8'
+                (
+                    'encoding'
+                )
+                'w'
+                False
+                (
+                    'sort_keys'
+                    'allow_unicode'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       1: path
+                4       COPY                            1
+                6       TO_BOOL                         
+                14      POP_JUMP_IF_TRUE                6 (to 28)
+                18      POP_TOP                         
+                20      LOAD_GLOBAL                     0: _DEFAULT_PATH
+                30      STORE_FAST                      2: target
+                32      LOAD_GLOBAL                     2: dataclasses
+                42      LOAD_ATTR                       4: asdict
+                62      PUSH_NULL                       
+                64      LOAD_FAST                       0: cfg
+                66      CALL                            1
+                74      STORE_FAST                      3: data_new
+                76      LOAD_GLOBAL                     6: _RuamelYAML
+                86      POP_JUMP_IF_NONE                149 (to 386)
+                90      LOAD_GLOBAL                     8: os
+                100     LOAD_ATTR                       10: path
+                120     LOAD_ATTR                       13: isfile
+                140     LOAD_FAST                       2: target
+                142     CALL                            1
+                150     TO_BOOL                         
+                158     POP_JUMP_IF_FALSE               113 (to 386)
+                162     LOAD_GLOBAL                     7: NULL + _RuamelYAML
+                172     CALL                            0
+                180     STORE_FAST                      4: y
+                182     LOAD_CONST                      2: True
+                184     LOAD_FAST                       4: y
+                186     STORE_ATTR                      7: preserve_quotes
+                196     LOAD_GLOBAL                     17: NULL + open
+                206     LOAD_FAST                       2: target
+                208     LOAD_CONST                      3: 'r'
+                210     LOAD_CONST                      4: 'utf-8'
+                212     LOAD_CONST                      5: ('encoding',)
+                214     CALL_KW                         3
+                216     BEFORE_WITH                     
+                218     STORE_FAST                      5: f
+                220     LOAD_FAST                       4: y
+                222     LOAD_ATTR                       19: load
+                242     LOAD_FAST                       5: f
+                244     CALL                            1
+                252     COPY                            1
+                254     TO_BOOL                         
+                262     POP_JUMP_IF_TRUE                2 (to 268)
+                266     POP_TOP                         
+                268     BUILD_MAP                       0
+                270     STORE_FAST                      6: existing
+                272     LOAD_CONST                      1: None
+                274     LOAD_CONST                      1: None
+                276     LOAD_CONST                      1: None
+                278     CALL                            2
+                286     POP_TOP                         
+                288     LOAD_GLOBAL                     21: NULL + _update_inplace
+                298     LOAD_FAST_CHECK                 6: existing
+                300     LOAD_FAST                       3: data_new
+                302     CALL                            2
+                310     POP_TOP                         
+                312     LOAD_GLOBAL                     17: NULL + open
+                322     LOAD_FAST                       2: target
+                324     LOAD_CONST                      6: 'w'
+                326     LOAD_CONST                      4: 'utf-8'
+                328     LOAD_CONST                      5: ('encoding',)
+                330     CALL_KW                         3
+                332     BEFORE_WITH                     
+                334     STORE_FAST                      5: f
+                336     LOAD_FAST                       4: y
+                338     LOAD_ATTR                       23: dump
+                358     LOAD_FAST_LOAD_FAST             101: existing, f
+                360     CALL                            2
+                368     POP_TOP                         
+                370     LOAD_CONST                      1: None
+                372     LOAD_CONST                      1: None
+                374     LOAD_CONST                      1: None
+                376     CALL                            2
+                384     POP_TOP                         
+                386     RETURN_CONST                    1: None
+                388     LOAD_GLOBAL                     17: NULL + open
+                398     LOAD_FAST                       2: target
+                400     LOAD_CONST                      6: 'w'
+                402     LOAD_CONST                      4: 'utf-8'
+                404     LOAD_CONST                      5: ('encoding',)
+                406     CALL_KW                         3
+                408     BEFORE_WITH                     
+                410     STORE_FAST                      5: f
+                412     LOAD_GLOBAL                     24: yaml
+                422     LOAD_ATTR                       26: safe_dump
+                442     PUSH_NULL                       
+                444     LOAD_FAST_LOAD_FAST             53: data_new, f
+                446     LOAD_CONST                      7: False
+                448     LOAD_CONST                      2: True
+                450     LOAD_CONST                      8: ('sort_keys', 'allow_unicode')
+                452     CALL_KW                         4
+                454     POP_TOP                         
+                456     LOAD_CONST                      1: None
+                458     LOAD_CONST                      1: None
+                460     LOAD_CONST                      1: None
+                462     CALL                            2
+                470     POP_TOP                         
+                472     RETURN_CONST                    1: None
+                474     PUSH_EXC_INFO                   
+                476     WITH_EXCEPT_START               
+                478     TO_BOOL                         
+                486     POP_JUMP_IF_TRUE                1 (to 490)
+                490     RERAISE                         2
+                492     POP_TOP                         
+                494     POP_EXCEPT                      
+                496     POP_TOP                         
+                498     POP_TOP                         
+                500     JUMP_BACKWARD_NO_INTERRUPT      107 (to 288)
+                502     COPY                            3
+                504     POP_EXCEPT                      
+                506     RERAISE                         1
+                508     PUSH_EXC_INFO                   
+                510     WITH_EXCEPT_START               
+                512     TO_BOOL                         
+                520     POP_JUMP_IF_TRUE                1 (to 524)
+                524     RERAISE                         2
+                526     POP_TOP                         
+                528     POP_EXCEPT                      
+                530     POP_TOP                         
+                532     POP_TOP                         
+                534     RETURN_CONST                    1: None
+                536     COPY                            3
+                538     POP_EXCEPT                      
+                540     RERAISE                         1
+                542     PUSH_EXC_INFO                   
+                544     WITH_EXCEPT_START               
+                546     TO_BOOL                         
+                554     POP_JUMP_IF_TRUE                1 (to 558)
+                558     RERAISE                         2
+                560     POP_TOP                         
+                562     POP_EXCEPT                      
+                564     POP_TOP                         
+                566     POP_TOP                         
+                568     RETURN_CONST                    1: None
+                570     COPY                            3
+                572     POP_EXCEPT                      
+                574     RERAISE                         1
+            [Exception Table]
+                218 to 272 -> 474 [1] lasti
+                334 to 370 -> 508 [1] lasti
+                410 to 456 -> 542 [1] lasti
+                474 to 494 -> 502 [3] lasti
+                508 to 528 -> 536 [3] lasti
+                542 to 562 -> 570 [3] lasti
+        '__main__'
+        2
+        (
+            'indent'
+            'default'
+        )
+        (
+            'data'
+            'dict | None'
+        )
+        (
+            None
+        )
+        (
+            'path'
+            'str | None'
+            'return'
+            'Config'
+        )
+        (
+            'cfg'
+            "'Config'"
+            'path'
+            'str | None'
+            'return'
+            'None'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — carregamento e persistência de configuração.\n\nLê `config.yaml` (se existir) e devolve um objeto tipado. Tudo que não\nestiver no YAML cai no default definido aqui.\n\nA função `save(cfg)` reescreve o YAML preservando comentários e ordem\nquando ruamel.yaml está disponível (instalado pelo control panel). Fallback\npra PyYAML quando não tem.\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: dataclasses
+        24      STORE_NAME                      3: dataclasses
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: os
+        32      STORE_NAME                      4: os
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      4: ('dataclass', 'field')
+        38      IMPORT_NAME                     3: dataclasses
+        40      IMPORT_FROM                     5: dataclass
+        42      STORE_NAME                      5: dataclass
+        44      IMPORT_FROM                     6: field
+        46      STORE_NAME                      6: field
+        48      POP_TOP                         
+        50      LOAD_CONST                      1: 0
+        52      LOAD_CONST                      5: ('Optional',)
+        54      IMPORT_NAME                     7: typing
+        56      IMPORT_FROM                     8: Optional
+        58      STORE_NAME                      8: Optional
+        60      POP_TOP                         
+        62      LOAD_CONST                      1: 0
+        64      LOAD_CONST                      3: None
+        66      IMPORT_NAME                     9: yaml
+        68      STORE_NAME                      9: yaml
+        70      NOP                             
+        72      LOAD_CONST                      1: 0
+        74      LOAD_CONST                      6: ('YAML',)
+        76      IMPORT_NAME                     10: ruamel.yaml
+        78      IMPORT_FROM                     11: YAML
+        80      STORE_NAME                      12: _RuamelYAML
+        82      POP_TOP                         
+        84      LOAD_CONST                      1: 0
+        86      LOAD_CONST                      3: None
+        88      IMPORT_NAME                     14: paths
+        90      STORE_NAME                      14: paths
+        92      LOAD_NAME                       14: paths
+        94      LOAD_ATTR                       30: CONFIG_PATH
+        114     STORE_NAME                      16: _DEFAULT_PATH
+        116     LOAD_NAME                       5: dataclass
+        118     LOAD_BUILD_CLASS                
+        120     PUSH_NULL                       
+        122     LOAD_CONST                      7: <CODE> LoggingCfg
+        124     MAKE_FUNCTION                   
+        126     LOAD_CONST                      8: 'LoggingCfg'
+        128     CALL                            2
+        136     CALL                            0
+        144     STORE_NAME                      17: LoggingCfg
+        146     LOAD_NAME                       5: dataclass
+        148     LOAD_BUILD_CLASS                
+        150     PUSH_NULL                       
+        152     LOAD_CONST                      9: <CODE> SensorCfg
+        154     MAKE_FUNCTION                   
+        156     LOAD_CONST                      10: 'SensorCfg'
+        158     CALL                            2
+        166     CALL                            0
+        174     STORE_NAME                      18: SensorCfg
+        176     LOAD_NAME                       5: dataclass
+        178     LOAD_BUILD_CLASS                
+        180     PUSH_NULL                       
+        182     LOAD_CONST                      11: <CODE> ProcessingCfg
+        184     MAKE_FUNCTION                   
+        186     LOAD_CONST                      12: 'ProcessingCfg'
+        188     CALL                            2
+        196     CALL                            0
+        204     STORE_NAME                      19: ProcessingCfg
+        206     LOAD_NAME                       5: dataclass
+        208     LOAD_BUILD_CLASS                
+        210     PUSH_NULL                       
+        212     LOAD_CONST                      13: <CODE> ROICfg
+        214     MAKE_FUNCTION                   
+        216     LOAD_CONST                      14: 'ROICfg'
+        218     CALL                            2
+        226     CALL                            0
+        234     STORE_NAME                      20: ROICfg
+        236     LOAD_NAME                       5: dataclass
+        238     LOAD_BUILD_CLASS                
+        240     PUSH_NULL                       
+        242     LOAD_CONST                      15: <CODE> VizCfg
+        244     MAKE_FUNCTION                   
+        246     LOAD_CONST                      16: 'VizCfg'
+        248     CALL                            2
+        256     CALL                            0
+        264     STORE_NAME                      21: VizCfg
+        266     LOAD_NAME                       5: dataclass
+        268     LOAD_BUILD_CLASS                
+        270     PUSH_NULL                       
+        272     LOAD_CONST                      17: <CODE> ScreenCfg
+        274     MAKE_FUNCTION                   
+        276     LOAD_CONST                      18: 'ScreenCfg'
+        278     CALL                            2
+        286     CALL                            0
+        294     STORE_NAME                      22: ScreenCfg
+        296     LOAD_NAME                       5: dataclass
+        298     LOAD_BUILD_CLASS                
+        300     PUSH_NULL                       
+        302     LOAD_CONST                      19: <CODE> UdpCfg
+        304     MAKE_FUNCTION                   
+        306     LOAD_CONST                      20: 'UdpCfg'
+        308     CALL                            2
+        316     CALL                            0
+        324     STORE_NAME                      23: UdpCfg
+        326     LOAD_NAME                       5: dataclass
+        328     LOAD_BUILD_CLASS                
+        330     PUSH_NULL                       
+        332     LOAD_CONST                      21: <CODE> TrackerCfg
+        334     MAKE_FUNCTION                   
+        336     LOAD_CONST                      22: 'TrackerCfg'
+        338     CALL                            2
+        346     CALL                            0
+        354     STORE_NAME                      24: TrackerCfg
+        356     LOAD_NAME                       5: dataclass
+        358     LOAD_BUILD_CLASS                
+        360     PUSH_NULL                       
+        362     LOAD_CONST                      23: <CODE> Config
+        364     MAKE_FUNCTION                   
+        366     LOAD_CONST                      24: 'Config'
+        368     CALL                            2
+        376     CALL                            0
+        384     STORE_NAME                      25: Config
+        386     LOAD_CONST                      32: ('data', 'dict | None')
+        388     LOAD_CONST                      25: <CODE> _merge
+        390     MAKE_FUNCTION                   
+        392     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        394     STORE_NAME                      26: _merge
+        396     LOAD_CONST                      33: (None,)
+        398     LOAD_CONST                      34: ('path', 'str | None', 'return', 'Config')
+        400     LOAD_CONST                      26: <CODE> load
+        402     MAKE_FUNCTION                   
+        404     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        406     SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+        408     STORE_NAME                      27: load
+        410     LOAD_CONST                      27: <CODE> _update_inplace
+        412     MAKE_FUNCTION                   
+        414     STORE_NAME                      28: _update_inplace
+        416     LOAD_CONST                      33: (None,)
+        418     LOAD_CONST                      35: ('cfg', "'Config'", 'path', 'str | None', 'return', 'None')
+        420     LOAD_CONST                      28: <CODE> save
+        422     MAKE_FUNCTION                   
+        424     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        426     SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+        428     STORE_NAME                      29: save
+        430     LOAD_NAME                       30: __name__
+        432     LOAD_CONST                      29: '__main__'
+        434     COMPARE_OP                      88 (==)
+        438     POP_JUMP_IF_FALSE               52 (to 544)
+        442     LOAD_NAME                       27: load
+        444     PUSH_NULL                       
+        446     CALL                            0
+        454     STORE_NAME                      31: cfg
+        456     LOAD_CONST                      1: 0
+        458     LOAD_CONST                      3: None
+        460     IMPORT_NAME                     32: json
+        462     STORE_NAME                      32: json
+        464     LOAD_NAME                       33: print
+        466     PUSH_NULL                       
+        468     LOAD_NAME                       32: json
+        470     LOAD_ATTR                       68: dumps
+        490     PUSH_NULL                       
+        492     LOAD_NAME                       3: dataclasses
+        494     LOAD_ATTR                       70: asdict
+        514     PUSH_NULL                       
+        516     LOAD_NAME                       31: cfg
+        518     CALL                            1
+        526     LOAD_CONST                      30: 2
+        528     LOAD_NAME                       36: str
+        530     LOAD_CONST                      31: ('indent', 'default')
+        532     CALL_KW                         3
+        534     CALL                            1
+        542     POP_TOP                         
+        544     RETURN_CONST                    3: None
+        546     RETURN_CONST                    3: None
+        548     PUSH_EXC_INFO                   
+        550     LOAD_NAME                       13: ImportError
+        552     CHECK_EXC_MATCH                 
+        554     POP_JUMP_IF_FALSE               5 (to 566)
+        558     POP_TOP                         
+        560     LOAD_CONST                      3: None
+        562     STORE_NAME                      12: _RuamelYAML
+        564     POP_EXCEPT                      
+        566     JUMP_BACKWARD_NO_INTERRUPT      242 (to 84)
+        568     RERAISE                         0
+        570     COPY                            3
+        572     POP_EXCEPT                      
+        574     RERAISE                         1
+    [Exception Table]
+        72 to 84 -> 548 [0] 
+        548 to 564 -> 570 [1] lasti
+        568 to 570 -> 570 [1] lasti

@@ -1,0 +1,1001 @@
+publisher.pyc (Python 3.13)
+[Code]
+    File Name: publisher.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 4
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'socket'
+        'struct'
+        'time'
+        'tracker'
+        'Track'
+        'Struct'
+        '_HEADER'
+        '_POINT'
+        'pack_frame'
+        'unpack_frame'
+        'UdpPublisher'
+        'RateLimiter'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — Etapa 5: publisher UDP binário.\n\nEmpacota os tracks num datagrama binário com `struct.pack` (little-endian,\nsem padding) e envia via UDP. Formato pensado pra ser consumido por um\nUDP In DAT no TouchDesigner com um callback que faz `struct.unpack`.\n\nFormato (LIDAR_MAPPER_V1):\n\n  Header (14 bytes):\n    uint32   frame\n    float64  timestamp           (segundos desde epoch, time.time())\n    uint16   num_points          (N)\n\n  Por ponto (16 bytes, repetido N vezes):\n    uint32   id\n    float32  x                   (0..1, espaço normalizado da tela)\n    float32  y                   (0..1)\n    float32  confidence          (0..1)\n\n  Tamanho do datagrama = 14 + 16 * N bytes.\n  Com max_tracks=10  → 174 B, bem abaixo do MTU típico (1500 B), sem fragmentação.\n  O cap `max_points` no config é uma cinta extra (trunca se passar disso).\n\nAtenção: UDP é "best-effort" (sem retransmissão, ordem não garantida).\nPra esse caso (estado completo a cada frame), perder um pacote significa\nficar uma "frame" atrasado e o próximo já carrega o estado novo. Aceitável.\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'Track'
+        )
+        '<IdH'
+        '<Ifff'
+        [Code]
+            File Name: publisher.py
+            Object Name: pack_frame
+            Qualified Name: pack_frame
+            Arg Count: 4
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 10
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'bytearray'
+                '_HEADER'
+                'pack'
+                'len'
+                '_POINT'
+                'int'
+                'id'
+                'float'
+                'u'
+                'v'
+                'confidence'
+                'bytes'
+            [Locals+Names]
+                'frame_idx'
+                'timestamp'
+                'tracks'
+                'max_points'
+                'pts'
+                'out'
+                't'
+            [Constants]
+                'Empacota um frame no formato LIDAR_MAPPER_V1.'
+                None
+                0xFFFFFFFF
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       2: tracks
+                4       LOAD_CONST                      1: None
+                6       LOAD_FAST                       3: max_points
+                8       BINARY_SLICE                    
+                10      STORE_FAST                      4: pts
+                12      LOAD_GLOBAL                     1: NULL + bytearray
+                22      LOAD_GLOBAL                     2: _HEADER
+                32      LOAD_ATTR                       5: pack
+                52      LOAD_FAST_LOAD_FAST             1: frame_idx, timestamp
+                54      LOAD_GLOBAL                     7: NULL + len
+                64      LOAD_FAST                       4: pts
+                66      CALL                            1
+                74      CALL                            3
+                82      CALL                            1
+                90      STORE_FAST                      5: out
+                92      LOAD_FAST                       4: pts
+                94      GET_ITER                        
+                96      FOR_ITER                        109 (to 316)
+                100     STORE_FAST                      6: t
+                102     LOAD_FAST                       5: out
+                104     LOAD_GLOBAL                     8: _POINT
+                114     LOAD_ATTR                       5: pack
+                134     LOAD_GLOBAL                     11: NULL + int
+                144     LOAD_FAST                       6: t
+                146     LOAD_ATTR                       12: id
+                166     CALL                            1
+                174     LOAD_CONST                      2: 0xFFFFFFFF
+                176     BINARY_OP                       1 (&)
+                180     LOAD_GLOBAL                     15: NULL + float
+                190     LOAD_FAST                       6: t
+                192     LOAD_ATTR                       16: u
+                212     CALL                            1
+                220     LOAD_GLOBAL                     15: NULL + float
+                230     LOAD_FAST                       6: t
+                232     LOAD_ATTR                       18: v
+                252     CALL                            1
+                260     LOAD_GLOBAL                     15: NULL + float
+                270     LOAD_FAST                       6: t
+                272     LOAD_ATTR                       20: confidence
+                292     CALL                            1
+                300     CALL                            4
+                308     BINARY_OP                       13 (+=)
+                312     STORE_FAST                      5: out
+                314     JUMP_BACKWARD                   111 (to 94)
+                318     END_FOR                         
+                320     POP_TOP                         
+                322     LOAD_GLOBAL                     23: NULL + bytes
+                332     LOAD_FAST                       5: out
+                334     CALL                            1
+                342     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: publisher.py
+            Object Name: unpack_frame
+            Qualified Name: unpack_frame
+            Arg Count: 1
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 10
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'len'
+                '_HEADER'
+                'size'
+                'ValueError'
+                'unpack_from'
+                '_POINT'
+                'range'
+                'append'
+            [Locals+Names]
+                'buf'
+                'frame'
+                'ts'
+                'n'
+                'expected'
+                'points'
+                'i'
+                'off'
+                'pid'
+                'x'
+                'y'
+                'conf'
+            [Constants]
+                'Inverso de pack_frame. Útil pra testes e pro receptor de validação.'
+                'datagrama muito curto ('
+                ' < '
+                ')'
+                0
+                'tamanho inconsistente: header diz '
+                ' pts → '
+                ' B, recebido '
+                ' B'
+                (
+                    'id'
+                    'x'
+                    'y'
+                    'confidence'
+                )
+                (
+                    'frame'
+                    'timestamp'
+                    'points'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     1: NULL + len
+                12      LOAD_FAST                       0: buf
+                14      CALL                            1
+                22      LOAD_GLOBAL                     2: _HEADER
+                32      LOAD_ATTR                       4: size
+                52      COMPARE_OP                      18 (<)
+                56      POP_JUMP_IF_FALSE               41 (to 140)
+                60      LOAD_GLOBAL                     7: NULL + ValueError
+                70      LOAD_CONST                      1: 'datagrama muito curto ('
+                72      LOAD_GLOBAL                     1: NULL + len
+                82      LOAD_FAST                       0: buf
+                84      CALL                            1
+                92      FORMAT_SIMPLE                   
+                94      LOAD_CONST                      2: ' < '
+                96      LOAD_GLOBAL                     2: _HEADER
+                106     LOAD_ATTR                       4: size
+                126     FORMAT_SIMPLE                   
+                128     LOAD_CONST                      3: ')'
+                130     BUILD_STRING                    5
+                132     CALL                            1
+                140     RAISE_VARARGS                   1
+                142     LOAD_GLOBAL                     2: _HEADER
+                152     LOAD_ATTR                       9: unpack_from
+                172     LOAD_FAST                       0: buf
+                174     LOAD_CONST                      4: 0
+                176     CALL                            2
+                184     UNPACK_SEQUENCE                 3
+                188     STORE_FAST_STORE_FAST           18: frame, ts
+                190     STORE_FAST                      3: n
+                192     LOAD_GLOBAL                     2: _HEADER
+                202     LOAD_ATTR                       4: size
+                222     LOAD_FAST                       3: n
+                224     LOAD_GLOBAL                     10: _POINT
+                234     LOAD_ATTR                       4: size
+                254     BINARY_OP                       5 (*)
+                258     BINARY_OP                       0 (+)
+                262     STORE_FAST                      4: expected
+                264     LOAD_GLOBAL                     1: NULL + len
+                274     LOAD_FAST                       0: buf
+                276     CALL                            1
+                284     LOAD_FAST                       4: expected
+                286     COMPARE_OP                      119 (!=)
+                290     POP_JUMP_IF_FALSE               30 (to 352)
+                294     LOAD_GLOBAL                     7: NULL + ValueError
+                304     LOAD_CONST                      5: 'tamanho inconsistente: header diz '
+                306     LOAD_FAST                       3: n
+                308     FORMAT_SIMPLE                   
+                310     LOAD_CONST                      6: ' pts → '
+                312     LOAD_FAST                       4: expected
+                314     FORMAT_SIMPLE                   
+                316     LOAD_CONST                      7: ' B, recebido '
+                318     LOAD_GLOBAL                     1: NULL + len
+                328     LOAD_FAST                       0: buf
+                330     CALL                            1
+                338     FORMAT_SIMPLE                   
+                340     LOAD_CONST                      8: ' B'
+                342     BUILD_STRING                    7
+                344     CALL                            1
+                352     RAISE_VARARGS                   1
+                354     BUILD_LIST                      0
+                356     STORE_FAST                      5: points
+                358     LOAD_GLOBAL                     13: NULL + range
+                368     LOAD_FAST                       3: n
+                370     CALL                            1
+                378     GET_ITER                        
+                380     FOR_ITER                        83 (to 548)
+                384     STORE_FAST                      6: i
+                386     LOAD_GLOBAL                     2: _HEADER
+                396     LOAD_ATTR                       4: size
+                416     LOAD_FAST                       6: i
+                418     LOAD_GLOBAL                     10: _POINT
+                428     LOAD_ATTR                       4: size
+                448     BINARY_OP                       5 (*)
+                452     BINARY_OP                       0 (+)
+                456     STORE_FAST                      7: off
+                458     LOAD_GLOBAL                     10: _POINT
+                468     LOAD_ATTR                       9: unpack_from
+                488     LOAD_FAST_LOAD_FAST             7: buf, off
+                490     CALL                            2
+                498     UNPACK_SEQUENCE                 4
+                502     STORE_FAST_STORE_FAST           137: pid, x
+                504     STORE_FAST_STORE_FAST           171: y, conf
+                506     LOAD_FAST                       5: points
+                508     LOAD_ATTR                       15: append
+                528     LOAD_FAST_LOAD_FAST             137: pid, x
+                530     LOAD_FAST_LOAD_FAST             171: y, conf
+                532     LOAD_CONST                      9: ('id', 'x', 'y', 'confidence')
+                534     BUILD_CONST_KEY_MAP             4
+                536     CALL                            1
+                544     POP_TOP                         
+                546     JUMP_BACKWARD                   85 (to 378)
+                550     END_FOR                         
+                552     POP_TOP                         
+                554     LOAD_FAST_LOAD_FAST             18: frame, ts
+                556     LOAD_FAST                       5: points
+                558     LOAD_CONST                      10: ('frame', 'timestamp', 'points')
+                560     BUILD_CONST_KEY_MAP             3
+                562     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: publisher.py
+            Object Name: UdpPublisher
+            Qualified Name: UdpPublisher
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__doc__'
+                '__init__'
+                'publish'
+                'property'
+                'send_rate'
+                'frame'
+                'close'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'UdpPublisher'
+                77
+                'Envia datagramas UDP binários pra um host:port (unicast).'
+                [Code]
+                    File Name: publisher.py
+                    Object Name: __init__
+                    Qualified Name: UdpPublisher.__init__
+                    Arg Count: 4
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 5
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'host'
+                        'port'
+                        'max_points'
+                        'socket'
+                        'AF_INET'
+                        'SOCK_DGRAM'
+                        'sock'
+                        'setsockopt'
+                        'SOL_SOCKET'
+                        'SO_BROADCAST'
+                        'OSError'
+                        'endpoint'
+                        '_frame'
+                        '_sent'
+                        'time'
+                        'monotonic'
+                        '_t0'
+                        '_send_rate'
+                    [Locals+Names]
+                        'self'
+                        'host'
+                        'port'
+                        'max_points'
+                    [Constants]
+                        None
+                        1
+                        'udp://'
+                        ':'
+                        0
+                        0
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST_LOAD_FAST             16: host, self
+                        4       STORE_ATTR                      0: host
+                        14      LOAD_FAST_LOAD_FAST             32: port, self
+                        16      STORE_ATTR                      1: port
+                        26      LOAD_FAST_LOAD_FAST             48: max_points, self
+                        28      STORE_ATTR                      2: max_points
+                        38      LOAD_GLOBAL                     6: socket
+                        48      LOAD_ATTR                       6: socket
+                        68      PUSH_NULL                       
+                        70      LOAD_GLOBAL                     6: socket
+                        80      LOAD_ATTR                       8: AF_INET
+                        100     LOAD_GLOBAL                     6: socket
+                        110     LOAD_ATTR                       10: SOCK_DGRAM
+                        130     CALL                            2
+                        138     LOAD_FAST                       0: self
+                        140     STORE_ATTR                      6: sock
+                        150     NOP                             
+                        152     LOAD_FAST                       0: self
+                        154     LOAD_ATTR                       12: sock
+                        174     LOAD_ATTR                       15: setsockopt
+                        194     LOAD_GLOBAL                     6: socket
+                        204     LOAD_ATTR                       16: SOL_SOCKET
+                        224     LOAD_GLOBAL                     6: socket
+                        234     LOAD_ATTR                       18: SO_BROADCAST
+                        254     LOAD_CONST                      1: 1
+                        256     CALL                            3
+                        264     POP_TOP                         
+                        266     LOAD_CONST                      2: 'udp://'
+                        268     LOAD_FAST                       1: host
+                        270     FORMAT_SIMPLE                   
+                        272     LOAD_CONST                      3: ':'
+                        274     LOAD_FAST                       2: port
+                        276     FORMAT_SIMPLE                   
+                        278     BUILD_STRING                    4
+                        280     LOAD_FAST                       0: self
+                        282     STORE_ATTR                      11: endpoint
+                        292     LOAD_CONST                      4: 0
+                        294     LOAD_FAST                       0: self
+                        296     STORE_ATTR                      12: _frame
+                        306     LOAD_CONST                      4: 0
+                        308     LOAD_FAST                       0: self
+                        310     STORE_ATTR                      13: _sent
+                        320     LOAD_GLOBAL                     28: time
+                        330     LOAD_ATTR                       30: monotonic
+                        350     PUSH_NULL                       
+                        352     CALL                            0
+                        360     LOAD_FAST                       0: self
+                        362     STORE_ATTR                      16: _t0
+                        372     LOAD_CONST                      5: 0
+                        374     LOAD_FAST                       0: self
+                        376     STORE_ATTR                      17: _send_rate
+                        386     RETURN_CONST                    0: None
+                        388     PUSH_EXC_INFO                   
+                        390     LOAD_GLOBAL                     20: OSError
+                        400     CHECK_EXC_MATCH                 
+                        402     POP_JUMP_IF_FALSE               3 (to 410)
+                        406     POP_TOP                         
+                        408     POP_EXCEPT                      
+                        410     JUMP_BACKWARD_NO_INTERRUPT      73 (to 266)
+                        412     RERAISE                         0
+                        414     COPY                            3
+                        416     POP_EXCEPT                      
+                        418     RERAISE                         1
+                    [Exception Table]
+                        152 to 266 -> 388 [0] 
+                        388 to 408 -> 414 [1] lasti
+                        412 to 414 -> 414 [1] lasti
+                [Code]
+                    File Name: publisher.py
+                    Object Name: publish
+                    Qualified Name: UdpPublisher.publish
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 6
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_frame'
+                        'pack_frame'
+                        'time'
+                        'max_points'
+                        'sock'
+                        'sendto'
+                        'host'
+                        'port'
+                        'OSError'
+                        '_sent'
+                        'monotonic'
+                        '_t0'
+                        '_send_rate'
+                    [Locals+Names]
+                        'self'
+                        'tracks'
+                        'body'
+                        'now'
+                        'elapsed'
+                    [Constants]
+                        'Empacota e envia. Retorna o frame number publicado.'
+                        1
+                        1
+                        0
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       COPY                            1
+                        6       LOAD_ATTR                       0: _frame
+                        26      LOAD_CONST                      1: 1
+                        28      BINARY_OP                       13 (+=)
+                        32      SWAP                            2
+                        34      STORE_ATTR                      0: _frame
+                        44      LOAD_GLOBAL                     3: NULL + pack_frame
+                        54      LOAD_FAST                       0: self
+                        56      LOAD_ATTR                       0: _frame
+                        76      LOAD_GLOBAL                     4: time
+                        86      LOAD_ATTR                       4: time
+                        106     PUSH_NULL                       
+                        108     CALL                            0
+                        116     LOAD_FAST_LOAD_FAST             16: tracks, self
+                        118     LOAD_ATTR                       6: max_points
+                        138     CALL                            4
+                        146     STORE_FAST                      2: body
+                        148     NOP                             
+                        150     LOAD_FAST                       0: self
+                        152     LOAD_ATTR                       8: sock
+                        172     LOAD_ATTR                       11: sendto
+                        192     LOAD_FAST_LOAD_FAST             32: body, self
+                        194     LOAD_ATTR                       12: host
+                        214     LOAD_FAST                       0: self
+                        216     LOAD_ATTR                       14: port
+                        236     BUILD_TUPLE                     2
+                        238     CALL                            2
+                        246     POP_TOP                         
+                        248     LOAD_FAST                       0: self
+                        250     COPY                            1
+                        252     LOAD_ATTR                       18: _sent
+                        272     LOAD_CONST                      1: 1
+                        274     BINARY_OP                       13 (+=)
+                        278     SWAP                            2
+                        280     STORE_ATTR                      9: _sent
+                        290     LOAD_GLOBAL                     4: time
+                        300     LOAD_ATTR                       20: monotonic
+                        320     PUSH_NULL                       
+                        322     CALL                            0
+                        330     STORE_FAST                      3: now
+                        332     LOAD_FAST_LOAD_FAST             48: now, self
+                        334     LOAD_ATTR                       22: _t0
+                        354     BINARY_OP                       10 (-)
+                        358     STORE_FAST                      4: elapsed
+                        360     LOAD_FAST                       4: elapsed
+                        362     LOAD_CONST                      2: 1
+                        364     COMPARE_OP                      188 (>=)
+                        368     POP_JUMP_IF_FALSE               33 (to 436)
+                        372     LOAD_FAST                       0: self
+                        374     LOAD_ATTR                       18: _sent
+                        394     LOAD_FAST                       4: elapsed
+                        396     BINARY_OP                       11 (/)
+                        400     LOAD_FAST                       0: self
+                        402     STORE_ATTR                      12: _send_rate
+                        412     LOAD_CONST                      3: 0
+                        414     LOAD_FAST                       0: self
+                        416     STORE_ATTR                      9: _sent
+                        426     LOAD_FAST_LOAD_FAST             48: now, self
+                        428     STORE_ATTR                      11: _t0
+                        438     LOAD_FAST                       0: self
+                        440     LOAD_ATTR                       0: _frame
+                        460     RETURN_VALUE                    
+                        462     PUSH_EXC_INFO                   
+                        464     LOAD_GLOBAL                     16: OSError
+                        474     CHECK_EXC_MATCH                 
+                        476     POP_JUMP_IF_FALSE               3 (to 484)
+                        480     POP_TOP                         
+                        482     POP_EXCEPT                      
+                        484     JUMP_BACKWARD_NO_INTERRUPT      119 (to 248)
+                        486     RERAISE                         0
+                        488     COPY                            3
+                        490     POP_EXCEPT                      
+                        492     RERAISE                         1
+                    [Exception Table]
+                        150 to 248 -> 462 [0] 
+                        462 to 482 -> 488 [1] lasti
+                        486 to 488 -> 488 [1] lasti
+                [Code]
+                    File Name: publisher.py
+                    Object Name: send_rate
+                    Qualified Name: UdpPublisher.send_rate
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_send_rate'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _send_rate
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: publisher.py
+                    Object Name: frame
+                    Qualified Name: UdpPublisher.frame
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 1
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_frame'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _frame
+                        24      RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: publisher.py
+                    Object Name: close
+                    Qualified Name: UdpPublisher.close
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'sock'
+                        'close'
+                        'Exception'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       NOP                             
+                        4       LOAD_FAST                       0: self
+                        6       LOAD_ATTR                       0: sock
+                        26      LOAD_ATTR                       3: close
+                        46      CALL                            0
+                        54      POP_TOP                         
+                        56      RETURN_CONST                    0: None
+                        58      PUSH_EXC_INFO                   
+                        60      LOAD_GLOBAL                     4: Exception
+                        70      CHECK_EXC_MATCH                 
+                        72      POP_JUMP_IF_FALSE               3 (to 80)
+                        76      POP_TOP                         
+                        78      POP_EXCEPT                      
+                        80      RETURN_CONST                    0: None
+                        82      RERAISE                         0
+                        84      COPY                            3
+                        86      POP_EXCEPT                      
+                        88      RERAISE                         1
+                    [Exception Table]
+                        4 to 56 -> 58 [0] 
+                        58 to 78 -> 84 [1] lasti
+                        82 to 84 -> 84 [1] lasti
+                (
+                    '_frame'
+                    '_send_rate'
+                    '_sent'
+                    '_t0'
+                    'endpoint'
+                    'host'
+                    'max_points'
+                    'port'
+                    'sock'
+                )
+                None
+                (
+                    '127.0.0.1'
+                    5555
+                    32
+                )
+                (
+                    'host'
+                    'str'
+                    'port'
+                    'int'
+                    'max_points'
+                    'int'
+                    'return'
+                    'None'
+                )
+                (
+                    'tracks'
+                    'list[Track]'
+                    'return'
+                    'int'
+                )
+                (
+                    'return'
+                    'float'
+                )
+                (
+                    'return'
+                    'int'
+                )
+                (
+                    'return'
+                    'None'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'UdpPublisher'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 77
+                12      STORE_NAME                      3: __firstlineno__
+                14      LOAD_CONST                      2: 'Envia datagramas UDP binários pra um host:port (unicast).'
+                16      STORE_NAME                      4: __doc__
+                18      NOP                             
+                20      NOP                             
+                22      LOAD_CONST                      10: ('127.0.0.1', 5555, 32)
+                24      NOP                             
+                26      NOP                             
+                28      NOP                             
+                30      LOAD_CONST                      11: ('host', 'str', 'port', 'int', 'max_points', 'int', 'return', 'None')
+                32      LOAD_CONST                      3: <CODE> __init__
+                34      MAKE_FUNCTION                   
+                36      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                38      SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+                40      STORE_NAME                      5: __init__
+                42      LOAD_CONST                      12: ('tracks', 'list[Track]', 'return', 'int')
+                44      LOAD_CONST                      4: <CODE> publish
+                46      MAKE_FUNCTION                   
+                48      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                50      STORE_NAME                      6: publish
+                52      LOAD_NAME                       7: property
+                54      LOAD_CONST                      13: ('return', 'float')
+                56      LOAD_CONST                      5: <CODE> send_rate
+                58      MAKE_FUNCTION                   
+                60      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                62      CALL                            0
+                70      STORE_NAME                      8: send_rate
+                72      LOAD_NAME                       7: property
+                74      LOAD_CONST                      14: ('return', 'int')
+                76      LOAD_CONST                      6: <CODE> frame
+                78      MAKE_FUNCTION                   
+                80      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                82      CALL                            0
+                90      STORE_NAME                      9: frame
+                92      LOAD_CONST                      15: ('return', 'None')
+                94      LOAD_CONST                      7: <CODE> close
+                96      MAKE_FUNCTION                   
+                98      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                100     STORE_NAME                      10: close
+                102     LOAD_CONST                      8: ('_frame', '_send_rate', '_sent', '_t0', 'endpoint', 'host', 'max_points', 'port', 'sock')
+                104     STORE_NAME                      11: __static_attributes__
+                106     RETURN_CONST                    9: None
+            [Exception Table]
+        'UdpPublisher'
+        [Code]
+            File Name: publisher.py
+            Object Name: RateLimiter
+            Qualified Name: RateLimiter
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__doc__'
+                '__init__'
+                'set_rate'
+                'ready'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'RateLimiter'
+                133
+                'Limita uma chamada periódica a uma taxa máxima (Hz). 0 = sem limite.'
+                [Code]
+                    File Name: publisher.py
+                    Object Name: __init__
+                    Qualified Name: RateLimiter.__init__
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 3
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'set_rate'
+                        '_next'
+                    [Locals+Names]
+                        'self'
+                        'rate_hz'
+                    [Constants]
+                        None
+                        0
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       1: set_rate
+                        24      LOAD_FAST                       1: rate_hz
+                        26      CALL                            1
+                        34      POP_TOP                         
+                        36      LOAD_CONST                      1: 0
+                        38      LOAD_FAST                       0: self
+                        40      STORE_ATTR                      1: _next
+                        50      RETURN_CONST                    0: None
+                    [Exception Table]
+                [Code]
+                    File Name: publisher.py
+                    Object Name: set_rate
+                    Qualified Name: RateLimiter.set_rate
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 2
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'period'
+                    [Locals+Names]
+                        'self'
+                        'rate_hz'
+                    [Constants]
+                        None
+                        0
+                        0
+                        1
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       1: rate_hz
+                        4       LOAD_CONST                      1: 0
+                        6       COMPARE_OP                      58 (<=)
+                        10      POP_JUMP_IF_FALSE               8 (to 28)
+                        14      LOAD_CONST                      2: 0
+                        16      LOAD_FAST                       0: self
+                        18      STORE_ATTR                      0: period
+                        28      RETURN_CONST                    0: None
+                        30      LOAD_CONST                      3: 1
+                        32      LOAD_FAST                       1: rate_hz
+                        34      BINARY_OP                       11 (/)
+                        38      LOAD_FAST                       0: self
+                        40      STORE_ATTR                      0: period
+                        50      RETURN_CONST                    0: None
+                    [Exception Table]
+                None
+                [Code]
+                    File Name: publisher.py
+                    Object Name: ready
+                    Qualified Name: RateLimiter.ready
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 2
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'period'
+                        'time'
+                        'monotonic'
+                        '_next'
+                    [Locals+Names]
+                        'self'
+                        'now'
+                        't'
+                    [Constants]
+                        None
+                        0
+                        True
+                        False
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: period
+                        24      LOAD_CONST                      1: 0
+                        26      COMPARE_OP                      58 (<=)
+                        30      POP_JUMP_IF_FALSE               1 (to 34)
+                        34      RETURN_CONST                    2: True
+                        36      LOAD_FAST                       1: now
+                        38      POP_JUMP_IF_NOT_NONE            21 (to 82)
+                        42      LOAD_GLOBAL                     2: time
+                        52      LOAD_ATTR                       4: monotonic
+                        72      PUSH_NULL                       
+                        74      CALL                            0
+                        82      JUMP_FORWARD                    1 (to 86)
+                        84      LOAD_FAST                       1: now
+                        86      STORE_FAST                      2: t
+                        88      LOAD_FAST_LOAD_FAST             32: t, self
+                        90      LOAD_ATTR                       6: _next
+                        110     COMPARE_OP                      188 (>=)
+                        114     POP_JUMP_IF_FALSE               20 (to 156)
+                        118     LOAD_FAST_LOAD_FAST             32: t, self
+                        120     LOAD_ATTR                       0: period
+                        140     BINARY_OP                       0 (+)
+                        144     LOAD_FAST                       0: self
+                        146     STORE_ATTR                      3: _next
+                        156     RETURN_CONST                    2: True
+                        158     RETURN_CONST                    3: False
+                    [Exception Table]
+                (
+                    '_next'
+                    'period'
+                )
+                (
+                    'rate_hz'
+                    'float'
+                )
+                (
+                    'rate_hz'
+                    'float'
+                    'return'
+                    'None'
+                )
+                (
+                    None
+                )
+                (
+                    'now'
+                    'float | None'
+                    'return'
+                    'bool'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'RateLimiter'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 133
+                12      STORE_NAME                      3: __firstlineno__
+                14      LOAD_CONST                      2: 'Limita uma chamada periódica a uma taxa máxima (Hz). 0 = sem limite.'
+                16      STORE_NAME                      4: __doc__
+                18      LOAD_CONST                      8: ('rate_hz', 'float')
+                20      LOAD_CONST                      3: <CODE> __init__
+                22      MAKE_FUNCTION                   
+                24      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                26      STORE_NAME                      5: __init__
+                28      LOAD_CONST                      9: ('rate_hz', 'float', 'return', 'None')
+                30      LOAD_CONST                      4: <CODE> set_rate
+                32      MAKE_FUNCTION                   
+                34      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                36      STORE_NAME                      6: set_rate
+                38      LOAD_CONST                      10: (None,)
+                40      LOAD_CONST                      11: ('now', 'float | None', 'return', 'bool')
+                42      LOAD_CONST                      6: <CODE> ready
+                44      MAKE_FUNCTION                   
+                46      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                48      SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+                50      STORE_NAME                      7: ready
+                52      LOAD_CONST                      7: ('_next', 'period')
+                54      STORE_NAME                      8: __static_attributes__
+                56      RETURN_CONST                    5: None
+            [Exception Table]
+        'RateLimiter'
+        (
+            32
+        )
+        (
+            'frame_idx'
+            'int'
+            'timestamp'
+            'float'
+            'tracks'
+            'list[Track]'
+            'max_points'
+            'int'
+            'return'
+            'bytes'
+        )
+        (
+            'buf'
+            'bytes'
+            'return'
+            'dict'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — Etapa 5: publisher UDP binário.\n\nEmpacota os tracks num datagrama binário com `struct.pack` (little-endian,\nsem padding) e envia via UDP. Formato pensado pra ser consumido por um\nUDP In DAT no TouchDesigner com um callback que faz `struct.unpack`.\n\nFormato (LIDAR_MAPPER_V1):\n\n  Header (14 bytes):\n    uint32   frame\n    float64  timestamp           (segundos desde epoch, time.time())\n    uint16   num_points          (N)\n\n  Por ponto (16 bytes, repetido N vezes):\n    uint32   id\n    float32  x                   (0..1, espaço normalizado da tela)\n    float32  y                   (0..1)\n    float32  confidence          (0..1)\n\n  Tamanho do datagrama = 14 + 16 * N bytes.\n  Com max_tracks=10  → 174 B, bem abaixo do MTU típico (1500 B), sem fragmentação.\n  O cap `max_points` no config é uma cinta extra (trunca se passar disso).\n\nAtenção: UDP é "best-effort" (sem retransmissão, ordem não garantida).\nPra esse caso (estado completo a cada frame), perder um pacote significa\nficar uma "frame" atrasado e o próximo já carrega o estado novo. Aceitável.\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: socket
+        24      STORE_NAME                      3: socket
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: struct
+        32      STORE_NAME                      4: struct
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      3: None
+        38      IMPORT_NAME                     5: time
+        40      STORE_NAME                      5: time
+        42      LOAD_CONST                      1: 0
+        44      LOAD_CONST                      4: ('Track',)
+        46      IMPORT_NAME                     6: tracker
+        48      IMPORT_FROM                     7: Track
+        50      STORE_NAME                      7: Track
+        52      POP_TOP                         
+        54      LOAD_NAME                       4: struct
+        56      LOAD_ATTR                       16: Struct
+        76      PUSH_NULL                       
+        78      LOAD_CONST                      5: '<IdH'
+        80      CALL                            1
+        88      STORE_NAME                      9: _HEADER
+        90      LOAD_NAME                       4: struct
+        92      LOAD_ATTR                       16: Struct
+        112     PUSH_NULL                       
+        114     LOAD_CONST                      6: '<Ifff'
+        116     CALL                            1
+        124     STORE_NAME                      10: _POINT
+        126     NOP                             
+        128     LOAD_CONST                      13: (32,)
+        130     NOP                             
+        132     NOP                             
+        134     NOP                             
+        136     NOP                             
+        138     NOP                             
+        140     LOAD_CONST                      14: ('frame_idx', 'int', 'timestamp', 'float', 'tracks', 'list[Track]', 'max_points', 'int', 'return', 'bytes')
+        142     LOAD_CONST                      7: <CODE> pack_frame
+        144     MAKE_FUNCTION                   
+        146     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        148     SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+        150     STORE_NAME                      11: pack_frame
+        152     LOAD_CONST                      15: ('buf', 'bytes', 'return', 'dict')
+        154     LOAD_CONST                      8: <CODE> unpack_frame
+        156     MAKE_FUNCTION                   
+        158     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        160     STORE_NAME                      12: unpack_frame
+        162     LOAD_BUILD_CLASS                
+        164     PUSH_NULL                       
+        166     LOAD_CONST                      9: <CODE> UdpPublisher
+        168     MAKE_FUNCTION                   
+        170     LOAD_CONST                      10: 'UdpPublisher'
+        172     CALL                            2
+        180     STORE_NAME                      13: UdpPublisher
+        182     LOAD_BUILD_CLASS                
+        184     PUSH_NULL                       
+        186     LOAD_CONST                      11: <CODE> RateLimiter
+        188     MAKE_FUNCTION                   
+        190     LOAD_CONST                      12: 'RateLimiter'
+        192     CALL                            2
+        200     STORE_NAME                      14: RateLimiter
+        202     RETURN_CONST                    3: None
+    [Exception Table]

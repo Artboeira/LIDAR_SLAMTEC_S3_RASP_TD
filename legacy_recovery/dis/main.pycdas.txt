@@ -1,0 +1,1033 @@
+main.pyc (Python 3.13)
+[Code]
+    File Name: main.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 4
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'argparse'
+        'logging'
+        'os'
+        'signal'
+        'sys'
+        'time'
+        'numpy'
+        'np'
+        'config'
+        'cfg_mod'
+        'paths'
+        'homography'
+        'load_calibration'
+        'lidar_reader'
+        'LidarReader'
+        'processing'
+        'BackgroundSubtractor'
+        'project_batch'
+        'split_by_roi'
+        'publisher'
+        'RateLimiter'
+        'UdpPublisher'
+        'tracker'
+        'Tracker'
+        'getLogger'
+        'log'
+        'configure_logging'
+        'main'
+        '__name__'
+        'SystemExit'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — entry point principal.\n\nPipeline completo: RPLIDAR S3 (thread separado) → filtro + ROI → background\nsubtraction → DBSCAN → tracker com IDs persistentes → UDP binário.\n\nA leitura do LIDAR roda no thread interno de `LidarReader`. Processamento\ne envio UDP rodam no thread principal — pra cada frame de tempo (limitado\npor `udp.publish_rate_hz`), drena medidas acumuladas, atualiza tracker,\nempacota com struct.pack e envia.\n\nUso típico:\n    python main.py\n    python main.py --port COM12\n    python main.py --log-level debug\n\nEncerra com Ctrl+C.\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'load_calibration'
+        )
+        (
+            'LidarReader'
+        )
+        (
+            'BackgroundSubtractor'
+            'project_batch'
+            'split_by_roi'
+        )
+        (
+            'RateLimiter'
+            'UdpPublisher'
+        )
+        (
+            'Tracker'
+        )
+        'lidarmapper'
+        [Code]
+            File Name: main.py
+            Object Name: configure_logging
+            Qualified Name: configure_logging
+            Arg Count: 3
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 6
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'upper'
+                'getattr'
+                'logging'
+                'INFO'
+                'basicConfig'
+                'getLogger'
+                'setLevel'
+                'ERROR'
+            [Locals+Names]
+                'level_name'
+                'fmt'
+                'override'
+                'name'
+                'level'
+            [Constants]
+                'Configura o logger raiz com o nível e formato do config (ou CLI).'
+                'info'
+                '%H:%M:%S'
+                (
+                    'level'
+                    'format'
+                    'datefmt'
+                )
+                'rplidar'
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       2: override
+                4       COPY                            1
+                6       TO_BOOL                         
+                14      POP_JUMP_IF_TRUE                11 (to 38)
+                18      POP_TOP                         
+                20      LOAD_FAST                       0: level_name
+                22      COPY                            1
+                24      TO_BOOL                         
+                32      POP_JUMP_IF_TRUE                2 (to 38)
+                36      POP_TOP                         
+                38      LOAD_CONST                      1: 'info'
+                40      LOAD_ATTR                       1: upper
+                60      CALL                            0
+                68      STORE_FAST                      3: name
+                70      LOAD_GLOBAL                     3: NULL + getattr
+                80      LOAD_GLOBAL                     4: logging
+                90      LOAD_FAST                       3: name
+                92      LOAD_GLOBAL                     4: logging
+                102     LOAD_ATTR                       6: INFO
+                122     CALL                            3
+                130     STORE_FAST                      4: level
+                132     LOAD_GLOBAL                     4: logging
+                142     LOAD_ATTR                       8: basicConfig
+                162     PUSH_NULL                       
+                164     LOAD_FAST_LOAD_FAST             65: level, fmt
+                166     LOAD_CONST                      2: '%H:%M:%S'
+                168     LOAD_CONST                      3: ('level', 'format', 'datefmt')
+                170     CALL_KW                         3
+                172     POP_TOP                         
+                174     LOAD_GLOBAL                     4: logging
+                184     LOAD_ATTR                       10: getLogger
+                204     PUSH_NULL                       
+                206     LOAD_CONST                      4: 'rplidar'
+                208     CALL                            1
+                216     LOAD_ATTR                       13: setLevel
+                236     LOAD_GLOBAL                     4: logging
+                246     LOAD_ATTR                       14: ERROR
+                266     CALL                            1
+                274     POP_TOP                         
+                276     RETURN_CONST                    5: None
+            [Exception Table]
+        [Code]
+            File Name: main.py
+            Object Name: main
+            Qualified Name: main
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 11
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'argparse'
+                'ArgumentParser'
+                'add_argument'
+                'float'
+                'parse_args'
+                'cfg_mod'
+                'load'
+                'config'
+                'configure_logging'
+                'logging'
+                'level'
+                'format'
+                'log_level'
+                'os'
+                'path'
+                'isabs'
+                'calib'
+                'join'
+                'paths'
+                'APP_DIR'
+                'load_calibration'
+                'log'
+                'error'
+                'info'
+                'basename'
+                'screen_width_px'
+                'screen_height_px'
+                'port'
+                'sensor'
+                'LidarReader'
+                'baud'
+                'start'
+                'status'
+                'BackgroundSubtractor'
+                'begin_baseline'
+                'configure_time'
+                'baseline_s'
+                'Tracker'
+                'tracker'
+                'no_publish'
+                'UdpPublisher'
+                'udp'
+                'host'
+                'max_points'
+                'endpoint'
+                'publish_rate_hz'
+                'RateLimiter'
+                'signal'
+                'SIGINT'
+                'time'
+                'monotonic'
+                'drain'
+                'ready'
+                'feed'
+                'learned_bins'
+                'debug'
+                'meas_per_sec'
+                'sleep'
+                'project_batch'
+                'processing'
+                'foreground_points'
+                'split_by_roi'
+                'roi'
+                'np'
+                'array'
+                'x'
+                'y'
+                'zeros'
+                'update'
+                'H'
+                'publish'
+                'send_rate'
+                'frame'
+                'scans_per_sec'
+                'len'
+                'desyncs'
+                'reconnects'
+                'KeyboardInterrupt'
+                'Exception'
+                'exception'
+                'close'
+                'stop'
+            [Locals+Names]
+                'ap'
+                'args'
+                'cfg'
+                'calib_path'
+                'calib'
+                'port'
+                'rdr'
+                'bg'
+                'trk'
+                'pub'
+                'limiter'
+                '_sig'
+                'last_status_t'
+                'last_frame_pub'
+                'rc'
+                'now'
+                'measurements'
+                'points'
+                'fg'
+                'fg_in'
+                '_'
+                'p'
+                'xy'
+                'tracks'
+                'pub_rate'
+                'pub_frame'
+                'delta'
+                'stop'
+            [Constants]
+                None
+                'LidarMapper main pipeline'
+                (
+                    'description'
+                )
+                '--config'
+                'caminho do config.yaml'
+                (
+                    'default'
+                    'help'
+                )
+                '--port'
+                'sobrescreve sensor.port (ex: COM12)'
+                '--calib'
+                'calibration.json'
+                'arquivo de calibração (gerado por calibrate.py)'
+                '--baseline-s'
+                2
+                'duração da captura de fundo na largada'
+                (
+                    'type'
+                    'default'
+                    'help'
+                )
+                '--log-level'
+                'debug|info|warning|error (override do config)'
+                '--no-publish'
+                'store_true'
+                'roda o pipeline mas não envia UDP (debug)'
+                (
+                    'action'
+                    'help'
+                )
+                "sem calibração em %s — rode 'python calibrate.py'"
+                1
+                'calib: %s  tela %dx%d'
+                (
+                    'port'
+                    'baud'
+                )
+                'LIDAR não iniciou: %s'
+                'LIDAR: %s'
+                720
+                120
+                (
+                    'bins'
+                    'margin_mm'
+                )
+                'baseline %.1fs — mantenha a área livre'
+                (
+                    'host'
+                    'port'
+                    'max_points'
+                )
+                'UDP -> %s  rate=%g Hz  max_points=%d'
+                'flag'
+                False
+                [Code]
+                    File Name: main.py
+                    Object Name: _sig
+                    Qualified Name: main.<locals>._sig
+                    Arg Count: 0
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 3
+                    Flags: 0x01000017 (CO_OPTIMIZED | CO_NEWLOCALS | CO_VARARGS | CO_NESTED | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '_'
+                        'stop'
+                    [Constants]
+                        None
+                        True
+                        'flag'
+                    [Disassembly]
+                        0       COPY_FREE_VARS                  1
+                        2       RESUME                          0
+                        4       LOAD_CONST                      1: True
+                        6       LOAD_DEREF                      1: stop
+                        8       LOAD_CONST                      2: 'flag'
+                        10      STORE_SUBSCR                    
+                        14      RETURN_CONST                    0: None
+                    [Exception Table]
+                0
+                'baseline pronto (%d/720 bins) — publicando.'
+                1
+                'baseline... %d/720 bins  meas/s=%.0f'
+                0.01
+                (
+                    'dtype'
+                )
+                (
+                    0
+                    2
+                )
+                0
+                'meas/s=%6.0f  scans/s=%4.1f  fg=%4d  tracks=%d  pub/s=%5.1f  +%4d frames  desync=%d  recon=%d'
+                0.005
+                'erro fatal no loop principal'
+                'encerrado.'
+            [Disassembly]
+                0       MAKE_CELL                       27: stop
+                2       RESUME                          0
+                4       LOAD_GLOBAL                     0: argparse
+                14      LOAD_ATTR                       2: ArgumentParser
+                34      PUSH_NULL                       
+                36      LOAD_CONST                      1: 'LidarMapper main pipeline'
+                38      LOAD_CONST                      2: ('description',)
+                40      CALL_KW                         1
+                42      STORE_FAST                      0: ap
+                44      LOAD_FAST                       0: ap
+                46      LOAD_ATTR                       5: add_argument
+                66      LOAD_CONST                      3: '--config'
+                68      LOAD_CONST                      0: None
+                70      LOAD_CONST                      4: 'caminho do config.yaml'
+                72      LOAD_CONST                      5: ('default', 'help')
+                74      CALL_KW                         3
+                76      POP_TOP                         
+                78      LOAD_FAST                       0: ap
+                80      LOAD_ATTR                       5: add_argument
+                100     LOAD_CONST                      6: '--port'
+                102     LOAD_CONST                      0: None
+                104     LOAD_CONST                      7: 'sobrescreve sensor.port (ex: COM12)'
+                106     LOAD_CONST                      5: ('default', 'help')
+                108     CALL_KW                         3
+                110     POP_TOP                         
+                112     LOAD_FAST                       0: ap
+                114     LOAD_ATTR                       5: add_argument
+                134     LOAD_CONST                      8: '--calib'
+                136     LOAD_CONST                      9: 'calibration.json'
+                138     LOAD_CONST                      10: 'arquivo de calibração (gerado por calibrate.py)'
+                140     LOAD_CONST                      5: ('default', 'help')
+                142     CALL_KW                         3
+                144     POP_TOP                         
+                146     LOAD_FAST                       0: ap
+                148     LOAD_ATTR                       5: add_argument
+                168     LOAD_CONST                      11: '--baseline-s'
+                170     LOAD_GLOBAL                     6: float
+                180     LOAD_CONST                      12: 2
+                182     LOAD_CONST                      13: 'duração da captura de fundo na largada'
+                184     LOAD_CONST                      14: ('type', 'default', 'help')
+                186     CALL_KW                         4
+                188     POP_TOP                         
+                190     LOAD_FAST                       0: ap
+                192     LOAD_ATTR                       5: add_argument
+                212     LOAD_CONST                      15: '--log-level'
+                214     LOAD_CONST                      0: None
+                216     LOAD_CONST                      16: 'debug|info|warning|error (override do config)'
+                218     LOAD_CONST                      5: ('default', 'help')
+                220     CALL_KW                         3
+                222     POP_TOP                         
+                224     LOAD_FAST                       0: ap
+                226     LOAD_ATTR                       5: add_argument
+                246     LOAD_CONST                      17: '--no-publish'
+                248     LOAD_CONST                      18: 'store_true'
+                250     LOAD_CONST                      19: 'roda o pipeline mas não envia UDP (debug)'
+                252     LOAD_CONST                      20: ('action', 'help')
+                254     CALL_KW                         3
+                256     POP_TOP                         
+                258     LOAD_FAST                       0: ap
+                260     LOAD_ATTR                       9: parse_args
+                280     CALL                            0
+                288     STORE_FAST                      1: args
+                290     LOAD_GLOBAL                     10: cfg_mod
+                300     LOAD_ATTR                       12: load
+                320     PUSH_NULL                       
+                322     LOAD_FAST                       1: args
+                324     LOAD_ATTR                       14: config
+                344     CALL                            1
+                352     STORE_FAST                      2: cfg
+                354     LOAD_GLOBAL                     17: NULL + configure_logging
+                364     LOAD_FAST                       2: cfg
+                366     LOAD_ATTR                       18: logging
+                386     LOAD_ATTR                       20: level
+                406     LOAD_FAST                       2: cfg
+                408     LOAD_ATTR                       18: logging
+                428     LOAD_ATTR                       22: format
+                448     LOAD_FAST                       1: args
+                450     LOAD_ATTR                       24: log_level
+                470     CALL                            3
+                478     POP_TOP                         
+                480     LOAD_GLOBAL                     26: os
+                490     LOAD_ATTR                       28: path
+                510     LOAD_ATTR                       31: isabs
+                530     LOAD_FAST                       1: args
+                532     LOAD_ATTR                       32: calib
+                552     CALL                            1
+                560     TO_BOOL                         
+                568     POP_JUMP_IF_FALSE               12 (to 594)
+                572     LOAD_FAST                       1: args
+                574     LOAD_ATTR                       32: calib
+                594     JUMP_FORWARD                    55 (to 706)
+                596     LOAD_GLOBAL                     26: os
+                606     LOAD_ATTR                       28: path
+                626     LOAD_ATTR                       35: join
+                646     LOAD_GLOBAL                     36: paths
+                656     LOAD_ATTR                       38: APP_DIR
+                676     LOAD_FAST                       1: args
+                678     LOAD_ATTR                       32: calib
+                698     CALL                            2
+                706     STORE_FAST                      3: calib_path
+                708     LOAD_GLOBAL                     41: NULL + load_calibration
+                718     LOAD_FAST                       3: calib_path
+                720     CALL                            1
+                728     STORE_FAST                      4: calib
+                730     LOAD_FAST                       4: calib
+                732     POP_JUMP_IF_NOT_NONE            23 (to 780)
+                736     LOAD_GLOBAL                     42: log
+                746     LOAD_ATTR                       45: error
+                766     LOAD_CONST                      21: "sem calibração em %s — rode 'python calibrate.py'"
+                768     LOAD_FAST                       3: calib_path
+                770     CALL                            2
+                778     POP_TOP                         
+                780     RETURN_CONST                    22: 1
+                782     LOAD_GLOBAL                     42: log
+                792     LOAD_ATTR                       47: info
+                812     LOAD_CONST                      23: 'calib: %s  tela %dx%d'
+                814     LOAD_GLOBAL                     26: os
+                824     LOAD_ATTR                       28: path
+                844     LOAD_ATTR                       49: basename
+                864     LOAD_FAST                       3: calib_path
+                866     CALL                            1
+                874     LOAD_FAST                       4: calib
+                876     LOAD_ATTR                       50: screen_width_px
+                896     LOAD_FAST                       4: calib
+                898     LOAD_ATTR                       52: screen_height_px
+                918     CALL                            4
+                926     POP_TOP                         
+                928     LOAD_FAST                       1: args
+                930     LOAD_ATTR                       54: port
+                950     COPY                            1
+                952     TO_BOOL                         
+                960     POP_JUMP_IF_TRUE                22 (to 1006)
+                964     POP_TOP                         
+                966     LOAD_FAST                       2: cfg
+                968     LOAD_ATTR                       56: sensor
+                988     LOAD_ATTR                       54: port
+                1008    STORE_FAST                      5: port
+                1010    LOAD_GLOBAL                     59: NULL + LidarReader
+                1020    LOAD_FAST_LOAD_FAST             82: port, cfg
+                1022    LOAD_ATTR                       56: sensor
+                1042    LOAD_ATTR                       60: baud
+                1062    LOAD_CONST                      24: ('port', 'baud')
+                1064    CALL_KW                         2
+                1066    STORE_FAST                      6: rdr
+                1068    LOAD_FAST                       6: rdr
+                1070    LOAD_ATTR                       63: start
+                1090    CALL                            0
+                1098    TO_BOOL                         
+                1106    POP_JUMP_IF_TRUE                33 (to 1174)
+                1110    LOAD_GLOBAL                     42: log
+                1120    LOAD_ATTR                       45: error
+                1140    LOAD_CONST                      25: 'LIDAR não iniciou: %s'
+                1142    LOAD_FAST                       6: rdr
+                1144    LOAD_ATTR                       64: status
+                1164    CALL                            2
+                1172    POP_TOP                         
+                1174    RETURN_CONST                    22: 1
+                1176    LOAD_GLOBAL                     42: log
+                1186    LOAD_ATTR                       47: info
+                1206    LOAD_CONST                      26: 'LIDAR: %s'
+                1208    LOAD_FAST                       6: rdr
+                1210    LOAD_ATTR                       64: status
+                1230    CALL                            2
+                1238    POP_TOP                         
+                1240    LOAD_GLOBAL                     67: NULL + BackgroundSubtractor
+                1250    LOAD_CONST                      27: 720
+                1252    LOAD_CONST                      28: 120
+                1254    LOAD_CONST                      29: ('bins', 'margin_mm')
+                1256    CALL_KW                         2
+                1258    STORE_FAST                      7: bg
+                1260    LOAD_FAST                       7: bg
+                1262    LOAD_ATTR                       69: begin_baseline
+                1282    CALL                            0
+                1290    POP_TOP                         
+                1292    LOAD_FAST                       7: bg
+                1294    LOAD_ATTR                       71: configure_time
+                1314    LOAD_FAST                       1: args
+                1316    LOAD_ATTR                       72: baseline_s
+                1336    CALL                            1
+                1344    POP_TOP                         
+                1346    LOAD_GLOBAL                     42: log
+                1356    LOAD_ATTR                       47: info
+                1376    LOAD_CONST                      30: 'baseline %.1fs — mantenha a área livre'
+                1378    LOAD_FAST                       1: args
+                1380    LOAD_ATTR                       72: baseline_s
+                1400    CALL                            2
+                1408    POP_TOP                         
+                1410    LOAD_GLOBAL                     75: NULL + Tracker
+                1420    LOAD_FAST                       2: cfg
+                1422    LOAD_ATTR                       76: tracker
+                1442    CALL                            1
+                1450    STORE_FAST                      8: trk
+                1452    LOAD_CONST                      0: None
+                1454    STORE_FAST                      9: pub
+                1456    LOAD_FAST                       1: args
+                1458    LOAD_ATTR                       78: no_publish
+                1478    TO_BOOL                         
+                1486    POP_JUMP_IF_TRUE                145 (to 1778)
+                1490    LOAD_GLOBAL                     81: NULL + UdpPublisher
+                1500    LOAD_FAST                       2: cfg
+                1502    LOAD_ATTR                       82: udp
+                1522    LOAD_ATTR                       84: host
+                1542    LOAD_FAST                       2: cfg
+                1544    LOAD_ATTR                       82: udp
+                1564    LOAD_ATTR                       54: port
+                1584    LOAD_FAST                       2: cfg
+                1586    LOAD_ATTR                       82: udp
+                1606    LOAD_ATTR                       86: max_points
+                1626    LOAD_CONST                      31: ('host', 'port', 'max_points')
+                1628    CALL_KW                         3
+                1630    STORE_FAST                      9: pub
+                1632    LOAD_GLOBAL                     42: log
+                1642    LOAD_ATTR                       47: info
+                1662    LOAD_CONST                      32: 'UDP -> %s  rate=%g Hz  max_points=%d'
+                1664    LOAD_FAST                       9: pub
+                1666    LOAD_ATTR                       88: endpoint
+                1686    LOAD_FAST                       2: cfg
+                1688    LOAD_ATTR                       82: udp
+                1708    LOAD_ATTR                       90: publish_rate_hz
+                1728    LOAD_FAST                       2: cfg
+                1730    LOAD_ATTR                       82: udp
+                1750    LOAD_ATTR                       86: max_points
+                1770    CALL                            4
+                1778    POP_TOP                         
+                1780    LOAD_GLOBAL                     93: NULL + RateLimiter
+                1790    LOAD_FAST                       2: cfg
+                1792    LOAD_ATTR                       82: udp
+                1812    LOAD_ATTR                       90: publish_rate_hz
+                1832    CALL                            1
+                1840    STORE_FAST                      10: limiter
+                1842    LOAD_CONST                      33: 'flag'
+                1844    LOAD_CONST                      34: False
+                1846    BUILD_MAP                       1
+                1848    STORE_DEREF                     27: stop
+                1850    LOAD_FAST                       27: stop
+                1852    BUILD_TUPLE                     1
+                1854    LOAD_CONST                      35: <CODE> _sig
+                1856    MAKE_FUNCTION                   
+                1858    SET_FUNCTION_ATTRIBUTE          8 (MAKE_FUNCTION_CLOSURE)
+                1860    STORE_FAST                      11: _sig
+                1862    LOAD_GLOBAL                     94: signal
+                1872    LOAD_ATTR                       94: signal
+                1892    PUSH_NULL                       
+                1894    LOAD_GLOBAL                     94: signal
+                1904    LOAD_ATTR                       96: SIGINT
+                1924    LOAD_FAST                       11: _sig
+                1926    CALL                            2
+                1934    POP_TOP                         
+                1936    LOAD_GLOBAL                     98: time
+                1946    LOAD_ATTR                       100: monotonic
+                1966    PUSH_NULL                       
+                1968    CALL                            0
+                1976    STORE_FAST                      12: last_status_t
+                1978    LOAD_CONST                      36: 0
+                1980    STORE_FAST                      13: last_frame_pub
+                1982    LOAD_CONST                      36: 0
+                1984    STORE_FAST                      14: rc
+                1986    NOP                             
+                1988    LOAD_DEREF                      27: stop
+                1990    LOAD_CONST                      33: 'flag'
+                1992    BINARY_SUBSCR                   
+                1996    TO_BOOL                         
+                2004    POP_JUMP_IF_TRUE                605 (to 3218)
+                2010    LOAD_GLOBAL                     98: time
+                2020    LOAD_ATTR                       100: monotonic
+                2040    PUSH_NULL                       
+                2042    CALL                            0
+                2050    STORE_FAST                      15: now
+                2052    LOAD_FAST                       6: rdr
+                2054    LOAD_ATTR                       103: drain
+                2074    CALL                            0
+                2082    STORE_FAST                      16: measurements
+                2084    LOAD_FAST                       7: bg
+                2086    LOAD_ATTR                       104: ready
+                2106    TO_BOOL                         
+                2114    POP_JUMP_IF_TRUE                143 (to 2402)
+                2118    LOAD_FAST                       7: bg
+                2120    LOAD_ATTR                       107: feed
+                2140    LOAD_FAST                       16: measurements
+                2142    CALL                            1
+                2150    POP_TOP                         
+                2152    LOAD_FAST                       7: bg
+                2154    LOAD_ATTR                       104: ready
+                2174    TO_BOOL                         
+                2182    POP_JUMP_IF_FALSE               32 (to 2248)
+                2186    LOAD_GLOBAL                     42: log
+                2196    LOAD_ATTR                       47: info
+                2216    LOAD_CONST                      37: 'baseline pronto (%d/720 bins) — publicando.'
+                2218    LOAD_FAST                       7: bg
+                2220    LOAD_ATTR                       108: learned_bins
+                2240    CALL                            2
+                2248    POP_TOP                         
+                2250    LOAD_FAST_LOAD_FAST             252: now, last_status_t
+                2252    BINARY_OP                       10 (-)
+                2256    LOAD_CONST                      38: 1
+                2258    COMPARE_OP                      188 (>=)
+                2262    POP_JUMP_IF_FALSE               45 (to 2354)
+                2266    LOAD_GLOBAL                     42: log
+                2276    LOAD_ATTR                       111: debug
+                2296    LOAD_CONST                      39: 'baseline... %d/720 bins  meas/s=%.0f'
+                2298    LOAD_FAST                       7: bg
+                2300    LOAD_ATTR                       108: learned_bins
+                2320    LOAD_FAST                       6: rdr
+                2322    LOAD_ATTR                       112: meas_per_sec
+                2342    CALL                            3
+                2350    POP_TOP                         
+                2352    LOAD_FAST                       15: now
+                2354    STORE_FAST                      12: last_status_t
+                2356    LOAD_GLOBAL                     98: time
+                2366    LOAD_ATTR                       114: sleep
+                2386    PUSH_NULL                       
+                2388    LOAD_CONST                      40: 0.01
+                2390    CALL                            1
+                2398    POP_TOP                         
+                2400    JUMP_BACKWARD                   208 (to 1986)
+                2404    LOAD_GLOBAL                     117: NULL + project_batch
+                2414    LOAD_FAST                       16: measurements
+                2416    LOAD_FAST                       2: cfg
+                2418    LOAD_ATTR                       118: processing
+                2438    CALL                            2
+                2446    STORE_FAST                      17: points
+                2448    LOAD_FAST                       7: bg
+                2450    LOAD_ATTR                       121: foreground_points
+                2470    LOAD_FAST                       17: points
+                2472    CALL                            1
+                2480    STORE_FAST                      18: fg
+                2482    LOAD_GLOBAL                     123: NULL + split_by_roi
+                2492    LOAD_FAST                       18: fg
+                2494    LOAD_FAST                       2: cfg
+                2496    LOAD_ATTR                       124: roi
+                2516    CALL                            2
+                2524    UNPACK_SEQUENCE                 2
+                2528    STORE_FAST                      19: fg_in
+                2530    STORE_FAST                      20: _
+                2532    LOAD_FAST                       19: fg_in
+                2534    TO_BOOL                         
+                2542    POP_JUMP_IF_FALSE               64 (to 2672)
+                2546    LOAD_GLOBAL                     126: np
+                2556    LOAD_ATTR                       128: array
+                2576    PUSH_NULL                       
+                2578    LOAD_FAST                       19: fg_in
+                2580    GET_ITER                        
+                2582    LOAD_FAST_AND_CLEAR             21: p
+                2584    SWAP                            2
+                2586    BUILD_LIST                      0
+                2588    SWAP                            2
+                2590    GET_ITER                        
+                2592    FOR_ITER                        27 (to 2648)
+                2596    STORE_FAST                      21: p
+                2598    LOAD_FAST                       21: p
+                2600    LOAD_ATTR                       130: x
+                2620    LOAD_FAST                       21: p
+                2622    LOAD_ATTR                       132: y
+                2642    BUILD_TUPLE                     2
+                2644    LIST_APPEND                     2
+                2646    JUMP_BACKWARD                   29 (to 2590)
+                2650    END_FOR                         
+                2652    POP_TOP                         
+                2654    SWAP                            2
+                2656    STORE_FAST                      21: p
+                2658    LOAD_GLOBAL                     6: float
+                2668    LOAD_CONST                      41: ('dtype',)
+                2670    CALL_KW                         2
+                2672    JUMP_FORWARD                    21 (to 2716)
+                2674    LOAD_GLOBAL                     126: np
+                2684    LOAD_ATTR                       134: zeros
+                2704    PUSH_NULL                       
+                2706    LOAD_CONST                      42: (0, 2)
+                2708    CALL                            1
+                2716    STORE_FAST                      22: xy
+                2718    LOAD_FAST                       8: trk
+                2720    LOAD_ATTR                       137: update
+                2740    LOAD_FAST                       22: xy
+                2742    LOAD_FAST                       4: calib
+                2744    LOAD_ATTR                       138: H
+                2764    CALL                            2
+                2772    STORE_FAST                      23: tracks
+                2774    LOAD_FAST                       9: pub
+                2776    POP_JUMP_IF_NONE                39 (to 2856)
+                2780    LOAD_FAST                       10: limiter
+                2782    LOAD_ATTR                       105: ready
+                2802    LOAD_FAST                       15: now
+                2804    CALL                            1
+                2812    TO_BOOL                         
+                2820    POP_JUMP_IF_FALSE               17 (to 2856)
+                2824    LOAD_FAST                       9: pub
+                2826    LOAD_ATTR                       141: publish
+                2846    LOAD_FAST                       23: tracks
+                2848    CALL                            1
+                2856    POP_TOP                         
+                2858    LOAD_FAST_LOAD_FAST             252: now, last_status_t
+                2860    BINARY_OP                       10 (-)
+                2864    LOAD_CONST                      38: 1
+                2866    COMPARE_OP                      188 (>=)
+                2870    POP_JUMP_IF_FALSE               138 (to 3148)
+                2874    LOAD_FAST                       9: pub
+                2876    TO_BOOL                         
+                2884    POP_JUMP_IF_FALSE               12 (to 2910)
+                2888    LOAD_FAST                       9: pub
+                2890    LOAD_ATTR                       142: send_rate
+                2910    JUMP_FORWARD                    1 (to 2914)
+                2912    LOAD_CONST                      43: 0
+                2914    STORE_FAST                      24: pub_rate
+                2916    LOAD_FAST                       9: pub
+                2918    TO_BOOL                         
+                2926    POP_JUMP_IF_FALSE               12 (to 2952)
+                2930    LOAD_FAST                       9: pub
+                2932    LOAD_ATTR                       144: frame
+                2952    JUMP_FORWARD                    1 (to 2956)
+                2954    LOAD_CONST                      36: 0
+                2956    STORE_FAST                      25: pub_frame
+                2958    LOAD_FAST                       25: pub_frame
+                2960    LOAD_FAST                       13: last_frame_pub
+                2962    BINARY_OP                       10 (-)
+                2966    STORE_FAST                      26: delta
+                2968    LOAD_FAST                       25: pub_frame
+                2970    STORE_FAST                      13: last_frame_pub
+                2972    LOAD_GLOBAL                     42: log
+                2982    LOAD_ATTR                       47: info
+                3002    LOAD_CONST                      44: 'meas/s=%6.0f  scans/s=%4.1f  fg=%4d  tracks=%d  pub/s=%5.1f  +%4d frames  desync=%d  recon=%d'
+                3004    LOAD_FAST                       6: rdr
+                3006    LOAD_ATTR                       112: meas_per_sec
+                3026    LOAD_FAST                       6: rdr
+                3028    LOAD_ATTR                       146: scans_per_sec
+                3048    LOAD_GLOBAL                     149: NULL + len
+                3058    LOAD_FAST                       19: fg_in
+                3060    CALL                            1
+                3068    LOAD_GLOBAL                     149: NULL + len
+                3078    LOAD_FAST                       23: tracks
+                3080    CALL                            1
+                3088    LOAD_FAST                       24: pub_rate
+                3090    LOAD_FAST                       26: delta
+                3092    LOAD_FAST                       6: rdr
+                3094    LOAD_ATTR                       150: desyncs
+                3114    LOAD_FAST                       6: rdr
+                3116    LOAD_ATTR                       152: reconnects
+                3136    CALL                            9
+                3144    POP_TOP                         
+                3146    LOAD_FAST                       15: now
+                3148    STORE_FAST                      12: last_status_t
+                3150    LOAD_GLOBAL                     98: time
+                3160    LOAD_ATTR                       114: sleep
+                3180    PUSH_NULL                       
+                3182    LOAD_CONST                      45: 0.005
+                3184    CALL                            1
+                3192    POP_TOP                         
+                3194    LOAD_DEREF                      27: stop
+                3196    LOAD_CONST                      33: 'flag'
+                3198    BINARY_SUBSCR                   
+                3202    TO_BOOL                         
+                3210    POP_JUMP_IF_TRUE                3 (to 3218)
+                3214    JUMP_BACKWARD                   605 (to 2008)
+                3220    LOAD_FAST                       9: pub
+                3222    POP_JUMP_IF_NONE                16 (to 3256)
+                3226    LOAD_FAST                       9: pub
+                3228    LOAD_ATTR                       161: close
+                3248    CALL                            0
+                3256    POP_TOP                         
+                3258    LOAD_FAST                       6: rdr
+                3260    LOAD_ATTR                       163: stop
+                3280    CALL                            0
+                3288    POP_TOP                         
+                3290    LOAD_GLOBAL                     42: log
+                3300    LOAD_ATTR                       47: info
+                3320    LOAD_CONST                      47: 'encerrado.'
+                3322    CALL                            1
+                3330    POP_TOP                         
+                3332    LOAD_FAST                       14: rc
+                3334    RETURN_VALUE                    
+                3336    SWAP                            2
+                3338    POP_TOP                         
+                3340    SWAP                            2
+                3342    STORE_FAST                      21: p
+                3344    RERAISE                         0
+                3346    PUSH_EXC_INFO                   
+                3348    LOAD_GLOBAL                     154: KeyboardInterrupt
+                3358    CHECK_EXC_MATCH                 
+                3360    POP_JUMP_IF_FALSE               3 (to 3368)
+                3364    POP_TOP                         
+                3366    POP_EXCEPT                      
+                3368    JUMP_BACKWARD_NO_INTERRUPT      75 (to 3220)
+                3370    LOAD_GLOBAL                     156: Exception
+                3380    CHECK_EXC_MATCH                 
+                3382    POP_JUMP_IF_FALSE               26 (to 3436)
+                3386    POP_TOP                         
+                3388    LOAD_GLOBAL                     42: log
+                3398    LOAD_ATTR                       159: exception
+                3418    LOAD_CONST                      46: 'erro fatal no loop principal'
+                3420    CALL                            1
+                3428    POP_TOP                         
+                3430    LOAD_CONST                      22: 1
+                3432    STORE_FAST                      14: rc
+                3434    POP_EXCEPT                      
+                3436    JUMP_BACKWARD_NO_INTERRUPT      109 (to 3220)
+                3438    RERAISE                         0
+                3440    COPY                            3
+                3442    POP_EXCEPT                      
+                3444    RERAISE                         1
+                3446    PUSH_EXC_INFO                   
+                3448    LOAD_FAST                       9: pub
+                3450    POP_JUMP_IF_NONE                16 (to 3484)
+                3454    LOAD_FAST                       9: pub
+                3456    LOAD_ATTR                       161: close
+                3476    CALL                            0
+                3484    POP_TOP                         
+                3486    LOAD_FAST                       6: rdr
+                3488    LOAD_ATTR                       163: stop
+                3508    CALL                            0
+                3516    POP_TOP                         
+                3518    LOAD_GLOBAL                     42: log
+                3528    LOAD_ATTR                       47: info
+                3548    LOAD_CONST                      47: 'encerrado.'
+                3550    CALL                            1
+                3558    POP_TOP                         
+                3560    RERAISE                         0
+                3562    COPY                            3
+                3564    POP_EXCEPT                      
+                3566    RERAISE                         1
+            [Exception Table]
+                1988 to 2586 -> 3346 [0] 
+                2586 to 2654 -> 3336 [4] 
+                2654 to 3214 -> 3346 [0] 
+                3336 to 3346 -> 3346 [0] 
+                3346 to 3366 -> 3440 [1] lasti
+                3366 to 3370 -> 3446 [0] 
+                3370 to 3434 -> 3440 [1] lasti
+                3434 to 3438 -> 3446 [0] 
+                3438 to 3440 -> 3440 [1] lasti
+                3440 to 3446 -> 3446 [0] 
+                3446 to 3562 -> 3562 [1] lasti
+        '__main__'
+        (
+            None
+        )
+        (
+            'level_name'
+            'str'
+            'fmt'
+            'str'
+            'override'
+            'str | None'
+            'return'
+            'None'
+        )
+        (
+            'return'
+            'int'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — entry point principal.\n\nPipeline completo: RPLIDAR S3 (thread separado) → filtro + ROI → background\nsubtraction → DBSCAN → tracker com IDs persistentes → UDP binário.\n\nA leitura do LIDAR roda no thread interno de `LidarReader`. Processamento\ne envio UDP rodam no thread principal — pra cada frame de tempo (limitado\npor `udp.publish_rate_hz`), drena medidas acumuladas, atualiza tracker,\nempacota com struct.pack e envia.\n\nUso típico:\n    python main.py\n    python main.py --port COM12\n    python main.py --log-level debug\n\nEncerra com Ctrl+C.\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: argparse
+        24      STORE_NAME                      3: argparse
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: logging
+        32      STORE_NAME                      4: logging
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      3: None
+        38      IMPORT_NAME                     5: os
+        40      STORE_NAME                      5: os
+        42      LOAD_CONST                      1: 0
+        44      LOAD_CONST                      3: None
+        46      IMPORT_NAME                     6: signal
+        48      STORE_NAME                      6: signal
+        50      LOAD_CONST                      1: 0
+        52      LOAD_CONST                      3: None
+        54      IMPORT_NAME                     7: sys
+        56      STORE_NAME                      7: sys
+        58      LOAD_CONST                      1: 0
+        60      LOAD_CONST                      3: None
+        62      IMPORT_NAME                     8: time
+        64      STORE_NAME                      8: time
+        66      LOAD_CONST                      1: 0
+        68      LOAD_CONST                      3: None
+        70      IMPORT_NAME                     9: numpy
+        72      STORE_NAME                      10: np
+        74      LOAD_CONST                      1: 0
+        76      LOAD_CONST                      3: None
+        78      IMPORT_NAME                     11: config
+        80      STORE_NAME                      12: cfg_mod
+        82      LOAD_CONST                      1: 0
+        84      LOAD_CONST                      3: None
+        86      IMPORT_NAME                     13: paths
+        88      STORE_NAME                      13: paths
+        90      LOAD_CONST                      1: 0
+        92      LOAD_CONST                      4: ('load_calibration',)
+        94      IMPORT_NAME                     14: homography
+        96      IMPORT_FROM                     15: load_calibration
+        98      STORE_NAME                      15: load_calibration
+        100     POP_TOP                         
+        102     LOAD_CONST                      1: 0
+        104     LOAD_CONST                      5: ('LidarReader',)
+        106     IMPORT_NAME                     16: lidar_reader
+        108     IMPORT_FROM                     17: LidarReader
+        110     STORE_NAME                      17: LidarReader
+        112     POP_TOP                         
+        114     LOAD_CONST                      1: 0
+        116     LOAD_CONST                      6: ('BackgroundSubtractor', 'project_batch', 'split_by_roi')
+        118     IMPORT_NAME                     18: processing
+        120     IMPORT_FROM                     19: BackgroundSubtractor
+        122     STORE_NAME                      19: BackgroundSubtractor
+        124     IMPORT_FROM                     20: project_batch
+        126     STORE_NAME                      20: project_batch
+        128     IMPORT_FROM                     21: split_by_roi
+        130     STORE_NAME                      21: split_by_roi
+        132     POP_TOP                         
+        134     LOAD_CONST                      1: 0
+        136     LOAD_CONST                      7: ('RateLimiter', 'UdpPublisher')
+        138     IMPORT_NAME                     22: publisher
+        140     IMPORT_FROM                     23: RateLimiter
+        142     STORE_NAME                      23: RateLimiter
+        144     IMPORT_FROM                     24: UdpPublisher
+        146     STORE_NAME                      24: UdpPublisher
+        148     POP_TOP                         
+        150     LOAD_CONST                      1: 0
+        152     LOAD_CONST                      8: ('Tracker',)
+        154     IMPORT_NAME                     25: tracker
+        156     IMPORT_FROM                     26: Tracker
+        158     STORE_NAME                      26: Tracker
+        160     POP_TOP                         
+        162     LOAD_NAME                       4: logging
+        164     LOAD_ATTR                       54: getLogger
+        184     PUSH_NULL                       
+        186     LOAD_CONST                      9: 'lidarmapper'
+        188     CALL                            1
+        196     STORE_NAME                      28: log
+        198     LOAD_CONST                      13: (None,)
+        200     LOAD_CONST                      14: ('level_name', 'str', 'fmt', 'str', 'override', 'str | None', 'return', 'None')
+        202     LOAD_CONST                      10: <CODE> configure_logging
+        204     MAKE_FUNCTION                   
+        206     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        208     SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+        210     STORE_NAME                      29: configure_logging
+        212     LOAD_CONST                      15: ('return', 'int')
+        214     LOAD_CONST                      11: <CODE> main
+        216     MAKE_FUNCTION                   
+        218     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        220     STORE_NAME                      30: main
+        222     LOAD_NAME                       31: __name__
+        224     LOAD_CONST                      12: '__main__'
+        226     COMPARE_OP                      88 (==)
+        230     POP_JUMP_IF_FALSE               13 (to 258)
+        234     LOAD_NAME                       32: SystemExit
+        236     PUSH_NULL                       
+        238     LOAD_NAME                       30: main
+        240     PUSH_NULL                       
+        242     CALL                            0
+        250     CALL                            1
+        258     RAISE_VARARGS                   1
+        260     RETURN_CONST                    3: None
+    [Exception Table]

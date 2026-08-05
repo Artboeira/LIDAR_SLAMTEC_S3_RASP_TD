@@ -1,0 +1,2121 @@
+processing.pyc (Python 3.13)
+[Code]
+    File Name: processing.py
+    Object Name: <module>
+    Qualified Name: <module>
+    Arg Count: 0
+    Pos Only Arg Count: 0
+    KW Only Arg Count: 0
+    Stack Size: 5
+    Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+    [Names]
+        '__doc__'
+        '__future__'
+        'annotations'
+        'math'
+        'time'
+        'dataclasses'
+        'dataclass'
+        'numpy'
+        'np'
+        'config'
+        'ProcessingCfg'
+        'ROICfg'
+        'lidar_reader'
+        'Measurement'
+        'Point2D'
+        'polar_to_xy'
+        'project_batch'
+        'in_roi'
+        'split_by_roi'
+        'BackgroundSubtractor'
+        'dbscan'
+        'dbscan_centroids'
+        'cluster_greedy'
+        'project_batch_np'
+    [Locals+Names]
+    [Constants]
+        '\nLidarMapper — processamento (Etapas 2-4).\n\nFunções puras. Não dependem de pygame, ZMQ nem do sensor. Recebem listas\nde Measurement (do lidar_reader.py) e devolvem listas de pontos\ncartesianos prontos pra visualização / tracking / publicação.\n\nInclui:\n  - polar→cartesiano + filtros (Etapa 2)\n  - ROI bbox (Etapa 2)\n  - BackgroundSubtractor por bin angular (Etapa 3, robustiza calibração)\n  - cluster_greedy (Etapa 3, escolher canto entre vários objetos visíveis)\n'
+        0
+        (
+            'annotations'
+        )
+        None
+        (
+            'dataclass'
+        )
+        (
+            'ProcessingCfg'
+            'ROICfg'
+        )
+        (
+            'Measurement'
+        )
+        [Code]
+            File Name: processing.py
+            Object Name: Point2D
+            Qualified Name: Point2D
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__annotations__'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'Point2D'
+                26
+                'float'
+                'x'
+                'y'
+                'int'
+                'quality'
+                'angle'
+                'distance'
+                (
+                )
+                None
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'Point2D'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 26
+                12      STORE_NAME                      3: __firstlineno__
+                14      SETUP_ANNOTATIONS               
+                16      LOAD_CONST                      2: 'float'
+                18      LOAD_NAME                       4: __annotations__
+                20      LOAD_CONST                      3: 'x'
+                22      STORE_SUBSCR                    
+                26      LOAD_CONST                      2: 'float'
+                28      LOAD_NAME                       4: __annotations__
+                30      LOAD_CONST                      4: 'y'
+                32      STORE_SUBSCR                    
+                36      LOAD_CONST                      5: 'int'
+                38      LOAD_NAME                       4: __annotations__
+                40      LOAD_CONST                      6: 'quality'
+                42      STORE_SUBSCR                    
+                46      LOAD_CONST                      2: 'float'
+                48      LOAD_NAME                       4: __annotations__
+                50      LOAD_CONST                      7: 'angle'
+                52      STORE_SUBSCR                    
+                56      LOAD_CONST                      2: 'float'
+                58      LOAD_NAME                       4: __annotations__
+                60      LOAD_CONST                      8: 'distance'
+                62      STORE_SUBSCR                    
+                66      LOAD_CONST                      9: ()
+                68      STORE_NAME                      5: __static_attributes__
+                70      RETURN_CONST                    10: None
+            [Exception Table]
+        'Point2D'
+        [Code]
+            File Name: processing.py
+            Object Name: polar_to_xy
+            Qualified Name: polar_to_xy
+            Arg Count: 4
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 4
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'math'
+                'radians'
+                'cos'
+                'sin'
+            [Locals+Names]
+                'angle_deg'
+                'distance_mm'
+                'offset_deg'
+                'mirror'
+                'a'
+                'x'
+                'y'
+            [Constants]
+                'Converte uma medida polar do LIDAR em (x, y) cartesiano em mm.\n\nConvenção: angle=0° aponta no sentido +x. `offset_deg` é somado antes\ndo seno/cosseno, equivalente a rotacionar o sensor virtualmente. Com\n`mirror=True`, o eixo X é invertido (útil quando a montagem fica em\nespelho relativo ao espaço a ser interagido).'
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     0: math
+                12      LOAD_ATTR                       2: radians
+                32      PUSH_NULL                       
+                34      LOAD_FAST_LOAD_FAST             2: angle_deg, offset_deg
+                36      BINARY_OP                       0 (+)
+                40      CALL                            1
+                48      STORE_FAST                      4: a
+                50      LOAD_FAST                       1: distance_mm
+                52      LOAD_GLOBAL                     0: math
+                62      LOAD_ATTR                       4: cos
+                82      PUSH_NULL                       
+                84      LOAD_FAST                       4: a
+                86      CALL                            1
+                94      BINARY_OP                       5 (*)
+                98      STORE_FAST                      5: x
+                100     LOAD_FAST                       1: distance_mm
+                102     LOAD_GLOBAL                     0: math
+                112     LOAD_ATTR                       6: sin
+                132     PUSH_NULL                       
+                134     LOAD_FAST                       4: a
+                136     CALL                            1
+                144     BINARY_OP                       5 (*)
+                148     STORE_FAST                      6: y
+                150     LOAD_FAST                       3: mirror
+                152     TO_BOOL                         
+                160     POP_JUMP_IF_FALSE               3 (to 168)
+                164     LOAD_FAST                       5: x
+                166     UNARY_NEGATIVE                  
+                168     STORE_FAST                      5: x
+                170     LOAD_FAST_LOAD_FAST             86: x, y
+                172     BUILD_TUPLE                     2
+                174     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: processing.py
+            Object Name: project_batch
+            Qualified Name: project_batch
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 11
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'angle_offset_deg'
+                'mirror'
+                'min_quality'
+                'min_dist_mm'
+                'max_dist_mm'
+                'distance'
+                'quality'
+                'polar_to_xy'
+                'angle'
+                'append'
+                'Point2D'
+            [Locals+Names]
+                'measurements'
+                'cfg'
+                'out'
+                'off'
+                'mir'
+                'qmin'
+                'dmin'
+                'dmax'
+                'm'
+                'x'
+                'y'
+            [Constants]
+                'Filtra (range + qualidade) e projeta para cartesiano em lote.\n\nMantém `angle`/`distance` originais em cada Point2D pra facilitar\ndebug e operações que ainda preferem polar (ex.: background subtraction\npor bin angular, na Etapa 4).'
+                0
+                (
+                    'x'
+                    'y'
+                    'quality'
+                    'angle'
+                    'distance'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       BUILD_LIST                      0
+                4       STORE_FAST                      2: out
+                6       LOAD_FAST                       1: cfg
+                8       LOAD_ATTR                       0: angle_offset_deg
+                28      STORE_FAST                      3: off
+                30      LOAD_FAST                       1: cfg
+                32      LOAD_ATTR                       2: mirror
+                52      STORE_FAST                      4: mir
+                54      LOAD_FAST                       1: cfg
+                56      LOAD_ATTR                       4: min_quality
+                76      STORE_FAST                      5: qmin
+                78      LOAD_FAST                       1: cfg
+                80      LOAD_ATTR                       6: min_dist_mm
+                100     STORE_FAST                      6: dmin
+                102     LOAD_FAST                       1: cfg
+                104     LOAD_ATTR                       8: max_dist_mm
+                124     STORE_FAST                      7: dmax
+                126     LOAD_FAST                       0: measurements
+                128     GET_ITER                        
+                130     FOR_ITER                        163 (to 458)
+                134     STORE_FAST                      8: m
+                136     LOAD_FAST                       8: m
+                138     LOAD_ATTR                       10: distance
+                158     LOAD_CONST                      1: 0
+                160     COMPARE_OP                      58 (<=)
+                164     POP_JUMP_IF_TRUE                32 (to 230)
+                168     LOAD_FAST                       8: m
+                170     LOAD_ATTR                       10: distance
+                190     LOAD_FAST                       6: dmin
+                192     COMPARE_OP                      18 (<)
+                196     POP_JUMP_IF_TRUE                16 (to 230)
+                200     LOAD_FAST                       8: m
+                202     LOAD_ATTR                       10: distance
+                222     LOAD_FAST                       7: dmax
+                224     COMPARE_OP                      148 (>)
+                228     POP_JUMP_IF_FALSE               2 (to 234)
+                232     JUMP_BACKWARD                   53 (to 128)
+                236     LOAD_FAST                       8: m
+                238     LOAD_ATTR                       12: quality
+                258     LOAD_FAST                       5: qmin
+                260     COMPARE_OP                      18 (<)
+                264     POP_JUMP_IF_FALSE               2 (to 270)
+                268     JUMP_BACKWARD                   71 (to 128)
+                272     LOAD_GLOBAL                     15: NULL + polar_to_xy
+                282     LOAD_FAST                       8: m
+                284     LOAD_ATTR                       16: angle
+                304     LOAD_FAST                       8: m
+                306     LOAD_ATTR                       10: distance
+                326     LOAD_FAST_LOAD_FAST             52: off, mir
+                328     CALL                            4
+                336     UNPACK_SEQUENCE                 2
+                340     STORE_FAST_STORE_FAST           154: x, y
+                342     LOAD_FAST                       2: out
+                344     LOAD_ATTR                       19: append
+                364     LOAD_GLOBAL                     21: NULL + Point2D
+                374     LOAD_FAST_LOAD_FAST             154: x, y
+                376     LOAD_FAST                       8: m
+                378     LOAD_ATTR                       12: quality
+                398     LOAD_FAST                       8: m
+                400     LOAD_ATTR                       16: angle
+                420     LOAD_FAST                       8: m
+                422     LOAD_ATTR                       10: distance
+                442     LOAD_CONST                      2: ('x', 'y', 'quality', 'angle', 'distance')
+                444     CALL_KW                         5
+                446     CALL                            1
+                454     POP_TOP                         
+                456     JUMP_BACKWARD                   165 (to 128)
+                460     END_FOR                         
+                462     POP_TOP                         
+                464     LOAD_FAST                       2: out
+                466     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: processing.py
+            Object Name: in_roi
+            Qualified Name: in_roi
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 2
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'x_min'
+                'x'
+                'x_max'
+                'y_min'
+                'y'
+                'y_max'
+            [Locals+Names]
+                'p'
+                'roi'
+            [Constants]
+                'True se `p` está dentro da ROI. Limites `None` no ROICfg = livres.'
+                False
+                True
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       1: roi
+                4       LOAD_ATTR                       0: x_min
+                24      POP_JUMP_IF_NONE                27 (to 80)
+                28      LOAD_FAST                       0: p
+                30      LOAD_ATTR                       2: x
+                50      LOAD_FAST                       1: roi
+                52      LOAD_ATTR                       0: x_min
+                72      COMPARE_OP                      18 (<)
+                76      POP_JUMP_IF_FALSE               1 (to 80)
+                80      RETURN_CONST                    1: False
+                82      LOAD_FAST                       1: roi
+                84      LOAD_ATTR                       4: x_max
+                104     POP_JUMP_IF_NONE                27 (to 160)
+                108     LOAD_FAST                       0: p
+                110     LOAD_ATTR                       2: x
+                130     LOAD_FAST                       1: roi
+                132     LOAD_ATTR                       4: x_max
+                152     COMPARE_OP                      148 (>)
+                156     POP_JUMP_IF_FALSE               1 (to 160)
+                160     RETURN_CONST                    1: False
+                162     LOAD_FAST                       1: roi
+                164     LOAD_ATTR                       6: y_min
+                184     POP_JUMP_IF_NONE                27 (to 240)
+                188     LOAD_FAST                       0: p
+                190     LOAD_ATTR                       8: y
+                210     LOAD_FAST                       1: roi
+                212     LOAD_ATTR                       6: y_min
+                232     COMPARE_OP                      18 (<)
+                236     POP_JUMP_IF_FALSE               1 (to 240)
+                240     RETURN_CONST                    1: False
+                242     LOAD_FAST                       1: roi
+                244     LOAD_ATTR                       10: y_max
+                264     POP_JUMP_IF_NONE                27 (to 320)
+                268     LOAD_FAST                       0: p
+                270     LOAD_ATTR                       8: y
+                290     LOAD_FAST                       1: roi
+                292     LOAD_ATTR                       10: y_max
+                312     COMPARE_OP                      148 (>)
+                316     POP_JUMP_IF_FALSE               1 (to 320)
+                320     RETURN_CONST                    1: False
+                322     RETURN_CONST                    2: True
+            [Exception Table]
+        [Code]
+            File Name: processing.py
+            Object Name: split_by_roi
+            Qualified Name: split_by_roi
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 5
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'in_roi'
+                'append'
+            [Locals+Names]
+                'points'
+                'roi'
+                'inside'
+                'outside'
+                'p'
+            [Constants]
+                'Particiona pontos em (dentro, fora) da ROI.'
+            [Disassembly]
+                0       RESUME                          0
+                2       BUILD_LIST                      0
+                4       STORE_FAST                      2: inside
+                6       BUILD_LIST                      0
+                8       STORE_FAST                      3: outside
+                10      LOAD_FAST                       0: points
+                12      GET_ITER                        
+                14      FOR_ITER                        38 (to 92)
+                18      STORE_FAST                      4: p
+                20      LOAD_GLOBAL                     1: NULL + in_roi
+                30      LOAD_FAST_LOAD_FAST             65: p, roi
+                32      CALL                            2
+                40      TO_BOOL                         
+                48      POP_JUMP_IF_FALSE               2 (to 54)
+                52      LOAD_FAST                       2: inside
+                54      JUMP_FORWARD                    1 (to 58)
+                56      LOAD_FAST                       3: outside
+                58      LOAD_ATTR                       3: append
+                78      LOAD_FAST                       4: p
+                80      CALL                            1
+                88      POP_TOP                         
+                90      JUMP_BACKWARD                   40 (to 12)
+                94      END_FOR                         
+                96      POP_TOP                         
+                98      LOAD_FAST_LOAD_FAST             35: inside, outside
+                100     BUILD_TUPLE                     2
+                102     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: processing.py
+            Object Name: BackgroundSubtractor
+            Qualified Name: BackgroundSubtractor
+            Arg Count: 0
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 3
+            Flags: 0x01000000 (CO_FUTURE_ANNOTATIONS)
+            [Names]
+                '__name__'
+                '__module__'
+                '__qualname__'
+                '__firstlineno__'
+                '__doc__'
+                '__init__'
+                'begin_baseline'
+                'configure_time'
+                'feed'
+                '_finish'
+                'is_foreground'
+                'foreground_points'
+                'property'
+                'learned_bins'
+                '__static_attributes__'
+            [Locals+Names]
+            [Constants]
+                'BackgroundSubtractor'
+                95
+                'Aprende o fundo estático (distância por bin angular) e filtra pontos\nque estão MAIS PERTO que o fundo — esses são "objeto" / foreground.\n\nBins angulares: discretiza 0..360° em N bins (default 720 = 0,5°/bin).\nPra cada bin, armazena a distância mediana do fundo. Pontos com\n`distance < bg[bin] - margin` viram foreground. Bins não aprendidos\n(NaN) deixam o ponto passar como foreground (sem fundo conhecido).\n'
+                [Code]
+                    File Name: processing.py
+                    Object Name: __init__
+                    Qualified Name: BackgroundSubtractor.__init__
+                    Arg Count: 4
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'bins'
+                        'margin'
+                        'np'
+                        'full'
+                        'nan'
+                        '_bg'
+                        '_samples'
+                        '_until'
+                        'ready'
+                    [Locals+Names]
+                        'self'
+                        'bins'
+                        'baseline_time_s'
+                        'margin_mm'
+                    [Constants]
+                        None
+                        0
+                        False
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST_LOAD_FAST             16: bins, self
+                        4       STORE_ATTR                      0: bins
+                        14      LOAD_FAST_LOAD_FAST             48: margin_mm, self
+                        16      STORE_ATTR                      1: margin
+                        26      LOAD_GLOBAL                     4: np
+                        36      LOAD_ATTR                       6: full
+                        56      PUSH_NULL                       
+                        58      LOAD_FAST                       1: bins
+                        60      LOAD_GLOBAL                     4: np
+                        70      LOAD_ATTR                       8: nan
+                        90      CALL                            2
+                        98      LOAD_FAST                       0: self
+                        100     STORE_ATTR                      5: _bg
+                        110     LOAD_CONST                      0: None
+                        112     LOAD_FAST                       0: self
+                        114     STORE_ATTR                      6: _samples
+                        124     LOAD_CONST                      1: 0
+                        126     LOAD_FAST                       0: self
+                        128     STORE_ATTR                      7: _until
+                        138     LOAD_CONST                      2: False
+                        140     LOAD_FAST                       0: self
+                        142     STORE_ATTR                      8: ready
+                        152     RETURN_CONST                    0: None
+                    [Exception Table]
+                [Code]
+                    File Name: processing.py
+                    Object Name: begin_baseline
+                    Qualified Name: BackgroundSubtractor.begin_baseline
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'range'
+                        'bins'
+                        '_samples'
+                        'np'
+                        'nan'
+                        '_bg'
+                        'ready'
+                        'time'
+                        'monotonic'
+                        '_until'
+                    [Locals+Names]
+                        'self'
+                        '_'
+                    [Constants]
+                        'Inicia a fase de captura do fundo. Mantenha a área livre.'
+                        None
+                        False
+                        2
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_GLOBAL                     1: NULL + range
+                        12      LOAD_FAST                       0: self
+                        14      LOAD_ATTR                       2: bins
+                        34      CALL                            1
+                        42      GET_ITER                        
+                        44      LOAD_FAST_AND_CLEAR             1: _
+                        46      SWAP                            2
+                        48      BUILD_LIST                      0
+                        50      SWAP                            2
+                        52      GET_ITER                        
+                        54      FOR_ITER                        5 (to 66)
+                        58      STORE_FAST                      1: _
+                        60      BUILD_LIST                      0
+                        62      LIST_APPEND                     2
+                        64      JUMP_BACKWARD                   7 (to 52)
+                        68      END_FOR                         
+                        70      POP_TOP                         
+                        72      SWAP                            2
+                        74      STORE_FAST                      1: _
+                        76      LOAD_FAST                       0: self
+                        78      STORE_ATTR                      2: _samples
+                        88      LOAD_GLOBAL                     6: np
+                        98      LOAD_ATTR                       8: nan
+                        118     LOAD_FAST                       0: self
+                        120     LOAD_ATTR                       10: _bg
+                        140     LOAD_CONST                      1: None
+                        142     LOAD_CONST                      1: None
+                        144     STORE_SLICE                     
+                        146     LOAD_CONST                      2: False
+                        148     LOAD_FAST                       0: self
+                        150     STORE_ATTR                      6: ready
+                        160     LOAD_GLOBAL                     14: time
+                        170     LOAD_ATTR                       16: monotonic
+                        190     PUSH_NULL                       
+                        192     CALL                            0
+                        200     LOAD_CONST                      3: 2
+                        202     BINARY_OP                       0 (+)
+                        206     LOAD_FAST                       0: self
+                        208     STORE_ATTR                      9: _until
+                        218     RETURN_CONST                    1: None
+                        220     SWAP                            2
+                        222     POP_TOP                         
+                        224     SWAP                            2
+                        226     STORE_FAST                      1: _
+                        228     RERAISE                         0
+                    [Exception Table]
+                        48 to 72 -> 220 [2] 
+                [Code]
+                    File Name: processing.py
+                    Object Name: configure_time
+                    Qualified Name: BackgroundSubtractor.configure_time
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 2
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'time'
+                        'monotonic'
+                        '_until'
+                    [Locals+Names]
+                        'self'
+                        'baseline_time_s'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_GLOBAL                     0: time
+                        12      LOAD_ATTR                       2: monotonic
+                        32      PUSH_NULL                       
+                        34      CALL                            0
+                        42      LOAD_FAST                       1: baseline_time_s
+                        44      BINARY_OP                       0 (+)
+                        48      LOAD_FAST                       0: self
+                        50      STORE_ATTR                      2: _until
+                        60      RETURN_CONST                    0: None
+                    [Exception Table]
+                [Code]
+                    File Name: processing.py
+                    Object Name: feed
+                    Qualified Name: BackgroundSubtractor.feed
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 5
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_samples'
+                        'distance'
+                        'int'
+                        'angle'
+                        'bins'
+                        'len'
+                        'append'
+                        'time'
+                        'monotonic'
+                        '_until'
+                        '_finish'
+                    [Locals+Names]
+                        'self'
+                        'measurements'
+                        'm'
+                        'b'
+                    [Constants]
+                        'Alimenta o baseline com medidas (durante a fase de captura).'
+                        None
+                        0
+                        360
+                        60
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _samples
+                        24      POP_JUMP_IF_NOT_NONE            1 (to 28)
+                        28      RETURN_CONST                    1: None
+                        30      LOAD_FAST                       1: measurements
+                        32      GET_ITER                        
+                        34      FOR_ITER                        141 (to 318)
+                        38      STORE_FAST                      2: m
+                        40      LOAD_FAST                       2: m
+                        42      LOAD_ATTR                       2: distance
+                        62      LOAD_CONST                      2: 0
+                        64      COMPARE_OP                      58 (<=)
+                        68      POP_JUMP_IF_FALSE               2 (to 74)
+                        72      JUMP_BACKWARD                   21 (to 32)
+                        76      LOAD_GLOBAL                     5: NULL + int
+                        86      LOAD_FAST                       2: m
+                        88      LOAD_ATTR                       6: angle
+                        108     LOAD_CONST                      3: 360
+                        110     BINARY_OP                       11 (/)
+                        114     LOAD_FAST                       0: self
+                        116     LOAD_ATTR                       8: bins
+                        136     BINARY_OP                       5 (*)
+                        140     CALL                            1
+                        148     LOAD_FAST                       0: self
+                        150     LOAD_ATTR                       8: bins
+                        170     BINARY_OP                       6 (%)
+                        174     STORE_FAST                      3: b
+                        176     LOAD_GLOBAL                     11: NULL + len
+                        186     LOAD_FAST                       0: self
+                        188     LOAD_ATTR                       0: _samples
+                        208     LOAD_FAST                       3: b
+                        210     BINARY_SUBSCR                   
+                        214     CALL                            1
+                        222     LOAD_CONST                      4: 60
+                        224     COMPARE_OP                      18 (<)
+                        228     POP_JUMP_IF_TRUE                2 (to 234)
+                        232     JUMP_BACKWARD                   101 (to 32)
+                        236     LOAD_FAST                       0: self
+                        238     LOAD_ATTR                       0: _samples
+                        258     LOAD_FAST                       3: b
+                        260     BINARY_SUBSCR                   
+                        264     LOAD_ATTR                       13: append
+                        284     LOAD_FAST                       2: m
+                        286     LOAD_ATTR                       2: distance
+                        306     CALL                            1
+                        314     POP_TOP                         
+                        316     JUMP_BACKWARD                   143 (to 32)
+                        320     END_FOR                         
+                        322     POP_TOP                         
+                        324     LOAD_GLOBAL                     14: time
+                        334     LOAD_ATTR                       16: monotonic
+                        354     PUSH_NULL                       
+                        356     CALL                            0
+                        364     LOAD_FAST                       0: self
+                        366     LOAD_ATTR                       18: _until
+                        386     COMPARE_OP                      188 (>=)
+                        390     POP_JUMP_IF_FALSE               17 (to 426)
+                        394     LOAD_FAST                       0: self
+                        396     LOAD_ATTR                       21: _finish
+                        416     CALL                            0
+                        424     POP_TOP                         
+                        426     RETURN_CONST                    1: None
+                        428     RETURN_CONST                    1: None
+                    [Exception Table]
+                [Code]
+                    File Name: processing.py
+                    Object Name: _finish
+                    Qualified Name: BackgroundSubtractor._finish
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 6
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        '_samples'
+                        'enumerate'
+                        'float'
+                        'np'
+                        'median'
+                        '_bg'
+                        'ready'
+                    [Locals+Names]
+                        'self'
+                        'i'
+                        's'
+                    [Constants]
+                        None
+                        True
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: _samples
+                        24      POP_JUMP_IF_NOT_NONE            2 (to 30)
+                        28      LOAD_ASSERTION_ERROR            
+                        30      RAISE_VARARGS                   1
+                        32      LOAD_GLOBAL                     3: NULL + enumerate
+                        42      LOAD_FAST                       0: self
+                        44      LOAD_ATTR                       0: _samples
+                        64      CALL                            1
+                        72      GET_ITER                        
+                        74      FOR_ITER                        58 (to 192)
+                        78      UNPACK_SEQUENCE                 2
+                        82      STORE_FAST_STORE_FAST           18: i, s
+                        84      LOAD_FAST                       2: s
+                        86      TO_BOOL                         
+                        94      POP_JUMP_IF_TRUE                2 (to 100)
+                        98      JUMP_BACKWARD                   14 (to 72)
+                        102     LOAD_GLOBAL                     5: NULL + float
+                        112     LOAD_GLOBAL                     6: np
+                        122     LOAD_ATTR                       8: median
+                        142     PUSH_NULL                       
+                        144     LOAD_FAST                       2: s
+                        146     CALL                            1
+                        154     CALL                            1
+                        162     LOAD_FAST                       0: self
+                        164     LOAD_ATTR                       10: _bg
+                        184     LOAD_FAST                       1: i
+                        186     STORE_SUBSCR                    
+                        190     JUMP_BACKWARD                   60 (to 72)
+                        194     END_FOR                         
+                        196     POP_TOP                         
+                        198     LOAD_CONST                      0: None
+                        200     LOAD_FAST                       0: self
+                        202     STORE_ATTR                      0: _samples
+                        212     LOAD_CONST                      1: True
+                        214     LOAD_FAST                       0: self
+                        216     STORE_ATTR                      6: ready
+                        226     RETURN_CONST                    0: None
+                    [Exception Table]
+                [Code]
+                    File Name: processing.py
+                    Object Name: is_foreground
+                    Qualified Name: BackgroundSubtractor.is_foreground
+                    Arg Count: 3
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 4
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'ready'
+                        'int'
+                        'bins'
+                        '_bg'
+                        'math'
+                        'isfinite'
+                        'margin'
+                    [Locals+Names]
+                        'self'
+                        'angle_deg'
+                        'distance_mm'
+                        'b'
+                        'bg'
+                    [Constants]
+                        'True se a medida é objeto (mais perto que o fundo nesse bin).'
+                        False
+                        360
+                        True
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: self
+                        4       LOAD_ATTR                       0: ready
+                        24      TO_BOOL                         
+                        32      POP_JUMP_IF_TRUE                1 (to 36)
+                        36      RETURN_CONST                    1: False
+                        38      LOAD_GLOBAL                     3: NULL + int
+                        48      LOAD_FAST                       1: angle_deg
+                        50      LOAD_CONST                      2: 360
+                        52      BINARY_OP                       11 (/)
+                        56      LOAD_FAST                       0: self
+                        58      LOAD_ATTR                       4: bins
+                        78      BINARY_OP                       5 (*)
+                        82      CALL                            1
+                        90      LOAD_FAST                       0: self
+                        92      LOAD_ATTR                       4: bins
+                        112     BINARY_OP                       6 (%)
+                        116     STORE_FAST                      3: b
+                        118     LOAD_FAST                       0: self
+                        120     LOAD_ATTR                       6: _bg
+                        140     LOAD_FAST                       3: b
+                        142     BINARY_SUBSCR                   
+                        146     STORE_FAST                      4: bg
+                        148     LOAD_GLOBAL                     8: math
+                        158     LOAD_ATTR                       10: isfinite
+                        178     PUSH_NULL                       
+                        180     LOAD_FAST                       4: bg
+                        182     CALL                            1
+                        190     TO_BOOL                         
+                        198     POP_JUMP_IF_TRUE                1 (to 202)
+                        202     RETURN_CONST                    3: True
+                        204     LOAD_FAST_LOAD_FAST             36: distance_mm, bg
+                        206     LOAD_FAST                       0: self
+                        208     LOAD_ATTR                       12: margin
+                        228     BINARY_OP                       10 (-)
+                        232     COMPARE_OP                      2 (<)
+                        236     RETURN_VALUE                    
+                    [Exception Table]
+                [Code]
+                    File Name: processing.py
+                    Object Name: foreground_points
+                    Qualified Name: BackgroundSubtractor.foreground_points
+                    Arg Count: 2
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 7
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'is_foreground'
+                        'angle'
+                        'distance'
+                    [Locals+Names]
+                        'self'
+                        'points'
+                        'p'
+                    [Constants]
+                        'Filtra uma lista de Point2D mantendo só os que são foreground.\nUsa angle/distance preservados em Point2D.'
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       1: points
+                        4       GET_ITER                        
+                        6       LOAD_FAST_AND_CLEAR             2: p
+                        8       SWAP                            2
+                        10      BUILD_LIST                      0
+                        12      SWAP                            2
+                        14      GET_ITER                        
+                        16      FOR_ITER                        49 (to 116)
+                        20      STORE_FAST_LOAD_FAST            32: p, self
+                        22      LOAD_ATTR                       1: is_foreground
+                        42      LOAD_FAST                       2: p
+                        44      LOAD_ATTR                       2: angle
+                        64      LOAD_FAST                       2: p
+                        66      LOAD_ATTR                       4: distance
+                        86      CALL                            2
+                        94      TO_BOOL                         
+                        102     POP_JUMP_IF_TRUE                2 (to 108)
+                        106     JUMP_BACKWARD                   47 (to 14)
+                        110     LOAD_FAST                       2: p
+                        112     LIST_APPEND                     2
+                        114     JUMP_BACKWARD                   51 (to 14)
+                        118     END_FOR                         
+                        120     POP_TOP                         
+                        122     SWAP                            2
+                        124     STORE_FAST                      2: p
+                        126     RETURN_VALUE                    
+                        128     SWAP                            2
+                        130     POP_TOP                         
+                        132     SWAP                            2
+                        134     STORE_FAST                      2: p
+                        136     RERAISE                         0
+                    [Exception Table]
+                        10 to 102 -> 128 [2] 
+                        110 to 122 -> 128 [2] 
+                [Code]
+                    File Name: processing.py
+                    Object Name: learned_bins
+                    Qualified Name: BackgroundSubtractor.learned_bins
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 5
+                    Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                        'int'
+                        'np'
+                        'isfinite'
+                        '_bg'
+                        'sum'
+                    [Locals+Names]
+                        'self'
+                    [Constants]
+                        None
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_GLOBAL                     1: NULL + int
+                        12      LOAD_GLOBAL                     2: np
+                        22      LOAD_ATTR                       4: isfinite
+                        42      PUSH_NULL                       
+                        44      LOAD_FAST                       0: self
+                        46      LOAD_ATTR                       6: _bg
+                        66      CALL                            1
+                        74      LOAD_ATTR                       9: sum
+                        94      CALL                            0
+                        102     CALL                            1
+                        110     RETURN_VALUE                    
+                    [Exception Table]
+                (
+                    '_bg'
+                    '_samples'
+                    '_until'
+                    'bins'
+                    'margin'
+                    'ready'
+                )
+                None
+                (
+                    720
+                    2
+                    120
+                )
+                (
+                    'bins'
+                    'int'
+                    'baseline_time_s'
+                    'float'
+                    'margin_mm'
+                    'float'
+                )
+                (
+                    'return'
+                    'None'
+                )
+                (
+                    'baseline_time_s'
+                    'float'
+                    'return'
+                    'None'
+                )
+                (
+                    'measurements'
+                    'list[Measurement]'
+                    'return'
+                    'None'
+                )
+                (
+                    'angle_deg'
+                    'float'
+                    'distance_mm'
+                    'float'
+                    'return'
+                    'bool'
+                )
+                (
+                    'points'
+                    "list['Point2D']"
+                    'return'
+                    "list['Point2D']"
+                )
+                (
+                    'return'
+                    'int'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_NAME                       0: __name__
+                4       STORE_NAME                      1: __module__
+                6       LOAD_CONST                      0: 'BackgroundSubtractor'
+                8       STORE_NAME                      2: __qualname__
+                10      LOAD_CONST                      1: 95
+                12      STORE_NAME                      3: __firstlineno__
+                14      LOAD_CONST                      2: 'Aprende o fundo estático (distância por bin angular) e filtra pontos\nque estão MAIS PERTO que o fundo — esses são "objeto" / foreground.\n\nBins angulares: discretiza 0..360° em N bins (default 720 = 0,5°/bin).\nPra cada bin, armazena a distância mediana do fundo. Pontos com\n`distance < bg[bin] - margin` viram foreground. Bins não aprendidos\n(NaN) deixam o ponto passar como foreground (sem fundo conhecido).\n'
+                16      STORE_NAME                      4: __doc__
+                18      NOP                             
+                20      NOP                             
+                22      LOAD_CONST                      13: (720, 2, 120)
+                24      NOP                             
+                26      LOAD_CONST                      14: ('bins', 'int', 'baseline_time_s', 'float', 'margin_mm', 'float')
+                28      LOAD_CONST                      3: <CODE> __init__
+                30      MAKE_FUNCTION                   
+                32      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                34      SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+                36      STORE_NAME                      5: __init__
+                38      LOAD_CONST                      15: ('return', 'None')
+                40      LOAD_CONST                      4: <CODE> begin_baseline
+                42      MAKE_FUNCTION                   
+                44      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                46      STORE_NAME                      6: begin_baseline
+                48      LOAD_CONST                      16: ('baseline_time_s', 'float', 'return', 'None')
+                50      LOAD_CONST                      5: <CODE> configure_time
+                52      MAKE_FUNCTION                   
+                54      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                56      STORE_NAME                      7: configure_time
+                58      LOAD_CONST                      17: ('measurements', 'list[Measurement]', 'return', 'None')
+                60      LOAD_CONST                      6: <CODE> feed
+                62      MAKE_FUNCTION                   
+                64      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                66      STORE_NAME                      8: feed
+                68      LOAD_CONST                      15: ('return', 'None')
+                70      LOAD_CONST                      7: <CODE> _finish
+                72      MAKE_FUNCTION                   
+                74      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                76      STORE_NAME                      9: _finish
+                78      LOAD_CONST                      18: ('angle_deg', 'float', 'distance_mm', 'float', 'return', 'bool')
+                80      LOAD_CONST                      8: <CODE> is_foreground
+                82      MAKE_FUNCTION                   
+                84      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                86      STORE_NAME                      10: is_foreground
+                88      LOAD_CONST                      19: ('points', "list['Point2D']", 'return', "list['Point2D']")
+                90      LOAD_CONST                      9: <CODE> foreground_points
+                92      MAKE_FUNCTION                   
+                94      SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                96      STORE_NAME                      11: foreground_points
+                98      LOAD_NAME                       12: property
+                100     LOAD_CONST                      20: ('return', 'int')
+                102     LOAD_CONST                      10: <CODE> learned_bins
+                104     MAKE_FUNCTION                   
+                106     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+                108     CALL                            0
+                116     STORE_NAME                      13: learned_bins
+                118     LOAD_CONST                      11: ('_bg', '_samples', '_until', 'bins', 'margin', 'ready')
+                120     STORE_NAME                      14: __static_attributes__
+                122     RETURN_CONST                    12: None
+            [Exception Table]
+        'BackgroundSubtractor'
+        [Code]
+            File Name: processing.py
+            Object Name: dbscan
+            Qualified Name: dbscan
+            Arg Count: 3
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 9
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'len'
+                'np'
+                'zeros'
+                'int'
+                'einsum'
+                'range'
+                'flatnonzero'
+                'array'
+                'full'
+                'pop'
+                'append'
+            [Locals+Names]
+                'points'
+                'eps'
+                'min_samples'
+                'n'
+                'diff'
+                'd2'
+                'eps2'
+                'i'
+                'neighbors'
+                'is_core'
+                'labels'
+                'cluster'
+                'stack'
+                'j'
+                'k'
+            [Constants]
+                'DBSCAN básico. `points` é (N, 2); devolve labels np.ndarray (N,):\n  -1 = ruído, 0..K-1 = cluster.\n\nPara o tamanho típico do nosso problema (foreground filtrado: dezenas\na poucas centenas de pontos por frame), a matriz de distâncias N×N é\nrápida e simples. Se um dia N passar de uns 2000, trocar por KDTree.\n'
+                0
+                (
+                    'dtype'
+                )
+                None
+                'ijk,ijk->ij'
+                -1
+                1
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     1: NULL + len
+                12      LOAD_FAST                       0: points
+                14      CALL                            1
+                22      STORE_FAST                      3: n
+                24      LOAD_FAST                       3: n
+                26      LOAD_CONST                      1: 0
+                28      COMPARE_OP                      88 (==)
+                32      POP_JUMP_IF_FALSE               25 (to 84)
+                36      LOAD_GLOBAL                     2: np
+                46      LOAD_ATTR                       4: zeros
+                66      PUSH_NULL                       
+                68      LOAD_CONST                      1: 0
+                70      LOAD_GLOBAL                     6: int
+                80      LOAD_CONST                      2: ('dtype',)
+                82      CALL_KW                         2
+                84      RETURN_VALUE                    
+                86      LOAD_FAST                       0: points
+                88      LOAD_CONST                      3: None
+                90      LOAD_CONST                      3: None
+                92      BUILD_SLICE                     2
+                94      LOAD_CONST                      3: None
+                96      LOAD_CONST                      3: None
+                98      LOAD_CONST                      3: None
+                100     BUILD_SLICE                     2
+                102     BUILD_TUPLE                     3
+                104     BINARY_SUBSCR                   
+                108     LOAD_FAST                       0: points
+                110     LOAD_CONST                      3: None
+                112     LOAD_CONST                      3: None
+                114     LOAD_CONST                      3: None
+                116     BUILD_SLICE                     2
+                118     LOAD_CONST                      3: None
+                120     LOAD_CONST                      3: None
+                122     BUILD_SLICE                     2
+                124     BUILD_TUPLE                     3
+                126     BINARY_SUBSCR                   
+                130     BINARY_OP                       10 (-)
+                134     STORE_FAST                      4: diff
+                136     LOAD_GLOBAL                     2: np
+                146     LOAD_ATTR                       8: einsum
+                166     PUSH_NULL                       
+                168     LOAD_CONST                      4: 'ijk,ijk->ij'
+                170     LOAD_FAST_LOAD_FAST             68: diff, diff
+                172     CALL                            3
+                180     STORE_FAST                      5: d2
+                182     LOAD_FAST_LOAD_FAST             17: eps, eps
+                184     BINARY_OP                       5 (*)
+                188     STORE_FAST                      6: eps2
+                190     LOAD_GLOBAL                     11: NULL + range
+                200     LOAD_FAST                       3: n
+                202     CALL                            1
+                210     GET_ITER                        
+                212     LOAD_FAST_AND_CLEAR             7: i
+                214     SWAP                            2
+                216     BUILD_LIST                      0
+                218     SWAP                            2
+                220     GET_ITER                        
+                222     FOR_ITER                        30 (to 284)
+                226     STORE_FAST                      7: i
+                228     LOAD_GLOBAL                     2: np
+                238     LOAD_ATTR                       12: flatnonzero
+                258     PUSH_NULL                       
+                260     LOAD_FAST_LOAD_FAST             87: d2, i
+                262     BINARY_SUBSCR                   
+                266     LOAD_FAST                       6: eps2
+                268     COMPARE_OP                      42 (<=)
+                272     CALL                            1
+                280     LIST_APPEND                     2
+                282     JUMP_BACKWARD                   32 (to 220)
+                286     END_FOR                         
+                288     POP_TOP                         
+                290     STORE_FAST                      8: neighbors
+                292     STORE_FAST                      7: i
+                294     LOAD_GLOBAL                     2: np
+                304     LOAD_ATTR                       14: array
+                324     PUSH_NULL                       
+                326     LOAD_GLOBAL                     11: NULL + range
+                336     LOAD_FAST                       3: n
+                338     CALL                            1
+                346     GET_ITER                        
+                348     LOAD_FAST_AND_CLEAR             7: i
+                350     SWAP                            2
+                352     BUILD_LIST                      0
+                354     SWAP                            2
+                356     GET_ITER                        
+                358     FOR_ITER                        19 (to 398)
+                362     STORE_FAST                      7: i
+                364     LOAD_GLOBAL                     1: NULL + len
+                374     LOAD_FAST_LOAD_FAST             135: neighbors, i
+                376     BINARY_SUBSCR                   
+                380     CALL                            1
+                388     LOAD_FAST                       2: min_samples
+                390     COMPARE_OP                      172 (>=)
+                394     LIST_APPEND                     2
+                396     JUMP_BACKWARD                   21 (to 356)
+                400     END_FOR                         
+                402     POP_TOP                         
+                404     SWAP                            2
+                406     STORE_FAST                      7: i
+                408     CALL                            1
+                416     STORE_FAST                      9: is_core
+                418     LOAD_GLOBAL                     2: np
+                428     LOAD_ATTR                       16: full
+                448     PUSH_NULL                       
+                450     LOAD_FAST                       3: n
+                452     LOAD_CONST                      5: -1
+                454     LOAD_GLOBAL                     6: int
+                464     LOAD_CONST                      2: ('dtype',)
+                466     CALL_KW                         3
+                468     STORE_FAST                      10: labels
+                470     LOAD_CONST                      1: 0
+                472     STORE_FAST                      11: cluster
+                474     LOAD_GLOBAL                     11: NULL + range
+                484     LOAD_FAST                       3: n
+                486     CALL                            1
+                494     GET_ITER                        
+                496     FOR_ITER                        119 (to 736)
+                500     STORE_FAST                      7: i
+                502     LOAD_FAST_LOAD_FAST             167: labels, i
+                504     BINARY_SUBSCR                   
+                508     LOAD_CONST                      5: -1
+                510     COMPARE_OP                      119 (!=)
+                514     POP_JUMP_IF_TRUE                9 (to 534)
+                518     LOAD_FAST_LOAD_FAST             151: is_core, i
+                520     BINARY_SUBSCR                   
+                524     TO_BOOL                         
+                532     POP_JUMP_IF_TRUE                2 (to 538)
+                536     JUMP_BACKWARD                   22 (to 494)
+                540     LOAD_FAST                       7: i
+                542     BUILD_LIST                      1
+                544     STORE_FAST                      12: stack
+                546     LOAD_FAST_LOAD_FAST             186: cluster, labels
+                548     LOAD_FAST                       7: i
+                550     STORE_SUBSCR                    
+                554     LOAD_FAST                       12: stack
+                556     TO_BOOL                         
+                564     POP_JUMP_IF_FALSE               78 (to 722)
+                568     LOAD_FAST                       12: stack
+                570     LOAD_ATTR                       19: pop
+                590     CALL                            0
+                598     STORE_FAST                      13: j
+                600     LOAD_FAST_LOAD_FAST             141: neighbors, j
+                602     BINARY_SUBSCR                   
+                606     GET_ITER                        
+                608     FOR_ITER                        45 (to 700)
+                612     STORE_FAST                      14: k
+                614     LOAD_FAST_LOAD_FAST             174: labels, k
+                616     BINARY_SUBSCR                   
+                620     LOAD_CONST                      5: -1
+                622     COMPARE_OP                      88 (==)
+                626     POP_JUMP_IF_TRUE                2 (to 632)
+                630     JUMP_BACKWARD                   13 (to 606)
+                634     LOAD_FAST_LOAD_FAST             186: cluster, labels
+                636     LOAD_FAST                       14: k
+                638     STORE_SUBSCR                    
+                642     LOAD_FAST_LOAD_FAST             158: is_core, k
+                644     BINARY_SUBSCR                   
+                648     TO_BOOL                         
+                656     POP_JUMP_IF_TRUE                2 (to 662)
+                660     JUMP_BACKWARD                   28 (to 606)
+                664     LOAD_FAST                       12: stack
+                666     LOAD_ATTR                       21: append
+                686     LOAD_FAST                       14: k
+                688     CALL                            1
+                696     POP_TOP                         
+                698     JUMP_BACKWARD                   47 (to 606)
+                702     END_FOR                         
+                704     POP_TOP                         
+                706     LOAD_FAST                       12: stack
+                708     TO_BOOL                         
+                716     POP_JUMP_IF_FALSE               2 (to 722)
+                720     JUMP_BACKWARD                   78 (to 566)
+                724     LOAD_FAST                       11: cluster
+                726     LOAD_CONST                      6: 1
+                728     BINARY_OP                       13 (+=)
+                732     STORE_FAST                      11: cluster
+                734     JUMP_BACKWARD                   121 (to 494)
+                738     END_FOR                         
+                740     POP_TOP                         
+                742     LOAD_FAST                       10: labels
+                744     RETURN_VALUE                    
+                746     SWAP                            2
+                748     POP_TOP                         
+                750     SWAP                            2
+                752     STORE_FAST                      7: i
+                754     RERAISE                         0
+                756     SWAP                            2
+                758     POP_TOP                         
+                760     SWAP                            2
+                762     STORE_FAST                      7: i
+                764     RERAISE                         0
+            [Exception Table]
+                216 to 290 -> 746 [2] 
+                352 to 404 -> 756 [4] 
+        [Code]
+            File Name: processing.py
+            Object Name: dbscan_centroids
+            Qualified Name: dbscan_centroids
+            Arg Count: 3
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 8
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'dbscan'
+                'sorted'
+                'set'
+                'tolist'
+                'mean'
+                'append'
+                'float'
+                'int'
+                'sum'
+                'sort'
+            [Locals+Names]
+                'points'
+                'eps'
+                'min_samples'
+                'labels'
+                'out'
+                'lab'
+                'm'
+                'cx'
+                'cy'
+            [Constants]
+                'Roda DBSCAN e devolve [(centróide, count), ...] ordenado por count desc.\nIgnora pontos com label -1 (ruído).'
+                -1
+                0
+                (
+                    'axis'
+                )
+                [Code]
+                    File Name: processing.py
+                    Object Name: <lambda>
+                    Qualified Name: dbscan_centroids.<locals>.<lambda>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 2
+                    Flags: 0x01000013 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        'kv'
+                    [Constants]
+                        None
+                        1
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: kv
+                        4       LOAD_CONST                      1: 1
+                        6       BINARY_SUBSCR                   
+                        10      RETURN_VALUE                    
+                    [Exception Table]
+                True
+                (
+                    'key'
+                    'reverse'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_GLOBAL                     1: NULL + dbscan
+                12      LOAD_FAST_LOAD_FAST             1: points, eps
+                14      LOAD_FAST                       2: min_samples
+                16      CALL                            3
+                24      STORE_FAST                      3: labels
+                26      BUILD_LIST                      0
+                28      STORE_FAST                      4: out
+                30      LOAD_GLOBAL                     3: NULL + sorted
+                40      LOAD_GLOBAL                     5: NULL + set
+                50      LOAD_FAST                       3: labels
+                52      LOAD_ATTR                       7: tolist
+                72      CALL                            0
+                80      CALL                            1
+                88      LOAD_CONST                      1: -1
+                90      BUILD_SET                       1
+                92      BINARY_OP                       10 (-)
+                96      CALL                            1
+                104     GET_ITER                        
+                106     FOR_ITER                        88 (to 284)
+                110     STORE_FAST                      5: lab
+                112     LOAD_FAST_LOAD_FAST             53: labels, lab
+                114     COMPARE_OP                      72 (==)
+                118     STORE_FAST                      6: m
+                120     LOAD_FAST_LOAD_FAST             6: points, m
+                122     BINARY_SUBSCR                   
+                126     LOAD_ATTR                       9: mean
+                146     LOAD_CONST                      2: 0
+                148     LOAD_CONST                      3: ('axis',)
+                150     CALL_KW                         1
+                152     UNPACK_SEQUENCE                 2
+                156     STORE_FAST_STORE_FAST           120: cx, cy
+                158     LOAD_FAST                       4: out
+                160     LOAD_ATTR                       11: append
+                180     LOAD_GLOBAL                     13: NULL + float
+                190     LOAD_FAST                       7: cx
+                192     CALL                            1
+                200     LOAD_GLOBAL                     13: NULL + float
+                210     LOAD_FAST                       8: cy
+                212     CALL                            1
+                220     BUILD_TUPLE                     2
+                222     LOAD_GLOBAL                     15: NULL + int
+                232     LOAD_FAST                       6: m
+                234     LOAD_ATTR                       17: sum
+                254     CALL                            0
+                262     CALL                            1
+                270     BUILD_TUPLE                     2
+                272     CALL                            1
+                280     POP_TOP                         
+                282     JUMP_BACKWARD                   90 (to 104)
+                286     END_FOR                         
+                288     POP_TOP                         
+                290     LOAD_FAST                       4: out
+                292     LOAD_ATTR                       19: sort
+                312     LOAD_CONST                      4: <CODE> <lambda>
+                314     MAKE_FUNCTION                   
+                316     LOAD_CONST                      5: True
+                318     LOAD_CONST                      6: ('key', 'reverse')
+                320     CALL_KW                         2
+                322     POP_TOP                         
+                324     LOAD_FAST                       4: out
+                326     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: processing.py
+            Object Name: cluster_greedy
+            Qualified Name: cluster_greedy
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 6
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'sum'
+                'len'
+                'append'
+                'sort'
+            [Locals+Names]
+                'points'
+                'radius_mm'
+                'clusters'
+                'r2'
+                'x'
+                'y'
+                'placed'
+                'c'
+                'cx'
+                'cy'
+                'out'
+                'n'
+            [Constants]
+                'Agrupa pontos próximos (greedy) e devolve [(centróide, count), ...]\nordenado por count decrescente. Cada ponto entra no primeiro cluster\ncujo centróide está dentro de `radius_mm`; se nenhum, vira cluster novo.\n'
+                False
+                [Code]
+                    File Name: processing.py
+                    Object Name: <genexpr>
+                    Qualified Name: cluster_greedy.<locals>.<genexpr>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 3
+                    Flags: 0x01000033 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_GENERATOR | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '.0'
+                        'p'
+                    [Constants]
+                        0
+                        None
+                    [Disassembly]
+                        0       RETURN_GENERATOR                
+                        2       POP_TOP                         
+                        4       RESUME                          0
+                        6       LOAD_FAST                       0: .0
+                        8       GET_ITER                        
+                        10      FOR_ITER                        9 (to 30)
+                        14      STORE_FAST_LOAD_FAST            17: p, p
+                        16      LOAD_CONST                      0: 0
+                        18      BINARY_SUBSCR                   
+                        22      YIELD_VALUE                     0
+                        24      RESUME                          5
+                        26      POP_TOP                         
+                        28      JUMP_BACKWARD                   11 (to 8)
+                        32      END_FOR                         
+                        34      POP_TOP                         
+                        36      RETURN_CONST                    1: None
+                        38      CALL_INTRINSIC_1                3 (INTRINSIC_STOPITERATION_ERROR)
+                        40      RERAISE                         1
+                    [Exception Table]
+                        4 to 38 -> 38 [0] lasti
+                [Code]
+                    File Name: processing.py
+                    Object Name: <genexpr>
+                    Qualified Name: cluster_greedy.<locals>.<genexpr>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 3
+                    Flags: 0x01000033 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_GENERATOR | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '.0'
+                        'p'
+                    [Constants]
+                        1
+                        None
+                    [Disassembly]
+                        0       RETURN_GENERATOR                
+                        2       POP_TOP                         
+                        4       RESUME                          0
+                        6       LOAD_FAST                       0: .0
+                        8       GET_ITER                        
+                        10      FOR_ITER                        9 (to 30)
+                        14      STORE_FAST_LOAD_FAST            17: p, p
+                        16      LOAD_CONST                      0: 1
+                        18      BINARY_SUBSCR                   
+                        22      YIELD_VALUE                     0
+                        24      RESUME                          5
+                        26      POP_TOP                         
+                        28      JUMP_BACKWARD                   11 (to 8)
+                        32      END_FOR                         
+                        34      POP_TOP                         
+                        36      RETURN_CONST                    1: None
+                        38      CALL_INTRINSIC_1                3 (INTRINSIC_STOPITERATION_ERROR)
+                        40      RERAISE                         1
+                    [Exception Table]
+                        4 to 38 -> 38 [0] lasti
+                2
+                True
+                [Code]
+                    File Name: processing.py
+                    Object Name: <genexpr>
+                    Qualified Name: cluster_greedy.<locals>.<genexpr>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 3
+                    Flags: 0x01000033 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_GENERATOR | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '.0'
+                        'p'
+                    [Constants]
+                        0
+                        None
+                    [Disassembly]
+                        0       RETURN_GENERATOR                
+                        2       POP_TOP                         
+                        4       RESUME                          0
+                        6       LOAD_FAST                       0: .0
+                        8       GET_ITER                        
+                        10      FOR_ITER                        9 (to 30)
+                        14      STORE_FAST_LOAD_FAST            17: p, p
+                        16      LOAD_CONST                      0: 0
+                        18      BINARY_SUBSCR                   
+                        22      YIELD_VALUE                     0
+                        24      RESUME                          5
+                        26      POP_TOP                         
+                        28      JUMP_BACKWARD                   11 (to 8)
+                        32      END_FOR                         
+                        34      POP_TOP                         
+                        36      RETURN_CONST                    1: None
+                        38      CALL_INTRINSIC_1                3 (INTRINSIC_STOPITERATION_ERROR)
+                        40      RERAISE                         1
+                    [Exception Table]
+                        4 to 38 -> 38 [0] lasti
+                [Code]
+                    File Name: processing.py
+                    Object Name: <genexpr>
+                    Qualified Name: cluster_greedy.<locals>.<genexpr>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 3
+                    Flags: 0x01000033 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_GENERATOR | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        '.0'
+                        'p'
+                    [Constants]
+                        1
+                        None
+                    [Disassembly]
+                        0       RETURN_GENERATOR                
+                        2       POP_TOP                         
+                        4       RESUME                          0
+                        6       LOAD_FAST                       0: .0
+                        8       GET_ITER                        
+                        10      FOR_ITER                        9 (to 30)
+                        14      STORE_FAST_LOAD_FAST            17: p, p
+                        16      LOAD_CONST                      0: 1
+                        18      BINARY_SUBSCR                   
+                        22      YIELD_VALUE                     0
+                        24      RESUME                          5
+                        26      POP_TOP                         
+                        28      JUMP_BACKWARD                   11 (to 8)
+                        32      END_FOR                         
+                        34      POP_TOP                         
+                        36      RETURN_CONST                    1: None
+                        38      CALL_INTRINSIC_1                3 (INTRINSIC_STOPITERATION_ERROR)
+                        40      RERAISE                         1
+                    [Exception Table]
+                        4 to 38 -> 38 [0] lasti
+                [Code]
+                    File Name: processing.py
+                    Object Name: <lambda>
+                    Qualified Name: cluster_greedy.<locals>.<lambda>
+                    Arg Count: 1
+                    Pos Only Arg Count: 0
+                    KW Only Arg Count: 0
+                    Stack Size: 2
+                    Flags: 0x01000013 (CO_OPTIMIZED | CO_NEWLOCALS | CO_NESTED | CO_FUTURE_ANNOTATIONS)
+                    [Names]
+                    [Locals+Names]
+                        'kv'
+                    [Constants]
+                        None
+                        1
+                    [Disassembly]
+                        0       RESUME                          0
+                        2       LOAD_FAST                       0: kv
+                        4       LOAD_CONST                      1: 1
+                        6       BINARY_SUBSCR                   
+                        10      RETURN_VALUE                    
+                    [Exception Table]
+                (
+                    'key'
+                    'reverse'
+                )
+            [Disassembly]
+                0       RESUME                          0
+                2       BUILD_LIST                      0
+                4       STORE_FAST                      2: clusters
+                6       LOAD_FAST_LOAD_FAST             17: radius_mm, radius_mm
+                8       BINARY_OP                       5 (*)
+                12      STORE_FAST                      3: r2
+                14      LOAD_FAST                       0: points
+                16      GET_ITER                        
+                18      FOR_ITER                        145 (to 310)
+                22      UNPACK_SEQUENCE                 2
+                26      STORE_FAST_STORE_FAST           69: x, y
+                28      LOAD_CONST                      1: False
+                30      STORE_FAST                      6: placed
+                32      LOAD_FAST                       2: clusters
+                34      GET_ITER                        
+                36      FOR_ITER                        104 (to 246)
+                40      STORE_FAST                      7: c
+                42      LOAD_GLOBAL                     1: NULL + sum
+                52      LOAD_CONST                      2: <CODE> <genexpr>
+                54      MAKE_FUNCTION                   
+                56      LOAD_FAST                       7: c
+                58      GET_ITER                        
+                60      CALL                            0
+                68      CALL                            1
+                76      LOAD_GLOBAL                     3: NULL + len
+                86      LOAD_FAST                       7: c
+                88      CALL                            1
+                96      BINARY_OP                       11 (/)
+                100     STORE_FAST                      8: cx
+                102     LOAD_GLOBAL                     1: NULL + sum
+                112     LOAD_CONST                      3: <CODE> <genexpr>
+                114     MAKE_FUNCTION                   
+                116     LOAD_FAST                       7: c
+                118     GET_ITER                        
+                120     CALL                            0
+                128     CALL                            1
+                136     LOAD_GLOBAL                     3: NULL + len
+                146     LOAD_FAST                       7: c
+                148     CALL                            1
+                156     BINARY_OP                       11 (/)
+                160     STORE_FAST                      9: cy
+                162     LOAD_FAST_LOAD_FAST             72: x, cx
+                164     BINARY_OP                       10 (-)
+                168     LOAD_CONST                      4: 2
+                170     BINARY_OP                       8 (**)
+                174     LOAD_FAST_LOAD_FAST             89: y, cy
+                176     BINARY_OP                       10 (-)
+                180     LOAD_CONST                      4: 2
+                182     BINARY_OP                       8 (**)
+                186     BINARY_OP                       0 (+)
+                190     LOAD_FAST                       3: r2
+                192     COMPARE_OP                      58 (<=)
+                196     POP_JUMP_IF_TRUE                2 (to 202)
+                200     JUMP_BACKWARD                   84 (to 34)
+                204     LOAD_FAST                       7: c
+                206     LOAD_ATTR                       5: append
+                226     LOAD_FAST_LOAD_FAST             69: x, y
+                228     BUILD_TUPLE                     2
+                230     CALL                            1
+                238     POP_TOP                         
+                240     LOAD_CONST                      5: True
+                242     STORE_FAST                      6: placed
+                244     POP_TOP                         
+                246     JUMP_FORWARD                    2 (to 252)
+                248     END_FOR                         
+                250     POP_TOP                         
+                252     LOAD_FAST                       6: placed
+                254     TO_BOOL                         
+                262     POP_JUMP_IF_FALSE               2 (to 268)
+                266     JUMP_BACKWARD                   126 (to 16)
+                270     LOAD_FAST                       2: clusters
+                272     LOAD_ATTR                       5: append
+                292     LOAD_FAST_LOAD_FAST             69: x, y
+                294     BUILD_TUPLE                     2
+                296     BUILD_LIST                      1
+                298     CALL                            1
+                306     POP_TOP                         
+                308     JUMP_BACKWARD                   147 (to 16)
+                312     END_FOR                         
+                314     POP_TOP                         
+                316     BUILD_LIST                      0
+                318     STORE_FAST                      10: out
+                320     LOAD_FAST                       2: clusters
+                322     GET_ITER                        
+                324     FOR_ITER                        76 (to 478)
+                328     STORE_FAST                      7: c
+                330     LOAD_GLOBAL                     3: NULL + len
+                340     LOAD_FAST                       7: c
+                342     CALL                            1
+                350     STORE_FAST                      11: n
+                352     LOAD_GLOBAL                     1: NULL + sum
+                362     LOAD_CONST                      6: <CODE> <genexpr>
+                364     MAKE_FUNCTION                   
+                366     LOAD_FAST                       7: c
+                368     GET_ITER                        
+                370     CALL                            0
+                378     CALL                            1
+                386     LOAD_FAST                       11: n
+                388     BINARY_OP                       11 (/)
+                392     STORE_FAST                      8: cx
+                394     LOAD_GLOBAL                     1: NULL + sum
+                404     LOAD_CONST                      7: <CODE> <genexpr>
+                406     MAKE_FUNCTION                   
+                408     LOAD_FAST                       7: c
+                410     GET_ITER                        
+                412     CALL                            0
+                420     CALL                            1
+                428     LOAD_FAST                       11: n
+                430     BINARY_OP                       11 (/)
+                434     STORE_FAST                      9: cy
+                436     LOAD_FAST                       10: out
+                438     LOAD_ATTR                       5: append
+                458     LOAD_FAST_LOAD_FAST             137: cx, cy
+                460     BUILD_TUPLE                     2
+                462     LOAD_FAST                       11: n
+                464     BUILD_TUPLE                     2
+                466     CALL                            1
+                474     POP_TOP                         
+                476     JUMP_BACKWARD                   78 (to 322)
+                480     END_FOR                         
+                482     POP_TOP                         
+                484     LOAD_FAST                       10: out
+                486     LOAD_ATTR                       7: sort
+                506     LOAD_CONST                      8: <CODE> <lambda>
+                508     MAKE_FUNCTION                   
+                510     LOAD_CONST                      5: True
+                512     LOAD_CONST                      9: ('key', 'reverse')
+                514     CALL_KW                         2
+                516     POP_TOP                         
+                518     LOAD_FAST                       10: out
+                520     RETURN_VALUE                    
+            [Exception Table]
+        [Code]
+            File Name: processing.py
+            Object Name: project_batch_np
+            Qualified Name: project_batch_np
+            Arg Count: 2
+            Pos Only Arg Count: 0
+            KW Only Arg Count: 0
+            Stack Size: 8
+            Flags: 0x01000003 (CO_OPTIMIZED | CO_NEWLOCALS | CO_FUTURE_ANNOTATIONS)
+            [Names]
+                'np'
+                'zeros'
+                'float'
+                'array'
+                'angle'
+                'distance'
+                'quality'
+                'min_dist_mm'
+                'max_dist_mm'
+                'min_quality'
+                'deg2rad'
+                'angle_offset_deg'
+                'cos'
+                'sin'
+                'mirror'
+                'column_stack'
+            [Locals+Names]
+                'measurements'
+                'cfg'
+                'm'
+                'arr'
+                'angle'
+                'dist'
+                'q'
+                'mask'
+                'a'
+                'x'
+                'y'
+            [Constants]
+                'Versão numpy. Devolve array (N, 4) = [x, y, quality, angle].'
+                (
+                    0
+                    4
+                )
+                (
+                    'dtype'
+                )
+                None
+                0
+                1
+                2
+            [Disassembly]
+                0       RESUME                          0
+                2       LOAD_FAST                       0: measurements
+                4       TO_BOOL                         
+                12      POP_JUMP_IF_TRUE                25 (to 64)
+                16      LOAD_GLOBAL                     0: np
+                26      LOAD_ATTR                       2: zeros
+                46      PUSH_NULL                       
+                48      LOAD_CONST                      1: (0, 4)
+                50      LOAD_GLOBAL                     4: float
+                60      LOAD_CONST                      2: ('dtype',)
+                62      CALL_KW                         2
+                64      RETURN_VALUE                    
+                66      LOAD_GLOBAL                     0: np
+                76      LOAD_ATTR                       6: array
+                96      PUSH_NULL                       
+                98      LOAD_FAST                       0: measurements
+                100     GET_ITER                        
+                102     LOAD_FAST_AND_CLEAR             2: m
+                104     SWAP                            2
+                106     BUILD_LIST                      0
+                108     SWAP                            2
+                110     GET_ITER                        
+                112     FOR_ITER                        37 (to 188)
+                116     STORE_FAST_LOAD_FAST            34: m, m
+                118     LOAD_ATTR                       8: angle
+                138     LOAD_FAST                       2: m
+                140     LOAD_ATTR                       10: distance
+                160     LOAD_FAST                       2: m
+                162     LOAD_ATTR                       12: quality
+                182     BUILD_TUPLE                     3
+                184     LIST_APPEND                     2
+                186     JUMP_BACKWARD                   39 (to 110)
+                190     END_FOR                         
+                192     POP_TOP                         
+                194     SWAP                            2
+                196     STORE_FAST                      2: m
+                198     LOAD_GLOBAL                     4: float
+                208     LOAD_CONST                      2: ('dtype',)
+                210     CALL_KW                         2
+                212     STORE_FAST                      3: arr
+                214     LOAD_FAST                       3: arr
+                216     LOAD_CONST                      3: None
+                218     LOAD_CONST                      3: None
+                220     BUILD_SLICE                     2
+                222     LOAD_CONST                      4: 0
+                224     BUILD_TUPLE                     2
+                226     BINARY_SUBSCR                   
+                230     LOAD_FAST                       3: arr
+                232     LOAD_CONST                      3: None
+                234     LOAD_CONST                      3: None
+                236     BUILD_SLICE                     2
+                238     LOAD_CONST                      5: 1
+                240     BUILD_TUPLE                     2
+                242     BINARY_SUBSCR                   
+                246     LOAD_FAST                       3: arr
+                248     LOAD_CONST                      3: None
+                250     LOAD_CONST                      3: None
+                252     BUILD_SLICE                     2
+                254     LOAD_CONST                      6: 2
+                256     BUILD_TUPLE                     2
+                258     BINARY_SUBSCR                   
+                262     STORE_FAST_STORE_FAST           101: q, dist
+                264     STORE_FAST                      4: angle
+                266     LOAD_FAST                       5: dist
+                268     LOAD_CONST                      4: 0
+                270     COMPARE_OP                      132 (>)
+                274     LOAD_FAST_LOAD_FAST             81: dist, cfg
+                276     LOAD_ATTR                       14: min_dist_mm
+                296     COMPARE_OP                      172 (>=)
+                300     BINARY_OP                       1 (&)
+                304     LOAD_FAST_LOAD_FAST             81: dist, cfg
+                306     LOAD_ATTR                       16: max_dist_mm
+                326     COMPARE_OP                      42 (<=)
+                330     BINARY_OP                       1 (&)
+                334     LOAD_FAST_LOAD_FAST             97: q, cfg
+                336     LOAD_ATTR                       18: min_quality
+                356     COMPARE_OP                      172 (>=)
+                360     BINARY_OP                       1 (&)
+                364     STORE_FAST                      7: mask
+                366     LOAD_FAST_LOAD_FAST             71: angle, mask
+                368     BINARY_SUBSCR                   
+                372     LOAD_FAST_LOAD_FAST             87: dist, mask
+                374     BINARY_SUBSCR                   
+                378     LOAD_FAST_LOAD_FAST             103: q, mask
+                380     BINARY_SUBSCR                   
+                384     STORE_FAST_STORE_FAST           101: q, dist
+                386     STORE_FAST                      4: angle
+                388     LOAD_GLOBAL                     0: np
+                398     LOAD_ATTR                       20: deg2rad
+                418     PUSH_NULL                       
+                420     LOAD_FAST_LOAD_FAST             65: angle, cfg
+                422     LOAD_ATTR                       22: angle_offset_deg
+                442     BINARY_OP                       0 (+)
+                446     CALL                            1
+                454     STORE_FAST                      8: a
+                456     LOAD_FAST                       5: dist
+                458     LOAD_GLOBAL                     0: np
+                468     LOAD_ATTR                       24: cos
+                488     PUSH_NULL                       
+                490     LOAD_FAST                       8: a
+                492     CALL                            1
+                500     BINARY_OP                       5 (*)
+                504     STORE_FAST                      9: x
+                506     LOAD_FAST                       5: dist
+                508     LOAD_GLOBAL                     0: np
+                518     LOAD_ATTR                       26: sin
+                538     PUSH_NULL                       
+                540     LOAD_FAST                       8: a
+                542     CALL                            1
+                550     BINARY_OP                       5 (*)
+                554     STORE_FAST                      10: y
+                556     LOAD_FAST                       1: cfg
+                558     LOAD_ATTR                       28: mirror
+                578     TO_BOOL                         
+                586     POP_JUMP_IF_FALSE               3 (to 594)
+                590     LOAD_FAST                       9: x
+                592     UNARY_NEGATIVE                  
+                594     STORE_FAST                      9: x
+                596     LOAD_GLOBAL                     0: np
+                606     LOAD_ATTR                       30: column_stack
+                626     PUSH_NULL                       
+                628     LOAD_FAST_LOAD_FAST             154: x, y
+                630     LOAD_FAST_LOAD_FAST             100: q, angle
+                632     BUILD_LIST                      4
+                634     CALL                            1
+                642     RETURN_VALUE                    
+                644     SWAP                            2
+                646     POP_TOP                         
+                648     SWAP                            2
+                650     STORE_FAST                      2: m
+                652     RERAISE                         0
+            [Exception Table]
+                106 to 194 -> 644 [4] 
+        (
+            0
+            False
+        )
+        (
+            'angle_deg'
+            'float'
+            'distance_mm'
+            'float'
+            'offset_deg'
+            'float'
+            'mirror'
+            'bool'
+            'return'
+            'tuple[float, float]'
+        )
+        (
+            'measurements'
+            'list[Measurement]'
+            'cfg'
+            'ProcessingCfg'
+            'return'
+            'list[Point2D]'
+        )
+        (
+            'p'
+            'Point2D'
+            'roi'
+            'ROICfg'
+            'return'
+            'bool'
+        )
+        (
+            'points'
+            'list[Point2D]'
+            'roi'
+            'ROICfg'
+            'return'
+            'tuple[list[Point2D], list[Point2D]]'
+        )
+        (
+            'points'
+            'np.ndarray'
+            'eps'
+            'float'
+            'min_samples'
+            'int'
+            'return'
+            'np.ndarray'
+        )
+        (
+            'points'
+            'np.ndarray'
+            'eps'
+            'float'
+            'min_samples'
+            'int'
+            'return'
+            'list[tuple[tuple[float, float], int]]'
+        )
+        (
+            'points'
+            'list[tuple[float, float]]'
+            'radius_mm'
+            'float'
+            'return'
+            'list[tuple[tuple[float, float], int]]'
+        )
+        (
+            'measurements'
+            'list[Measurement]'
+            'cfg'
+            'ProcessingCfg'
+            'return'
+            'np.ndarray'
+        )
+    [Disassembly]
+        0       RESUME                          0
+        2       LOAD_CONST                      0: '\nLidarMapper — processamento (Etapas 2-4).\n\nFunções puras. Não dependem de pygame, ZMQ nem do sensor. Recebem listas\nde Measurement (do lidar_reader.py) e devolvem listas de pontos\ncartesianos prontos pra visualização / tracking / publicação.\n\nInclui:\n  - polar→cartesiano + filtros (Etapa 2)\n  - ROI bbox (Etapa 2)\n  - BackgroundSubtractor por bin angular (Etapa 3, robustiza calibração)\n  - cluster_greedy (Etapa 3, escolher canto entre vários objetos visíveis)\n'
+        4       STORE_NAME                      0: __doc__
+        6       LOAD_CONST                      1: 0
+        8       LOAD_CONST                      2: ('annotations',)
+        10      IMPORT_NAME                     1: __future__
+        12      IMPORT_FROM                     2: annotations
+        14      STORE_NAME                      2: annotations
+        16      POP_TOP                         
+        18      LOAD_CONST                      1: 0
+        20      LOAD_CONST                      3: None
+        22      IMPORT_NAME                     3: math
+        24      STORE_NAME                      3: math
+        26      LOAD_CONST                      1: 0
+        28      LOAD_CONST                      3: None
+        30      IMPORT_NAME                     4: time
+        32      STORE_NAME                      4: time
+        34      LOAD_CONST                      1: 0
+        36      LOAD_CONST                      4: ('dataclass',)
+        38      IMPORT_NAME                     5: dataclasses
+        40      IMPORT_FROM                     6: dataclass
+        42      STORE_NAME                      6: dataclass
+        44      POP_TOP                         
+        46      LOAD_CONST                      1: 0
+        48      LOAD_CONST                      3: None
+        50      IMPORT_NAME                     7: numpy
+        52      STORE_NAME                      8: np
+        54      LOAD_CONST                      1: 0
+        56      LOAD_CONST                      5: ('ProcessingCfg', 'ROICfg')
+        58      IMPORT_NAME                     9: config
+        60      IMPORT_FROM                     10: ProcessingCfg
+        62      STORE_NAME                      10: ProcessingCfg
+        64      IMPORT_FROM                     11: ROICfg
+        66      STORE_NAME                      11: ROICfg
+        68      POP_TOP                         
+        70      LOAD_CONST                      1: 0
+        72      LOAD_CONST                      6: ('Measurement',)
+        74      IMPORT_NAME                     12: lidar_reader
+        76      IMPORT_FROM                     13: Measurement
+        78      STORE_NAME                      13: Measurement
+        80      POP_TOP                         
+        82      LOAD_NAME                       6: dataclass
+        84      LOAD_BUILD_CLASS                
+        86      PUSH_NULL                       
+        88      LOAD_CONST                      7: <CODE> Point2D
+        90      MAKE_FUNCTION                   
+        92      LOAD_CONST                      8: 'Point2D'
+        94      CALL                            2
+        102     CALL                            0
+        110     STORE_NAME                      14: Point2D
+        112     NOP                             
+        114     LOAD_CONST                      19: (0, False)
+        116     NOP                             
+        118     NOP                             
+        120     NOP                             
+        122     NOP                             
+        124     NOP                             
+        126     LOAD_CONST                      20: ('angle_deg', 'float', 'distance_mm', 'float', 'offset_deg', 'float', 'mirror', 'bool', 'return', 'tuple[float, float]')
+        128     LOAD_CONST                      9: <CODE> polar_to_xy
+        130     MAKE_FUNCTION                   
+        132     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        134     SET_FUNCTION_ATTRIBUTE          1 (MAKE_FUNCTION_DEFAULTS)
+        136     STORE_NAME                      15: polar_to_xy
+        138     LOAD_CONST                      21: ('measurements', 'list[Measurement]', 'cfg', 'ProcessingCfg', 'return', 'list[Point2D]')
+        140     LOAD_CONST                      10: <CODE> project_batch
+        142     MAKE_FUNCTION                   
+        144     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        146     STORE_NAME                      16: project_batch
+        148     LOAD_CONST                      22: ('p', 'Point2D', 'roi', 'ROICfg', 'return', 'bool')
+        150     LOAD_CONST                      11: <CODE> in_roi
+        152     MAKE_FUNCTION                   
+        154     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        156     STORE_NAME                      17: in_roi
+        158     LOAD_CONST                      23: ('points', 'list[Point2D]', 'roi', 'ROICfg', 'return', 'tuple[list[Point2D], list[Point2D]]')
+        160     LOAD_CONST                      12: <CODE> split_by_roi
+        162     MAKE_FUNCTION                   
+        164     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        166     STORE_NAME                      18: split_by_roi
+        168     LOAD_BUILD_CLASS                
+        170     PUSH_NULL                       
+        172     LOAD_CONST                      13: <CODE> BackgroundSubtractor
+        174     MAKE_FUNCTION                   
+        176     LOAD_CONST                      14: 'BackgroundSubtractor'
+        178     CALL                            2
+        186     STORE_NAME                      19: BackgroundSubtractor
+        188     LOAD_CONST                      24: ('points', 'np.ndarray', 'eps', 'float', 'min_samples', 'int', 'return', 'np.ndarray')
+        190     LOAD_CONST                      15: <CODE> dbscan
+        192     MAKE_FUNCTION                   
+        194     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        196     STORE_NAME                      20: dbscan
+        198     NOP                             
+        200     NOP                             
+        202     LOAD_CONST                      25: ('points', 'np.ndarray', 'eps', 'float', 'min_samples', 'int', 'return', 'list[tuple[tuple[float, float], int]]')
+        204     LOAD_CONST                      16: <CODE> dbscan_centroids
+        206     MAKE_FUNCTION                   
+        208     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        210     STORE_NAME                      21: dbscan_centroids
+        212     NOP                             
+        214     NOP                             
+        216     NOP                             
+        218     NOP                             
+        220     LOAD_CONST                      26: ('points', 'list[tuple[float, float]]', 'radius_mm', 'float', 'return', 'list[tuple[tuple[float, float], int]]')
+        222     LOAD_CONST                      17: <CODE> cluster_greedy
+        224     MAKE_FUNCTION                   
+        226     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        228     STORE_NAME                      22: cluster_greedy
+        230     LOAD_CONST                      27: ('measurements', 'list[Measurement]', 'cfg', 'ProcessingCfg', 'return', 'np.ndarray')
+        232     LOAD_CONST                      18: <CODE> project_batch_np
+        234     MAKE_FUNCTION                   
+        236     SET_FUNCTION_ATTRIBUTE          4 (MAKE_FUNCTION_ANNOTATIONS)
+        238     STORE_NAME                      23: project_batch_np
+        240     RETURN_CONST                    3: None
+    [Exception Table]

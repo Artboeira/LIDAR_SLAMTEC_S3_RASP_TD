@@ -1,0 +1,64 @@
+# LidarMapper — configuração principal.
+# Comente um campo (ou ponha `null`) para usar o default do código.
+
+logging:
+  # debug, info, warning, error
+  level: info
+  format: "[%(asctime)s] %(levelname)-7s %(name)s: %(message)s"
+
+sensor:
+  # null = autodetecta a porta pelo chip CP210x (S3 padrão)
+  port: null
+  baud: 1000000
+
+processing:
+  # Filtros básicos aplicados às medidas brutas
+  min_dist_mm: 80         # ignora retornos coladíssimos no sensor
+  max_dist_mm: 6000       # ignora retornos muito além da área de interesse
+  min_quality: 5          # 0 = aceita tudo. S3 saudável ~14-18 em superfície real
+  angle_offset_deg: 0.0   # rotação somada ao ângulo do LIDAR (graus)
+  mirror: false           # espelha o eixo X (útil dependendo da montagem)
+
+roi:
+  # ROI em coordenadas cartesianas (mm) no referencial do sensor.
+  # Origem (0,0) = sensor. null = sem filtro nesse eixo.
+  x_min: -3000
+  x_max:  3000
+  y_min: -3000
+  y_max:  3000
+
+viz:
+  width: 900
+  height: 900
+  scale_mm_per_px: 10     # 1 px = 10 mm. Ajustável em runtime com +/-
+  trail_window_s: 0.2     # quanto tempo (s) de medidas manter na visualização
+
+udp:
+  host: "127.0.0.1"         # destino. Pra rede, troque pelo IP da máquina do TD.
+  port: 5555
+  publish_rate_hz: 30       # 0 = publica a cada update do tracker (sem throttle)
+  max_points: 32            # cap defensivo; tracker.max_tracks limita antes na prática
+                            # (header 14 + 16*N bytes; com max=32 fica 526B << MTU 1500)
+
+tracker:
+  # DBSCAN — agrupa pontos foreground em "cursores"
+  dbscan_eps_mm: 150         # raio da vizinhança (mm)
+  dbscan_min_samples: 4      # mínimo de pontos no raio pra ser cluster (não ruído)
+  # Associação cluster -> track (nearest-neighbor com gating)
+  match_dist_mm: 220         # max distância pra ligar cluster a um track existente
+  timeout_s: 0.18            # sem ver track por isso = remove (soltou)
+  max_tracks: 10             # limite de cursores simultâneos
+  confidence_frames: 5       # frames até confidence chegar a 1.0
+  # Suavização opcional do (x,y) entre frames (0=sem suavização, 1=sem mudança)
+  smoothing: 0.35
+
+screen:
+  # Resolução da tela/painel real que será calibrado.
+  width_px: 1920
+  height_px: 1080
+  # Índice do monitor onde a janela de calibração abre.
+  # 0 = monitor primário (laptop), 1 = secundário (projetor/painel LED).
+  # Se ficar com índice inválido cai automaticamente no primário.
+  display_index: 1
+  # Modo da janela na calibração: fullscreen é o que vai pro projetor.
+  fullscreen: true
