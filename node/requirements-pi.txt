@@ -1,0 +1,7 @@
+# Deps mínimas do node/ (§5.1 item 4 do guia).
+# ABSOLUTAMENTE nada de pygame/tkinter/customtkinter aqui — o Pi é headless.
+
+rplidar-roboticia
+numpy
+pyyaml
+ruamel.yaml

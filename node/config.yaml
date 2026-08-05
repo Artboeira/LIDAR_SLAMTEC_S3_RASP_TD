@@ -1,0 +1,51 @@
+# LidarMapper node — configuração de um Pi.
+#
+# Cada nó tem uma cópia do repo; O ÚNICO CAMPO realmente distinto entre nós
+# é `udp.panel_id` (1..8). Demais campos costumam variar por montagem
+# (ROI, angle_offset_deg, mirror) e por servidor de destino (udp.host).
+
+logging:
+  level: info
+  format: "[%(asctime)s] %(levelname)-7s %(name)s: %(message)s"
+
+sensor:
+  # symlink udev (§6 do guia); autodetect por VID/PID CP210x é fallback.
+  port: /dev/rplidar
+  baud: 1000000
+
+processing:
+  min_dist_mm: 80
+  max_dist_mm: 6000
+  min_quality: 5
+  angle_offset_deg: 0.0
+  mirror: false
+
+# ROI em mm no referencial do sensor. Primeira linha de defesa contra o
+# LIDAR enxergar o público do painel vizinho. O relay ainda faz o clip
+# em [0..1] após homografia (segunda linha).
+roi:
+  x_min: -1400
+  x_max:  1400
+  y_min:   100
+  y_max:  2100
+
+tracker:
+  dbscan_eps_mm: 150
+  dbscan_min_samples: 4
+  match_dist_mm: 220
+  timeout_s: 0.18
+  max_tracks: 10
+  confidence_frames: 5
+  smoothing: 0.35
+
+udp:
+  host: "10.10.0.10"        # server-a (nós 1-4) ou server-b (nós 5-8)
+  port: 5555                # igual em todos
+  panel_id: 0               # OBRIGATÓRIO em 1..8 — SEM default silencioso
+  publish_rate_hz: 30
+  max_points: 32
+
+baseline:
+  duration_s: 2.0           # tempo de captura do fundo estático no start
+  margin_mm: 120            # ponto vira "foreground" se dist < bg[bin] - margin
+  bins: 720                 # 0,5°/bin (§5.1 do legacy)
