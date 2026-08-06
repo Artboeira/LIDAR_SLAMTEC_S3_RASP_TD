@@ -41,7 +41,9 @@ tracker:
 udp:
   host: "10.10.0.10"        # server-a (nós 1-4) ou server-b (nós 5-8)
   port: 5555                # igual em todos
-  panel_id: 0               # OBRIGATÓRIO em 1..8 — SEM default silencioso
+  # EDITE ANTES DO PRIMEIRO START: 0 aborta com ValueError. Sem default
+  # silencioso — dois nós com o mesmo id fariam o relay misturar painéis.
+  panel_id: 0               # OBRIGATÓRIO em 1..8
   publish_rate_hz: 30
   max_points: 32
 

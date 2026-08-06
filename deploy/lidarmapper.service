@@ -1,0 +1,35 @@
+# Serviço do nó Pi (§6 do guia).
+#
+# DIVERGÊNCIA ANOTADA: o §6 do guia mostra `ExecStart=... python main.py` com
+# WorkingDirectory na raiz do repo. O entry point real é `node/main.py` — esta
+# unit usa o caminho absoluto do arquivo real. `node/main.py` usa imports
+# planos (`import config`), então o Python precisa receber o path completo do
+# script (ele coloca o diretório do script no sys.path automaticamente).
+#
+# Instalação:
+#   sudo cp deploy/lidarmapper.service /etc/systemd/system/lidarmapper.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now lidarmapper
+#   journalctl -u lidarmapper -f
+#
+# Se o usuário do Pi não for `pi`, ajuste User= e todos os /home/pi.
+
+[Unit]
+Description=LidarMapper node (LIDAR -> UDP V2)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/lidarmapper
+ExecStart=/home/pi/lidarmapper/.venv/bin/python /home/pi/lidarmapper/node/main.py
+Restart=always
+RestartSec=3
+# Dá tempo do udev criar /dev/rplidar e da rede subir antes do primeiro start.
+ExecStartPre=/bin/sleep 5
+# Prioridade acima do resto do sistema: o loop é sensível a jitter de scheduler.
+Nice=-10
+
+[Install]
+WantedBy=multi-user.target

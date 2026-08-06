@@ -31,10 +31,16 @@ consome V1 puro, sem matemática.
 - `shared/protocol.py` — pack/unpack dos protocolos V1 e V2. ÚNICO lugar
   do repo onde format strings de struct podem existir.
 - `node/` — W1, roda nos Raspberry Pi (headless). PROIBIDO importar
-  pygame, tkinter, customtkinter. Deps: rplidar-roboticia, numpy, pyyaml,
-  ruamel.yaml, stdlib.
+  pygame, tkinter, customtkinter. Deps: rplidar-roboticia, pyserial,
+  numpy, pyyaml, ruamel.yaml, stdlib.
 - `server/` — W2, roda no Windows dos servidores. Pode usar pygame,
   customtkinter, python-osc.
+- `docs/` — guias de instalação e configuração de campo (Pi, servidor,
+  TouchDesigner). Derivados do guia; em conflito, o guia vence.
+- `deploy/` — arquivos prontos para copiar na instalação: regra udev,
+  unit systemd, snippet do chrony, `start_relay.bat` e o callback do
+  TouchDesigner (`deploy/td/udp_callback_v1.py` — única exceção à regra
+  do struct, porque roda dentro do TD e não importa o repo).
 - `legacy/` — fonte do LidarMapper single-node, RECONSTRUÍDO do build
   PyInstaller na Sessão W0 (o repo original se perdeu). Após o W0:
   READ-ONLY — copiar de lá, nunca editar lá.
@@ -84,8 +90,16 @@ python server/test_udp_receiver.py --v1   # saída pro TD
 
 # Bench do parsing vetorizado (roda em qualquer máquina, gate do §10)
 python node/bench_parse.py
+
+# Relay do servidor — SEMPRE a partir da raiz do repo
+python server/server_relay.py            # (--no-osc para dev sem Max)
+
+# Calibração de um painel (grava server/calib_pN.json; hot-reload no relay)
+python server/calibrate.py --panel 1 --target-source local
 ```
 
 Alvos de execução: `node/` roda em Linux arm64 headless (mas deve rodar
 no dev x86 também); `server/` tem Windows como alvo (paths, sockets,
 sem systemd).
+
+Instalação em campo: `docs/INSTALACAO.md` é o índice (Pi, servidor, TD).

@@ -1,0 +1,15 @@
+# Nome estável para o RPLIDAR S3 (§6 do guia).
+#
+# O S3 aparece como CP210x da Silicon Labs (VID 10c4 / PID ea60). Sem esta
+# regra o device oscila entre /dev/ttyUSB0 e /dev/ttyUSB1 conforme a ordem de
+# enumeração no boot — e o config.yaml aponta para um caminho fixo.
+#
+# Instalação:
+#   sudo cp deploy/99-rplidar.rules /etc/udev/rules.d/99-rplidar.rules
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+#   # desconecte e reconecte o USB do S3
+#   ls -l /dev/rplidar        # -> rplidar -> ttyUSB0
+#
+# MODE="0666" evita depender só do grupo dialout; mantenha o usermod mesmo assim.
+
+SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="rplidar", MODE="0666"

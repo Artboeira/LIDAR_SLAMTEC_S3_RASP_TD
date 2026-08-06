@@ -1,0 +1,440 @@
+# Instalação do nó — Raspberry Pi + RPLIDAR S3
+
+Procedimento completo de um nó (`lidar-0N`), da gravação do cartão SD ao
+serviço rodando sozinho no boot. Base: §6, §9, §10, §11 e §12 da
+[spec](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) + o roteiro de
+[node/VALIDACAO.md](../node/VALIDACAO.md).
+
+**Faça este documento inteiro uma vez, no lidar-01, na bancada.** Os outros 7
+nós saem da golden image (§10) e só precisam das seções 7, 10 e 11.
+
+Índice:
+
+1. [Imagem e primeiro boot](#1-imagem-e-primeiro-boot)
+2. [Alimentação e térmica](#2-alimentação-e-térmica)
+3. [Cortes de sistema](#3-cortes-de-sistema)
+4. [Repositório e ambiente Python](#4-repositório-e-ambiente-python)
+5. [udev — nome estável do S3](#5-udev--nome-estável-do-s3)
+6. [chrony — relógio sincronizado](#6-chrony--relógio-sincronizado)
+7. [config.yaml — o que muda por nó](#7-configyaml--o-que-muda-por-nó)
+8. [Testes antes de virar serviço](#8-testes-antes-de-virar-serviço)
+9. [systemd — subir no boot](#9-systemd--subir-no-boot)
+10. [Golden image e replicação](#10-golden-image-e-replicação)
+11. [Atualizar a frota](#11-atualizar-a-frota)
+12. [Troubleshooting](#12-troubleshooting)
+
+---
+
+## 1. Imagem e primeiro boot
+
+**Sistema: Raspberry Pi OS Lite 64-bit (arm64), headless.** A mesma imagem
+serve 3B+, 4 e 5 — é o que preserva a golden image única.
+
+No Raspberry Pi Imager, antes de gravar, abra as opções avançadas (engrenagem)
+e configure:
+
+| Campo | Valor |
+|---|---|
+| Hostname | `lidar-01` (depois `lidar-02`… nos clones) |
+| SSH | habilitado, autenticação por senha ou chave |
+| Usuário | `pi` (se usar outro nome, ajuste [deploy/lidarmapper.service](../deploy/lidarmapper.service)) |
+| Wi-Fi | **não configure** — a rede é cabeada |
+| Locale / timezone | conforme a instalação |
+
+Grave, ponha o cartão no Pi, ligue no cabo de rede e acesse:
+
+```bash
+ssh pi@lidar-01
+```
+
+Registre o **MAC** da interface ethernet para a reserva de DHCP:
+
+```bash
+cat /sys/class/net/eth0/address
+```
+
+---
+
+## 2. Alimentação e térmica
+
+| Modelo | Fonte oficial | Conector | Refrigeração (operação de horas) |
+|---|---|---|---|
+| 3B+ | 5 V / 2,5 A | microUSB | dissipador passivo basta |
+| Pi 4 | 5 V / 3 A | USB-C | case ventilado ou dissipador; case fechado sem dissipador entra em throttle |
+| Pi 5 | 5 V / 5 A (PSU oficial) | USB-C | active cooler recomendado |
+
+Confira depois de alguns minutos com o S3 girando:
+
+```bash
+vcgencmd get_throttled
+```
+
+Resultado esperado: `throttled=0x0`. Qualquer outro valor significa subtensão
+(bits 0/16) ou throttle térmico (bits 1–3) — resolva antes de continuar, porque
+o sintoma em produção é o sensor caindo no meio do show.
+
+---
+
+## 3. Cortes de sistema
+
+Rádios desligados (não usamos, e o Wi-Fi ligado ainda gera interrupções) e swap
+desabilitado (o Pi nunca deve paginar durante o loop):
+
+```bash
+sudo sh -c 'printf "\ndtoverlay=disable-wifi\ndtoverlay=disable-bt\n" >> /boot/firmware/config.txt'
+sudo systemctl disable --now dphys-swapfile
+sudo reboot
+```
+
+> Em imagens antigas o arquivo é `/boot/config.txt` em vez de
+> `/boot/firmware/config.txt`. Confira qual existe antes de rodar.
+
+Não conecte display ao Pi — o nó é headless por projeto (nada de pygame,
+tkinter ou customtkinter em [node/](../node/)).
+
+Use só overlays que valem nos três modelos: a golden image é única.
+
+---
+
+## 4. Repositório e ambiente Python
+
+```bash
+sudo apt update && sudo apt full-upgrade -y
+sudo apt install -y git python3-venv chrony
+sudo usermod -aG dialout $USER
+```
+
+> ⚠️ O `usermod` só tem efeito depois de **relogar** (`exit` e `ssh` de novo).
+> Sem ele, abrir a porta serial do S3 dá `Permission denied`.
+
+```bash
+git clone <URL-DO-REPO> ~/lidarmapper
+cd ~/lidarmapper
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r node/requirements-pi.txt
+```
+
+> **Nota de divergência:** o §6 da spec mostra `pip install -r requirements-pi.txt`
+> e `python main.py`. Os caminhos reais no repo são `node/requirements-pi.txt` e
+> `node/main.py` — use os desta página.
+
+Dependências instaladas ([node/requirements-pi.txt](../node/requirements-pi.txt)):
+`rplidar-roboticia`, `pyserial`, `numpy`, `pyyaml`, `ruamel.yaml`. Nada de
+pygame/tkinter — se aparecer algum deles no `pip list` do Pi, alguém instalou
+o requirements errado.
+
+Verifique que o Python do venv importa numpy compilado para arm64:
+
+```bash
+.venv/bin/python -c "import numpy, serial, yaml; print(numpy.__version__)"
+```
+
+---
+
+## 5. udev — nome estável do S3
+
+Sem isso o sensor oscila entre `/dev/ttyUSB0` e `/dev/ttyUSB1` conforme a ordem
+de enumeração no boot, e o `config.yaml` aponta para um caminho fixo.
+
+```bash
+sudo cp ~/lidarmapper/deploy/99-rplidar.rules /etc/udev/rules.d/99-rplidar.rules
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+
+Desconecte e reconecte o USB do S3, e confirme:
+
+```bash
+ls -l /dev/rplidar
+# lrwxrwxrwx 1 root root 7 ... /dev/rplidar -> ttyUSB0
+```
+
+A regra casa o VID/PID do CP210x (`10c4:ea60`) — o mesmo par que
+[node/lidar_reader.py](../node/lidar_reader.py) usa no autodetect de fallback.
+Confira o que o kernel enumerou, se precisar:
+
+```bash
+lsusb | grep -i cp210
+dmesg | tail -20
+```
+
+---
+
+## 6. chrony — relógio sincronizado
+
+O header do protocolo V2 carrega o `time.time()` do Pi. Sem NTP, o timestamp é
+incomparável entre nós e qualquer medição de latência mente.
+
+```bash
+sudo cp ~/lidarmapper/deploy/chrony-node.conf /etc/chrony/conf.d/lidarmapper.conf
+sudo systemctl restart chrony
+chronyc tracking
+chronyc sources -v
+```
+
+Esperado: `Leap status : Normal`, offset na casa dos milissegundos, e o
+`10.10.0.10` marcado com `^*` em `sources`.
+
+Se o diretório `/etc/chrony/conf.d/` não existir nessa imagem, acrescente a
+linha `server 10.10.0.10 iburst prefer` ao fim de `/etc/chrony/chrony.conf`.
+
+O server-a precisa estar servindo NTP (ver
+[INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md) §4).
+
+---
+
+## 7. config.yaml — o que muda por nó
+
+Arquivo: [node/config.yaml](../node/config.yaml). É a **única** diferença entre
+os nós depois da golden image.
+
+| Campo | O que é | Muda por |
+|---|---|---|
+| `udp.panel_id` | identidade do painel, `1..8` | **nó** — obrigatório, único |
+| `udp.host` | `10.10.0.10` (painéis 1–4) ou `10.10.0.11` (5–8) | servidor de destino |
+| `roi.*` | recorte em mm no referencial do sensor | montagem física |
+| `processing.angle_offset_deg` | rotação do sensor | montagem física |
+| `processing.mirror` | espelhamento do eixo | montagem física |
+
+Todo o resto (`tracker`, `baseline`, `sensor.baud`, `publish_rate_hz`) é igual
+em todos os nós e não deve ser mexido sem motivo.
+
+> ⚠️ **`panel_id` vem `0` de fábrica e isso é proposital.** Sem editar, o nó
+> aborta no start com:
+> ```
+> ValueError: udp.panel_id obrigatório em 1..8 no config.yaml (veio 0).
+> Cada nó do repo tem panel_id único.
+> ```
+> Não existe default silencioso: dois nós com o mesmo `panel_id` fariam o relay
+> misturar dois painéis, e o erro só apareceria como cursor fantasma.
+
+### Definindo a ROI
+
+A ROI é a primeira linha de defesa contra o LIDAR enxergar o público do painel
+vizinho (a segunda é o clip em `0..1` no relay). Origem `(0,0)` no sensor,
+valores em mm:
+
+```yaml
+roi:
+  x_min: -1400    # metade da largura útil, à esquerda
+  x_max:  1400    # metade da largura útil, à direita
+  y_min:   100    # ignora o que está colado no sensor
+  y_max:  2100    # profundidade máxima de interação
+```
+
+Ajuste com o pipeline rodando e alguém andando na frente do painel:
+
+```bash
+cd ~/lidarmapper
+.venv/bin/python node/main.py --no-publish --log-level info
+```
+
+O campo `fg=` do log é o número de pontos foreground **dentro da ROI**. Ele
+deve subir quando alguém entra na área do painel e voltar para perto de zero
+quando a área está livre. Se subir com gente passando **atrás** ou **ao lado**,
+aperte a ROI.
+
+`angle_offset_deg` e `mirror` corrigem a montagem: se o cursor anda para a
+esquerda quando a mão vai para a direita, `mirror: true`; se o eixo está
+girado, ajuste o offset em graus.
+
+---
+
+## 8. Testes antes de virar serviço
+
+Na ordem — cada um isola uma camada. Tudo a partir de `~/lidarmapper`.
+
+**8.1 — Pipeline sem hardware** (valida que o ambiente ARM está ok):
+
+```bash
+.venv/bin/python node/test_e2e.py
+```
+
+Esperado: `PASS` e código de saída 0.
+
+**8.2 — O sensor de verdade:**
+
+```bash
+.venv/bin/python node/test_lidar.py --duration 30
+```
+
+Esperado: `scans/s` entre 8 e 15 Hz, `meas/s` alto, `reconnects=0`, `desync`
+baixo e estável.
+
+**8.3 — Gate de CPU (§10 da spec)**, no hardware de destino:
+
+```bash
+.venv/bin/python node/bench_parse.py --hz 30000
+.venv/bin/python node/bench_parse.py --hz 40000    # margem
+```
+
+| Máquina | % de um core para 30k amostras/s | Veredicto |
+|---|---|---|
+| dev x86 típico | ~0,2 % | só referência de sanidade |
+| Pi 5 (1 core) | < 12 % | quase certo que cabe no 3B+ — seguir |
+| Pi 5 (1 core) | 12–20 % | zona cinzenta — validar num 3B+ real |
+| Pi 5 (1 core) | > 20 % | otimizar antes de escalar |
+| **3B+ real** | **≤ 30 %** | **critério definitivo** |
+
+**8.4 — Pipeline completo publicando:**
+
+```bash
+.venv/bin/python node/main.py
+```
+
+O log de 1×/s é o painel de instrumentos do nó:
+
+```
+meas/s=  8412  scans/s=10.2  fg=  37  tracks=1  pub/s= 30.0  +  30 frames  desync=0  recon=0
+```
+
+- `meas/s` — throughput do sensor. Caiu? cabo/fonte/USB.
+- `scans/s` — rotações por segundo, 8–15 Hz.
+- `fg` — pontos foreground dentro da ROI (0 com a área livre).
+- `tracks` — cursores rastreados.
+- `pub/s` — deve ficar cravado em 30.
+- `desync` / `recon` — devem ficar parados; crescimento contínuo é problema de cabo ou alimentação.
+
+**8.5 — Confirmação do outro lado**, num shell no servidor de destino:
+
+```bash
+.venv/bin/python server/test_udp_receiver.py --v2 --port 5555
+```
+
+Esperado: ~30 pacotes/s, `panel_id` correto, `bad=0`.
+
+**Critérios de aprovação do nó** (§10): `main.py` consumindo **< 70 % de um
+core** no 3B+, `pub/s` estável em 30, `vcgencmd get_throttled` = `0x0` depois
+de 1 h de operação.
+
+---
+
+## 9. systemd — subir no boot
+
+```bash
+sudo cp ~/lidarmapper/deploy/lidarmapper.service /etc/systemd/system/lidarmapper.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now lidarmapper
+journalctl -u lidarmapper -f
+```
+
+A unit de [deploy/lidarmapper.service](../deploy/lidarmapper.service) roda
+`node/main.py` com o Python do venv, com `Restart=always`, `RestartSec=3`,
+`ExecStartPre=/bin/sleep 5` (tempo do udev criar `/dev/rplidar` e da rede
+subir) e `Nice=-10`.
+
+### O baseline no boot
+
+No start, o `BackgroundSubtractor` captura o fundo estático por
+`baseline.duration_s` (2 s). **A área precisa estar livre nesse instante.** Com
+`Restart=always`, uma queda de energia religa o nó sozinho — se tiver gente
+parada na frente do painel nesse momento, essa pessoa vira "fundo" e some do
+tracking.
+
+Refazer o fundo, do servidor:
+
+```bash
+ssh lidar-0N sudo systemctl restart lidarmapper
+```
+
+(A Fase 2 do projeto prevê um endpoint HTTP `POST /rebaseline` por nó — hoje é
+o `systemctl restart`.)
+
+### Teste de reboot (item 15 do checklist)
+
+Corte a energia do Pi na tomada e devolva. Em ~40 s o nó deve estar publicando
+de novo, sem ninguém tocar em nada, e o relay no servidor deve mostrar `age`
+voltando para `0.0s` sozinho.
+
+---
+
+## 10. Golden image e replicação
+
+Só depois do lidar-01 **inteiramente validado** (checklist do §5 de
+[INSTALACAO.md](INSTALACAO.md) verde de ponta a ponta).
+
+1. Desligue o Pi, remova o SD e clone a imagem (`dd`, Raspberry Pi Imager, Win32DiskImager).
+2. Grave 7 cópias.
+3. Em cada nó novo, mude **apenas**:
+
+```bash
+# hostname
+sudo hostnamectl set-hostname lidar-0N
+sudo sed -i "s/lidar-01/lidar-0N/g" /etc/hosts
+sudo reboot
+```
+
+```yaml
+# ~/lidarmapper/node/config.yaml
+udp:
+  host: "10.10.0.11"   # 10.10.0.10 para os painéis 1-4
+  panel_id: 5          # ÚNICO por nó
+roi: { ... }           # conforme a montagem daquele painel
+processing:
+  angle_offset_deg: 0.0
+  mirror: false
+```
+
+4. Registre o MAC daquele Pi na reserva de DHCP do IP correspondente.
+5. Rode o checklist de bring-up do painel (§5 de [INSTALACAO.md](INSTALACAO.md)).
+
+> A frota é mista (3B+/4/5). Nunca coloque na golden image um overlay de
+> `config.txt` específico de um modelo — `disable-wifi`/`disable-bt` valem para
+> os três.
+
+---
+
+## 11. Atualizar a frota
+
+Com o repo já clonado nos 8 nós:
+
+```bash
+for h in lidar-0{1..8}; do
+  ssh $h 'cd lidarmapper && git pull && sudo systemctl restart lidarmapper'
+done
+```
+
+Cada restart refaz o baseline — **rode com a área livre**, nunca durante a
+operação com público.
+
+Para atualizar um nó só:
+
+```bash
+ssh lidar-03 'cd lidarmapper && git pull && sudo systemctl restart lidarmapper'
+ssh lidar-03 journalctl -u lidarmapper -n 30
+```
+
+---
+
+## 12. Troubleshooting
+
+| Sintoma | Causa provável | O que fazer |
+|---|---|---|
+| `ValueError: udp.panel_id obrigatório em 1..8` | `config.yaml` não editado | §7 desta página |
+| `/dev/rplidar` não existe | regra udev não aplicada, ou S3 sem enumerar | `lsusb \| grep -i cp210`, `sudo udevadm trigger`, replugar o USB |
+| `Permission denied` na porta serial | usuário fora do grupo `dialout` | `sudo usermod -aG dialout $USER` e **relogar** |
+| `LIDAR não iniciou` no log | porta errada, motor travado, cabo | `ls -l /dev/rplidar`, testar com `--port /dev/ttyUSB0` |
+| `throttled` ≠ `0x0` | fonte/cabo insuficiente ou calor | fonte oficial, cabo curto, dissipador (§2) |
+| `meas/s` baixo ou oscilando | cabo USB ruim, subtensão | trocar cabo; conferir `throttled` |
+| `desync`/`recon` crescendo | ruído na serial, alimentação | mesmo acima; se persistir, trocar o cabo do S3 |
+| `pub/s` abaixo de 30 | CPU saturada | rodar `node/bench_parse.py`; conferir se algo mais roda no Pi |
+| `fg=0` sempre, mesmo com gente na frente | baseline capturado com a área ocupada | `sudo systemctl restart lidarmapper` com a área livre |
+| `fg` alto com a área livre | ROI larga demais, ou fundo mudou (algo foi movido) | apertar a ROI (§7) e refazer o baseline |
+| Nó publicando, relay com `in=0` | IP/porta errados, firewall do Windows | `udp.host` no config; regra UDP 5555 no servidor |
+| Relay com `in>0` e `[-]` | painel sem `calib_pN.json` | calibrar ([SERVIDOR §7](INSTALACAO_SERVIDOR.md)) |
+| Cursor espelhado | montagem | `processing.mirror` / `angle_offset_deg` (§7) |
+
+Diagnóstico rápido no nó:
+
+```bash
+systemctl status lidarmapper
+journalctl -u lidarmapper -n 100 --no-pager
+journalctl -u lidarmapper -f
+```
+
+Para depurar sem interferir no serviço, pare-o e rode em primeiro plano:
+
+```bash
+sudo systemctl stop lidarmapper
+.venv/bin/python node/main.py --log-level debug
+```

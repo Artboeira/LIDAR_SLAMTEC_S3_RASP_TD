@@ -2,6 +2,7 @@
 # ABSOLUTAMENTE nada de pygame/tkinter/customtkinter aqui — o Pi é headless.
 
 rplidar-roboticia
+pyserial          # importado direto por lidar_reader.py (serial cru + list_ports)
 numpy
 pyyaml
-ruamel.yaml
+ruamel.yaml       # não usado por node/ em runtime; fica para as ferramentas de bancada
