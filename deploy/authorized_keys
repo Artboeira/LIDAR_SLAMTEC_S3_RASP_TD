@@ -1,0 +1,33 @@
+# Chaves públicas das máquinas que administram a frota — OPCIONAL.
+#
+# A instalação usa autenticação por SENHA no SSH (§1 do docs/INSTALACAO_PI.md):
+# qualquer computador entra com `ssh pi@lidar-0N` sem cadastrar nada. Este
+# arquivo existe só para a conveniência de não digitar a senha 8 vezes no loop
+# de atualização da frota — quem não se importa pode ignorá-lo por completo.
+#
+# Quando usado, é a FONTE DE VERDADE das chaves, em dois momentos:
+#
+#   1. Ao gravar o cartão SD: cole o conteúdo (todas as linhas de chave) no
+#      campo de chave pública do Raspberry Pi Imager, em Acesso remoto.
+#      O Imager aceita várias — confira que ele reporta "N chaves SSH
+#      configuradas" antes de gravar. (Só necessário se você trocar a
+#      autenticação para "chave pública"; com senha, o passo 2 basta.)
+#
+#   2. Com a frota já no ar: rode `deploy/sync_authorized_keys.sh` a partir de
+#      QUALQUER máquina com acesso. Ele instala este arquivo nos 8 nós.
+#
+# Para dar acesso a uma máquina nova:
+#   - nela:  ssh-keygen -t ed25519 -C "curva-lidar-<maquina>"   (se ainda não tiver)
+#            cat ~/.ssh/id_ed25519.pub
+#   - aqui:  acrescente a linha abaixo, commite, e rode o sync_authorized_keys.sh
+#            de uma máquina que já entra nos nós.
+#
+# Para revogar: apague a linha, commite, rode o sync. A chave perde o acesso
+# no próximo sync — não antes.
+#
+# Chave pública NÃO é segredo: pode ser versionada e circular à vontade. O que
+# nunca sai da máquina de origem é a metade privada (~/.ssh/id_ed25519).
+#
+# Uma linha por chave, no formato "<tipo> <base64> <comentário>".
+
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE8XZ8SoV2L5I7P5O/7XOa6EA7m4S1ax0VzhI3LqYmZW art.boeira@gmail.com

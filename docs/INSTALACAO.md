@@ -181,8 +181,11 @@ Os Pis sobem sozinhos no boot (systemd) — não precisa fazer nada neles.
 baseline):
 
 ```bash
-ssh lidar-0N sudo systemctl restart lidarmapper
+ssh pi@lidar-0N sudo systemctl restart lidarmapper
 ```
+
+Acesso aos nós: usuário `pi`, senha `pi123`, igual nos 8 — ver
+[INSTALACAO_PI.md §1](INSTALACAO_PI.md#1-imagem-e-primeiro-boot).
 
 ---
 

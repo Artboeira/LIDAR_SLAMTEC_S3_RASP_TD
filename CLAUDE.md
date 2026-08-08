@@ -38,9 +38,10 @@ consome V1 puro, sem matemática.
 - `docs/` — guias de instalação e configuração de campo (Pi, servidor,
   TouchDesigner). Derivados do guia; em conflito, o guia vence.
 - `deploy/` — arquivos prontos para copiar na instalação: regra udev,
-  unit systemd, snippet do chrony, `start_relay.bat` e o callback do
-  TouchDesigner (`deploy/td/udp_callback_v1.py` — única exceção à regra
-  do struct, porque roda dentro do TD e não importa o repo).
+  unit systemd, snippet do chrony, `start_relay.bat`, `authorized_keys`
+  da frota (+ `sync_authorized_keys.sh`) e o callback do TouchDesigner
+  (`deploy/td/udp_callback_v1.py` — única exceção à regra do struct,
+  porque roda dentro do TD e não importa o repo).
 - `legacy/` — fonte do LidarMapper single-node, RECONSTRUÍDO do build
   PyInstaller na Sessão W0 (o repo original se perdeu). Após o W0:
   READ-ONLY — copiar de lá, nunca editar lá.

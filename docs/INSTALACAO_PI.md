@@ -36,10 +36,67 @@ e configure:
 | Campo | Valor |
 |---|---|
 | Hostname | `lidar-01` (depois `lidar-02`… nos clones) |
-| SSH | habilitado, autenticação por senha ou chave |
-| Usuário | `pi` (se usar outro nome, ajuste [deploy/lidarmapper.service](../deploy/lidarmapper.service)) |
-| Wi-Fi | **não configure** — a rede é cabeada |
+| Utilizador | `pi` — se usar outro nome, ajuste `User=` e os paths `/home/pi` em [deploy/lidarmapper.service](../deploy/lidarmapper.service) |
+| Palavra-passe | **`pi123`** — a mesma nos 8 nós (obrigatória: não existe mais o `pi`/`raspberry` padrão) |
+| Acesso remoto | SSH habilitado, **autenticação por palavra-passe** (ver abaixo) |
+| Wi-Fi | **não configure** — a rede é cabeada e o rádio é desligado no §3 |
 | Locale / timezone | conforme a instalação |
+
+A golden image (§10) clona essa conta para os 8 nós, então senha diferente por
+nó só cria dor operacional — a rede é isolada e cabeada.
+
+### Senha ou chave pública?
+
+**Padrão da instalação: autenticação por palavra-passe.** Qualquer computador
+da equipe entra com `ssh pi@lidar-0N` e a senha `pi123`, sem cadastrar nada,
+sem gerenciar chaves. Numa rede cabeada isolada, com 8 nós num galpão e acesso
+físico restrito, a complexidade de gerenciar chaves não se paga.
+
+> ⚠️ **Isso depende inteiramente da rede ser isolada.** A senha é fraca e está
+> documentada em repositório público — a escolha é deliberada, e o que a
+> sustenta é o switch não ter rota para a internet. Se alguém plugar a rede
+> num roteador com saída ("só para baixar uma atualização"), a porta 22 desses
+> Pis é varrida e quebrada em horas: faça de forma pontual, com o cabo
+> desconectado depois. Se a instalação um dia ganhar rota permanente para fora,
+> troque a senha nos 8 nós (`passwd`) e reveja esta seção.
+
+A senha vale de qualquer jeito, mesmo se você optar por chave: é a senha do
+`sudo` e do console físico (teclado + monitor no Pi).
+
+### Opcional: entrar sem digitar senha
+
+O loop de atualização da frota (§11) pede a senha 8 vezes. Se isso incomodar,
+na máquina que você mais usa, uma vez por nó:
+
+```bash
+ssh-copy-id pi@lidar-01     # ... até lidar-08
+```
+
+A partir daí essa máquina entra sem senha e as outras continuam entrando com
+senha — nada é perdido. Para fazer os 8 de uma vez, com as chaves da equipe
+versionadas no repo, existe [deploy/authorized_keys](../deploy/authorized_keys)
+(uma linha por máquina) e:
+
+```bash
+deploy/sync_authorized_keys.sh            # todos os nós
+deploy/sync_authorized_keys.sh lidar-03   # um nó só
+DRY_RUN=1 deploy/sync_authorized_keys.sh  # simula, não altera nada
+```
+
+O script valida as chaves antes de tocar em qualquer nó, escreve num temporário
+e só então substitui, deixando `~/.ssh/authorized_keys.bak` no Pi. Para obter a
+chave pública de uma máquina:
+
+```bash
+cat ~/.ssh/id_ed25519.pub                 # se não existir, crie:
+ssh-keygen -t ed25519 -C "curva-lidar-<maquina>"
+```
+
+> Se em vez disso você marcar **"autenticação por chave pública"** no Imager, o
+> SSH deixa de aceitar senha: só entram as máquinas cadastradas, e cadastrar
+> uma nova exige `ssh-copy-id`/sync a partir de outra já autorizada. Mais
+> fechado, mais trabalho. Perdeu todas as chaves? Teclado e monitor no Pi, ou
+> monte o cartão SD e edite `home/pi/.ssh/authorized_keys` na partição raiz.
 
 Grave, ponha o cartão no Pi, ligue no cabo de rede e acesse:
 
