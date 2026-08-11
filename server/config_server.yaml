@@ -48,8 +48,10 @@ td:
 calibration:
   # duração da mediana por canto (§7 do guia)
   collect_s: 2.0
-  # tamanho da região de interesse (raio, em mm) ao redor do primeiro toque
-  # aceitável, pra descartar outliers na mediana
+  # DECLARADO, MAS NÃO USADO pelo código atual: collect_corner() tira a mediana
+  # de TODOS os pontos do painel na janela de collect_s, sem recorte espacial.
+  # Consequência prática: mantenha a área livre durante a captura — um segundo
+  # objeto no campo do LIDAR desloca a mediana e estraga o canto.
   window_mm: 250
   # mínimo de pontos foreground no janela pra aceitar o canto
   min_pts: 30

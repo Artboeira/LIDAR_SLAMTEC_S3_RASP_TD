@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import math
 import os
 import socket
 import sys
@@ -89,6 +90,40 @@ def collect_corner(sock: socket.socket, panel_id: int, collect_s: float,
     if n < min_pts:
         return (None, None, n)
     return (float(np.median(xs)), float(np.median(ys)), n)
+
+
+# Um quadrilátero menor que isto não descreve um painel — é ruído de coleta.
+MIN_SIDE_MM = 150.0
+MIN_AREA_MM2 = 50_000.0        # 0,05 m²
+
+
+def degenerate_reason(corners_mm) -> str | None:
+    """Devolve None se os 4 cantos formam um quadrilátero utilizável, ou a
+    razão da recusa.
+
+    Por que isto existe: com exatamente 4 correspondências a homografia passa
+    pelos 4 pontos por construção, então `reprojection_error_px` dá ~0 MESMO
+    num quadrilátero degenerado — ele não detecta o problema e ainda parece um
+    resultado perfeito. O modo de falha real de campo é o operador coletar 4
+    vezes o mesmo objeto (uma parede ao lado do sensor, ou o próprio corpo
+    parado no campo): os cantos saem coincidentes ou colineares, a matriz fica
+    singular, e o painel mapeia tudo errado sem nenhum aviso.
+    """
+    n = len(corners_mm)
+    for i in range(n):
+        d = math.dist(corners_mm[i], corners_mm[(i + 1) % n])
+        if d < MIN_SIDE_MM:
+            return (f"cantos {CORNER_NAMES[i]} e {CORNER_NAMES[(i + 1) % n]} "
+                    f"estão a {d:.0f} mm (mínimo {MIN_SIDE_MM:.0f}) — "
+                    f"provavelmente foi coletado o mesmo objeto duas vezes")
+    area = abs(sum(corners_mm[i][0] * corners_mm[(i + 1) % n][1]
+                   - corners_mm[(i + 1) % n][0] * corners_mm[i][1]
+                   for i in range(n)) / 2.0)
+    if area < MIN_AREA_MM2:
+        return (f"área do quadrilátero é {area / 1e6:.4f} m² "
+                f"(mínimo {MIN_AREA_MM2 / 1e6:.2f}) — os 4 cantos estão quase "
+                f"colineares, a homografia seria singular")
+    return None
 
 
 def reprojection_error_px(H: np.ndarray, corners_mm, corners_norm,
@@ -357,6 +392,19 @@ def main() -> int:
                      args.panel, CORNER_NAMES[i], mx, my, n)
             corners_mm.append((mx, my))
         else:
+            # ANTES de calcular H: o erro de reprojeção não pega degeneração
+            # (ver degenerate_reason). Recusar aqui é o que evita gravar uma
+            # calibração inútil com cara de perfeita.
+            motivo = degenerate_reason(corners_mm)
+            if motivo is not None:
+                status_final = f"calibração RECUSADA: {motivo}"
+                log.error(status_final)
+                log.error("cantos coletados (mm): %s",
+                          [f"({x:.0f},{y:.0f})" for x, y in corners_mm])
+                log.error("nada foi gravado — recolete com os alvos bem "
+                          "separados e só o objeto-alvo no campo do LIDAR")
+                source.show_result(False, None, status_final)
+                return 1
             H = compute_homography(corners_mm, corners_norm)
             errs = reprojection_error_px(H, corners_mm, corners_norm, screen_wh)
             calib = Calibration(H=H, corners_lidar_mm=corners_mm,

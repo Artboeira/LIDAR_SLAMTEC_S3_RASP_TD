@@ -110,6 +110,51 @@ Registre o **MAC** da interface ethernet para a reserva de DHCP:
 cat /sys/class/net/eth0/address
 ```
 
+### Bancada: Pi ligado direto no PC, sem DHCP
+
+Antes do switch existir, é comum ligar o Pi direto na ethernet do PC. Nesse
+cenário **não há servidor DHCP**, o Pi fica sem IPv4 e `ssh pi@lidar-01` não
+resolve — nem por mDNS, que é pouco confiável no Windows.
+
+O caminho que sempre funciona é o **IPv6 link-local**: toda interface ethernet
+ativa tem um endereço `fe80::/64`, independente de DHCP. No Windows (PowerShell):
+
+```powershell
+$idx = (Get-NetAdapter -Name Ethernet).ifIndex
+ping -6 -n 2 "ff02::1%$idx"          # acorda todo mundo no cabo
+Get-NetNeighbor -InterfaceIndex $idx |
+  Where-Object { $_.LinkLayerAddress -match '^(B8-27-EB|DC-A6-32|E4-5F-01|2C-CF-67|D8-3A-DD|28-CD-C1)' }
+```
+
+Esses prefixos de MAC são os OUIs da Raspberry Pi (3B+/4/5). Com o endereço em
+mãos, o `%$idx` no fim é obrigatório — é o escopo da interface:
+
+```powershell
+ssh "pi@fe80::fc51:3c48:c2b7:bf35%13"
+```
+
+Duas armadilhas dessa modalidade:
+
+- **O endereço link-local muda a cada boot** (é *stable-privacy* do
+  NetworkManager). Serve para entrar e configurar um IPv4 fixo — não para
+  automatizar nada. Assim que entrar, fixe o IP conforme o plano de rede
+  ([INSTALACAO.md](INSTALACAO.md) §3).
+- **`Get-NetNeighbor` vazio não significa Pi desligado.** Para distinguir Pi
+  travado de problema de rota ou autenticação, olhe o contador de recepção:
+
+```powershell
+Get-NetAdapterStatistics -Name Ethernet | Select-Object ReceivedBytes
+```
+
+Se `ReceivedBytes` fica **congelado** enquanto os enviados sobem, nada está
+chegando do outro lado do cabo — o Pi está fora, e o problema não é de rede.
+`Status: Up` no adaptador só prova que o PHY negociou, o que acontece com a
+placa alimentada mesmo sem sistema operacional de pé.
+
+> Um Pi 4 ou 5 negociando **100 Mbps** (ambos são gigabit) denuncia **cabo de 2
+> pares**. Não atrapalha o nosso tráfego (~16 kB/s por nó), mas troque antes da
+> instalação definitiva.
+
 ---
 
 ## 2. Alimentação e térmica
@@ -119,6 +164,18 @@ cat /sys/class/net/eth0/address
 | 3B+ | 5 V / 2,5 A | microUSB | dissipador passivo basta |
 | Pi 4 | 5 V / 3 A | USB-C | case ventilado ou dissipador; case fechado sem dissipador entra em throttle |
 | Pi 5 | 5 V / 5 A (PSU oficial) | USB-C | active cooler recomendado |
+
+> ⚠️ **Carregador GaN "de 100 W" não alimenta um Pi 5.** A potência nominal
+> desses carregadores só existe a 20 V; o perfil típico em **5 V é 3 A (15 W)**.
+> O Pi 5 pede 5 V / 5 A e negocia isso por USB-C PD — sem enxergar esse perfil
+> ele até liga, mas entra em modo limitado e **corta a corrente total de USB
+> para 600 mA**, o que deixa o S3 no limite. Somado à regulação ruim de 5 V que
+> esses carregadores costumam ter sob carga transiente, o sintoma é travamento
+> duro depois de alguns minutos de operação.
+>
+> O 3B+ e o Pi 4 não têm esse problema: pedem 2,5 A e 3 A **sem negociação PD**,
+> dentro do que qualquer porta de 5 V entrega. Se o travamento aparecer também
+> neles, o suspeito **não** é a fonte — vá para o cartão SD (§12).
 
 Confira depois de alguns minutos com o S3 girando:
 
@@ -364,6 +421,40 @@ Esperado: ~30 pacotes/s, `panel_id` correto, `bad=0`.
 core** no 3B+, `pub/s` estável em 30, `vcgencmd get_throttled` = `0x0` depois
 de 1 h de operação.
 
+### 8.6 — O critério que evita calibrar em cima de um fantasma
+
+Antes de calibrar, **com a área do painel livre, o log tem que mostrar
+`fg=0 tracks=0`**. Se mostrar `tracks` maior que zero com ninguém na frente, o
+nó está publicando um cursor fantasma — e a calibração vai colher esse fantasma
+em vez do operador, sem dar erro nenhum.
+
+A causa está em [node/processing.py](../node/processing.py), no
+`foreground_mask`: bin angular que **não recebeu nenhuma medida válida durante o
+baseline** fica `NaN`, e `NaN` é tratado como **foreground incondicional**. O
+comportamento é proposital (bin sem retorno = espaço vazio, logo qualquer coisa
+que apareça ali é nova), mas tem uma consequência ruim: se um objeto estático
+cair num desses setores cegos, ele vira um track permanente e imóvel.
+
+Medido na bancada (Pi 4 + S3, 08/2026): com `baseline.duration_s: 2.0` ficaram
+**66 de 720 bins cegos**, e uma superfície a 38 cm virou track fantasma fixo com
+`confidence=1.00`. Com **6,0 s** caiu para 58 bins e o fantasma desapareceu.
+
+```yaml
+baseline:
+  duration_s: 6.0    # 2.0 deixou setores cegos na bancada; 6.0 resolveu
+```
+
+Como distinguir fantasma de detecção real no `test_udp_receiver.py --v2 --raw`:
+o fantasma tem **coordenada congelada** (varia menos de 1 mm entre frames) e
+`c=1.00` constante; uma medida real de superfície varia alguns milímetros frame
+a frame. Fantasma alinhado em um eixo (`x` constante, `y` variando) é uma
+superfície plana — parede, quina de mesa, estrutura.
+
+> ⚠️ **Todo reposicionamento do sensor invalida o baseline.** Mexeu no ângulo,
+> na altura ou na fixação? Reinicie o nó com a área livre. Sintoma de baseline
+> velho: vários `tracks` parados que não somem, e o `meas/s` diferente do que
+> era antes (a cena mudou).
+
 ---
 
 ## 9. systemd — subir no boot
@@ -476,10 +567,18 @@ ssh lidar-03 journalctl -u lidarmapper -n 30
 | `desync`/`recon` crescendo | ruído na serial, alimentação | mesmo acima; se persistir, trocar o cabo do S3 |
 | `pub/s` abaixo de 30 | CPU saturada | rodar `node/bench_parse.py`; conferir se algo mais roda no Pi |
 | `fg=0` sempre, mesmo com gente na frente | baseline capturado com a área ocupada | `sudo systemctl restart lidarmapper` com a área livre |
+| `tracks>0` com a área **livre**, coordenada congelada | objeto estático num setor sem baseline (§8.6) | aumentar `baseline.duration_s`; conferir `fg=0 tracks=0` antes de calibrar |
+| Vários `tracks` parados após mexer no sensor | baseline velho, da posição anterior | reiniciar o nó com a área livre (§8.6) |
+| Calibração colhe sempre o mesmo ponto | operador dentro da ROI (a mediana é de **todos** os pontos) | apertar a ROI para excluir onde o operador fica, ou sair do campo antes do ESPAÇO |
 | `fg` alto com a área livre | ROI larga demais, ou fundo mudou (algo foi movido) | apertar a ROI (§7) e refazer o baseline |
 | Nó publicando, relay com `in=0` | IP/porta errados, firewall do Windows | `udp.host` no config; regra UDP 5555 no servidor |
 | Relay com `in>0` e `[-]` | painel sem `calib_pN.json` | calibrar ([SERVIDOR §7](INSTALACAO_SERVIDOR.md)) |
 | Cursor espelhado | montagem | `processing.mirror` / `angle_offset_deg` (§7) |
+| Pi não aparece na rede, em cabo direto no PC | não há DHCP nesse cenário | achar por IPv6 link-local (§1, "Bancada") |
+| `Permission denied (publickey)`, sem pedir senha | cartão gravado com "autenticação por chave pública" e você não tem a chave | ver o fim do §1: teclado+monitor, editar `authorized_keys` na partição raiz do cartão, ou regravar |
+| Sobe, responde 1–2 min e trava, **em mais de uma placa** | cartão SD ruim ou falsificado | regravar em **outro** cartão antes de investigar fonte |
+| Sobe e trava só no Pi 5 | fonte sem 5 V / 5 A (carregador GaN) | PSU oficial de 27 W (§2) |
+| Pi 4 ou 5 negociando 100 Mbps | cabo de rede de 2 pares | trocar o cabo (irrelevante para o tráfego, mas sinaliza cabo ruim) |
 
 Diagnóstico rápido no nó:
 

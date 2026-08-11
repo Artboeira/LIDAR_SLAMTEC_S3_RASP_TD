@@ -2,4 +2,11 @@ pyyaml
 ruamel.yaml
 numpy
 python-osc
-pygame
+
+# Alvo do projeto e Python 3.13, onde `pygame` tem wheel para Windows.
+# Em 3.14 ainda nao ha: o pip tentaria compilar do fonte e falha em maquina
+# sem compilador. `pygame-ce` publica wheels mais cedo e expoe o mesmo modulo
+# `pygame` — server/calibrate.py roda sem nenhuma alteracao.
+# Validado em 08/2026: pygame-ce 2.5.7 em Python 3.14.0 no Windows 11.
+pygame;    python_version <  "3.14"
+pygame-ce; python_version >= "3.14"

@@ -68,6 +68,9 @@ python3 -m venv .venv
 .venv/bin/pip install -r server/requirements-server.txt
 ```
 
+> No Windows os caminhos do venv são `.venv\Scripts\python` e
+> `.venv\Scripts\pip` — troque em todos os comandos desta página.
+
 ```bash
 # Terminal 1 — 4 nós sintéticos publicando V2 a 30 Hz
 .venv/bin/python server/test_node_sim.py --panels 1,2,3,4 --pattern circle
@@ -166,7 +169,8 @@ que já estava validado continua valendo sem uma linha de mudança.
 | `node/` | pronto — validado 21/21 sem hardware; falta o gate de CPU num 3B+ real |
 | `server/` relay + calibrador | pronto — validado 12/12 com simulador |
 | `server/ui.py` (painel de status) | **não implementado** — o monitoramento hoje é o log 1×/s do relay |
-| Windows (server-a/server-b) | código escrito para Windows, mas **nunca executado lá** |
+| Windows (server-a/server-b) | **validado em 08/2026** — `w2_validate.py` passa inteiro no Windows 11 com Python 3.14 + `pygame-ce`. Falta só o §7 (conflito de porta relay↔calibrador), que nenhum teste cobre |
+| Nó em hardware real | **ainda não** — bancada travou em alimentação/cartão SD antes do primeiro SSH ([INSTALACAO_PI.md §12](docs/INSTALACAO_PI.md)) |
 | Contraparte TD do `--target-source td` | **não implementada** — ver [docs/INSTALACAO_TOUCHDESIGNER.md](docs/INSTALACAO_TOUCHDESIGNER.md) §7 |
 | `calib_p*.json` | não existem no repo — são gerados na calibração de cada instalação |
 

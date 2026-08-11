@@ -22,11 +22,12 @@ e repita no **server-b** trocando os painéis.
 8. [Operação diária](#8-operação-diária)
 9. [Troubleshooting](#9-troubleshooting)
 
-> ⚠️ **O código do servidor foi escrito para Windows (paths, sockets, sem
-> systemd), mas os testes automatizados rodaram em macOS/Linux**
-> ([server/VALIDACAO.md](../server/VALIDACAO.md) §3). As diferenças conhecidas
-> estão marcadas com "Windows:" ao longo do texto — em especial o conflito de
-> porta entre o relay e o calibrador (§7).
+> ✅ **Validado no Windows em 08/2026** (Windows 11 Pro, Python 3.14 +
+> `pygame-ce`): `w2_validate.py` passa inteiro — relay ponta a ponta, demux por
+> `panel_id`, homografia, hot-reload de calibração por `mtime` e OSC `/touch/N`.
+> As diferenças conhecidas seguem marcadas com "Windows:" ao longo do texto —
+> em especial o conflito de porta entre o relay e o calibrador (§7), que **não**
+> é coberto pelos testes automatizados.
 
 ---
 
@@ -44,6 +45,14 @@ py -3.13 --version
 Não use a versão da Microsoft Store — ela isola o filesystem e complica os
 paths do venv.
 
+> **Se a máquina já tiver Python 3.14**, funciona, mas com uma ressalva: o
+> `pygame` ainda não publica wheel para 3.14, o pip tenta compilar do fonte e
+> falha em máquina sem compilador (`Failed to build 'pygame'`). O
+> [requirements-server.txt](../server/requirements-server.txt) já resolve isso
+> sozinho por marcador de ambiente, instalando `pygame-ce` no lugar — mesmo
+> módulo `pygame`, calibrador inalterado. Se preferir o caminho mais batido,
+> instale o 3.13 e use `py -3.13` nos comandos abaixo.
+
 ---
 
 ## 2. Repositório e ambiente virtual
@@ -58,7 +67,8 @@ py -3.13 -m venv .venv
 .venv\Scripts\pip install -r server\requirements-server.txt
 ```
 
-Instala: `pyyaml`, `ruamel.yaml`, `numpy`, `python-osc`, `pygame`.
+Instala: `pyyaml`, `ruamel.yaml`, `numpy`, `python-osc` e `pygame` (ou
+`pygame-ce`, em Python 3.14 — a escolha é automática).
 
 > ⚠️ **Sempre execute a partir da raiz do repo** (`C:\lidarmapper`), nunca de
 > dentro de `server\`. O [server/server_relay.py](../server/server_relay.py)
@@ -306,9 +316,33 @@ No fim, o log mostra:
 [calibrate] salvo em calib_p1.json — erros (px): ['3.2', '4.1', '2.8', '5.0']
 ```
 
-Esses são os **erros de reprojeção em pixels** de cada canto. Poucos pixels =
-bom. Dezenas de pixels = alguém se moveu durante a captura, ou o toque não foi
-no centro do alvo — repita a calibração daquele painel.
+Esses são os **erros de reprojeção em pixels** de cada canto — e é preciso saber
+o que eles **não** dizem.
+
+> ⚠️ **Erro de reprojeção baixo NÃO significa calibração boa.** Com exatamente 4
+> correspondências o sistema tem 8 equações para 8 incógnitas: a homografia
+> passa pelos 4 pontos por construção e o erro é ~0 **sempre**, inclusive quando
+> os 4 cantos são o mesmo ponto. Na bancada de 08/2026 uma calibração com os 4
+> cantos colineares (área do quadrilátero = 0,000 m²) foi gravada reportando
+> `['0.0','0.0','0.0','0.0']`. Esses números só ficariam grandes com 5+ pontos,
+> que o procedimento não coleta.
+
+O que realmente valida a calibração é a **geometria dos cantos**, e é isso que o
+`calibrate.py` checa antes de gravar (`degenerate_reason`): recusa se dois
+cantos vizinhos ficarem a menos de 150 mm, ou se a área do quadrilátero for
+menor que 0,05 m². Nesse caso nada é gravado e ele imprime qual par de cantos
+está próximo demais.
+
+O modo de falha que essa checagem pega é sutil e comum: o operador fica **dentro
+da ROI** durante a coleta. Como o `collect_corner()` tira a mediana de *todos*
+os pontos do painel, o corpo parado do operador domina a mediana e os 4 cantos
+saem praticamente iguais — com erro de reprojeção 0,0. Se aparecer
+`calibração RECUSADA`, a saída é apertar a ROI do nó para excluir a posição do
+operador, ou sair do campo do LIDAR antes de apertar ESPAÇO.
+
+Antes de calibrar, confirme no log do nó que **a área livre dá `fg=0 tracks=0`**
+([INSTALACAO_PI.md §8.6](INSTALACAO_PI.md)) — calibrar com um cursor fantasma no
+campo produz exatamente esse mesmo resultado degenerado.
 
 O arquivo gravado (mesmo schema do sistema single-node) tem
 `corners_lidar_mm`, `corners_screen_norm` e `H`.
