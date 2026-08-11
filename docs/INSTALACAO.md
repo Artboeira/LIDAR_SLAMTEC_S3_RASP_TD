@@ -191,6 +191,7 @@ Acesso aos nós: usuário `pi`, senha `pi123`, igual nos 8 — ver
 
 ## 7. Documentos relacionados
 
+- [PROVISIONAMENTO_FROTA.md](PROVISIONAMENTO_FROTA.md) — **plano em execução**: levar os 8 nós de "cartão gravado" a "publicando V2", via SSH
 - [GUIA_LIDARMAPPER_DISTRIBUIDO_1.md](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) — a spec (fonte de verdade)
 - [node/VALIDACAO.md](../node/VALIDACAO.md) — roteiro de validação do nó (W1)
 - [server/VALIDACAO.md](../server/VALIDACAO.md) — roteiro de validação do servidor (W2)
