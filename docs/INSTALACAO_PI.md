@@ -116,8 +116,21 @@ Antes do switch existir, é comum ligar o Pi direto na ethernet do PC. Nesse
 cenário **não há servidor DHCP**, o Pi fica sem IPv4 e `ssh pi@lidar-01` não
 resolve — nem por mDNS, que é pouco confiável no Windows.
 
-O caminho que sempre funciona é o **IPv6 link-local**: toda interface ethernet
-ativa tem um endereço `fe80::/64`, independente de DHCP. No Windows (PowerShell):
+O caminho mais direto é **servir DHCP do próprio PC**, o que resolve o problema
+em vez de contorná-lo — o nó ganha um IPv4 fixo e para de depender de endereço
+que muda a cada boot:
+
+```
+.venv\Scripts\python server\bench_dhcp.py --server 192.168.0.10 --offer 192.168.0.50
+```
+
+Deixe rodando e ligue o Pi: ele imprime o `DISCOVER`, entrega o IP, e ainda
+**reporta o MAC** — que é exatamente o dado necessário para a reserva de DHCP do
+switch depois. O PC precisa estar com IP fixo no mesmo `/24`.
+
+Se preferir não subir um DHCP, o caminho alternativo é o **IPv6 link-local**:
+toda interface ethernet ativa tem um endereço `fe80::/64`, independente de DHCP.
+No Windows (PowerShell):
 
 ```powershell
 $idx = (Get-NetAdapter -Name Ethernet).ifIndex
@@ -427,6 +440,17 @@ Antes de calibrar, **com a área do painel livre, o log tem que mostrar
 `fg=0 tracks=0`**. Se mostrar `tracks` maior que zero com ninguém na frente, o
 nó está publicando um cursor fantasma — e a calibração vai colher esse fantasma
 em vez do operador, sem dar erro nenhum.
+
+A ferramenta que verifica isso e já aponta a causa:
+
+```bash
+.venv/bin/python -u node/diag_bg.py
+```
+
+Ela mede o baseline, lista os **setores angulares cegos**, e depois observa a
+ROI com a área livre. Saída limpa é `ZERO pontos foreground na ROI` e código de
+saída 0. Havendo fantasma, ela imprime os clusters com coordenada e ângulo, e a
+ordem do que tentar. Rode-a em cada nó antes da calibração daquele painel.
 
 A causa está em [node/processing.py](../node/processing.py), no
 `foreground_mask`: bin angular que **não recebeu nenhuma medida válida durante o

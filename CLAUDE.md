@@ -127,6 +127,7 @@ python node/main.py --no-publish           # sem UDP, para ajustar ROI
 python node/test_e2e.py --duration 1.5     # smoke sem hardware
 python node/test_lidar.py --duration 30    # smoke do sensor (precisa do S3)
 python node/bench_parse.py                 # gate de CPU do §10, qualquer máquina
+python node/diag_bg.py                     # setores cegos + fantasmas; RODE ANTES DE CALIBRAR
 
 # --- servidor (server/) ---
 python server/server_relay.py --no-osc     # middleware (--no-osc = dev sem Max)
@@ -134,6 +135,9 @@ python server/calibrate.py --panel 1 --target-source local --no-fullscreen
 python server/test_node_sim.py --panels 1,2,3,4 --pattern circle   # tráfego V2
 python server/test_udp_receiver.py --v2 --port 5555   # entrada dos Pis
 python server/test_udp_receiver.py --v1 --port 6001   # saída pro TD
+python server/test_osc_receiver.py         # stub do Max: mostra os /touch/N
+python server/make_test_calib.py --panel 1 # calib SINTÉTICA (destrava teste sem painel)
+python server/bench_dhcp.py                # DHCP de bancada: Pi ligado direto no PC
 ```
 
 Entrypoints aceitam `--config <path>` e `--log-level debug|info|warning|error`;

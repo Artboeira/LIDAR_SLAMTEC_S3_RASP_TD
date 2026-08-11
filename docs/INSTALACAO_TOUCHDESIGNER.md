@@ -87,6 +87,19 @@ Com o relay e o simulador rodando no servidor
 e o painel 1 calibrado, o `touches_p1` deve encher com 2 linhas girando a
 30 Hz. É o teste que valida o TD antes de qualquer Pi existir.
 
+> **"E o painel 1 calibrado" é a pegadinha deste teste.** O relay **descarta**
+> painel sem `calib_pN.json`, então num repo recém-clonado o simulador roda, o
+> relay recebe, e mesmo assim nada chega ao TD — o painel aparece como `[-]` no
+> status. Para destravar sem ter painel físico:
+>
+> ```
+> .venv\Scripts\python server\make_test_calib.py --panel 1
+> ```
+>
+> Isso grava uma calibração **sintética** (cantos escolhidos, não medidos) que
+> serve só para exercitar a cadeia. Apague-a e rode o `calibrate.py` de verdade
+> quando o painel existir.
+
 Se o simulador estiver rodando mas nada aparecer, valide fora do TD primeiro:
 
 ```

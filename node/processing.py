@@ -144,6 +144,16 @@ class BackgroundSubtractor:
     def learned_bins(self) -> int:
         return int(np.isfinite(self._bg).sum())
 
+    @property
+    def blind_bins(self) -> np.ndarray:
+        """Índices dos bins que não aprenderam baseline nenhum (NaN).
+
+        Importa porque `foreground_mask` trata esses bins como foreground
+        INCONDICIONAL: um objeto estático que caia num setor cego vira track
+        permanente e imóvel. `node/diag_bg.py` usa isto para mapear os setores
+        antes de calibrar."""
+        return np.flatnonzero(~np.isfinite(self._bg))
+
 
 def dbscan(points: np.ndarray, eps: float, min_samples: int) -> np.ndarray:
     """DBSCAN básico. `points` (N, 2). Retorna labels (N,):

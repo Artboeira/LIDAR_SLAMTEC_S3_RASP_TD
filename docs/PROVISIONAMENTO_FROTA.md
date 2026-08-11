@@ -26,6 +26,18 @@ chave instalada). Os Pis vão para um switch, com cabo.
 | Gate de CPU do §10 no Pi 4 | **2,3 %** de um core para 30k amostras/s (limite: 30 %) |
 | Guard de degeneração da calibração | `degenerate_reason` em [server/calibrate.py](../server/calibrate.py) |
 
+### Ferramentas de bancada já no repo
+
+Promovidas do ambiente temporário da primeira sessão, para não se perderem na
+troca de máquina:
+
+| Ferramenta | Para quê |
+|---|---|
+| [node/diag_bg.py](../node/diag_bg.py) | setores angulares cegos + fantasmas na ROI. **Rode antes de calibrar cada painel** |
+| [server/bench_dhcp.py](../server/bench_dhcp.py) | DHCP mínimo para Pi ligado direto no PC; reporta o MAC para a reserva |
+| [server/test_osc_receiver.py](../server/test_osc_receiver.py) | stub do Max/MSP: mostra os `/touch/N` |
+| [server/make_test_calib.py](../server/make_test_calib.py) | calibração **sintética**, destrava o teste do TD sem painel físico |
+
 ### O que o `lidar-01` tem de diferente (e precisa ser desfeito)
 
 Ele foi provisionado **à mão, por um caminho que diverge do §4** do
@@ -100,7 +112,7 @@ da bancada, não no repo.
 | `deploy/bootstrap_keys.sh` | **criar** — distribuição inicial da chave, com senha |
 | `deploy/lidarmapper.service` | **modificar** — `ExecStart` ganha `--config /home/pi/node-config.yaml` |
 | `node/config.yaml` | **modificar** — `baseline.duration_s: 2.0 → 6.0`, com o porquê no comentário |
-| `node/diag_bg.py` | **criar** — diagnóstico de bins cegos (foi o que achou o fantasma na bancada) |
+| ~~`node/diag_bg.py`~~ | ✅ **feito** — diagnóstico de bins cegos e fantasmas |
 | `deploy/authorized_keys` | **modificar** — acrescentar a chave da máquina nova |
 | `docs/INSTALACAO_PI.md` | **modificar** — seção de provisionamento em lote + método offline |
 
