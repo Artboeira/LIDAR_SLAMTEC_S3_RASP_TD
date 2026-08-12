@@ -282,6 +282,11 @@ class LidarReader:
                     self._carry = b""
                     continue
 
+            # O S-bit de nova rotação dispara num rumo fixo da torre; se essa
+            # direção não tem eco (dist=0), filtrar antes de contar zeraria o
+            # scans/s toda volta. Conta sobre as VÁLIDAS, com ou sem eco.
+            self._scan_count += int(new_scan[valid].sum())
+
             keep = valid & (dist > 0)
             n_kept = int(keep.sum())
             if n_kept == 0:
@@ -290,7 +295,6 @@ class LidarReader:
             a_ = angle[keep]
             d_ = dist[keep]
             q_ = quality[keep]
-            ns_ = new_scan[keep]
 
             with self._lock:
                 self._parts_a.append(a_)
@@ -304,7 +308,6 @@ class LidarReader:
                     total -= dropped
 
             self._meas_count += n_kept
-            self._scan_count += int(ns_.sum())
             self._maybe_update_stats(n_kept)
 
     def _maybe_update_stats(self, _n: int) -> None:

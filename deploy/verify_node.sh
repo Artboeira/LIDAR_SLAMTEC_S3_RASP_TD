@@ -82,8 +82,10 @@ if [ -n "$WITH_SENSOR" ]; then
         TOTAL="$(printf '%s' "$OUT" | tr '\r' '\n' | grep -o 'total medidas: [0-9]*' | grep -o '[0-9]*' || echo 0)"
         printf '        %s\n        total medidas: %s\n' "${LAST:-sem medidas}" "$TOTAL"
         # test_lidar não emite veredicto (sempre exit 0): o critério do §8.2 é
-        # desync=0 recon=0 e throughput de verdade (~30k/s → 30 s ≥ 500k medidas).
-        if [ "$RC" -eq 0 ] && [ "${TOTAL:-0}" -ge 500000 ] \
+        # desync=0 recon=0 e fluxo real. O meas/s conta só amostras COM eco —
+        # em ambiente aberto a maioria das direções não retorna (na bancada:
+        # ~6k/s de ~15k/s crus) — então o piso é conservador: 30 s ≥ 100k.
+        if [ "$RC" -eq 0 ] && [ "${TOTAL:-0}" -ge 100000 ] \
            && printf '%s' "$LAST" | grep -q 'desync=0 recon=0'; then
             ok "test_lidar (confira acima: scans/s deve estar em 8-15)"
         else
