@@ -15,7 +15,31 @@ Os 8 cartões SD já foram gravados individualmente — hostnames `lidar-01` a
 `lidar-08`, usuário `pi`, senha `pi123`, **autenticação por senha** (nenhuma
 chave instalada). Os Pis vão para um switch, com cabo.
 
-**Frota mista:** 3× Pi 3B+, 4× Pi 4, 1× Pi 5.
+**Frota mista (confirmada 08/2026):** 3× Pi 3B+, 4× Pi 4, 1× Pi 5.
+
+### Topologia (definida 11/08/2026)
+
+A máquina de trabalho agora é um **MacBook Pro (arm64)**; a bancada e a rede
+definitiva diferem, e a diferença dita o cronograma:
+
+| | Bancada (provisionamento) | Rede definitiva |
+|---|---|---|
+| DHCP + gateway | **o Mac**, via Compartilhamento de Internet (Wi-Fi → adaptador Ethernet no switch) | **roteador Wi-Fi** no switch, sem saída para a internet |
+| Internet nos Pis | **sim** (NAT do Mac) — `apt`/`pip`/`git clone` funcionam | **não** — atualização vira `deploy/push_repo.sh` |
+| Faixa | `192.168.2.x` (Mac = `192.168.2.1`) | a do roteador — decisão: adotá-la, não forçar `10.10.0.x` ([INSTALACAO.md §3](INSTALACAO.md)) |
+
+Além do switch e do roteador, a rede definitiva tem as 2 máquinas Windows
+(server-a: painéis 1–4, server-b: 5–8), cada uma com TD e uma tela em 4
+setores. Os relays são independentes — nada aqui depende de uma falar com a outra.
+
+**Consequências:**
+
+- **A internet só existe na bancada** → os 8 nós precisam ser provisionados
+  nessa janela. Não há modo offline no script — de propósito (§2.3 revisto).
+- **`git pull` morre na rede definitiva** → [deploy/push_repo.sh](../deploy/push_repo.sh)
+  empurra o HEAD por SSH ([INSTALACAO_PI.md §11](INSTALACAO_PI.md)).
+- ⚠️ **Nunca** o Compartilhamento do Mac e o roteador no switch **ao mesmo
+  tempo** — dois DHCP na mesma L2 = IP intermitente nos Pis.
 
 ### O que já foi validado
 
@@ -51,119 +75,136 @@ para que os 8 nós fiquem idênticos.
 
 ---
 
-## 2. Quatro problemas a resolver antes de provisionar
+## 2. Quatro problemas a resolver antes de provisionar — ✅ todos resolvidos
 
-### 2.1 `node/config.yaml` é versionado e conflita com o update da frota
+### 2.1 `node/config.yaml` é versionado e conflita com o update da frota ✅
 
 [node/config.yaml](../node/config.yaml) está sob controle de versão, e cada nó
 precisa editá-lo (`panel_id`, `udp.host`, `roi`). O loop de atualização do §11
-do doc do Pi (`git pull` em cada nó) **vai conflitar nos 8**.
+do doc do Pi **conflitaria nos 8**.
 
-**Decisão:** o config por nó sai da árvore git. O script grava
-`/home/pi/node-config.yaml` e o systemd passa `--config`. Não exige mudança de
-código — [node/main.py](../node/main.py) já aceita `--config` e
-`node/config.py:load(path)` já resolve caminho arbitrário. Só a unit muda.
+**Resolvido:** o config por nó saiu da árvore git —
+[deploy/render_node_config.py](../deploy/render_node_config.py) gera
+`/home/pi/node-config.yaml` (comentários preservados via `ruamel.yaml`) e a
+unit passa `--config`. O modo `--update` troca `panel_id`/`udp.host` num
+arquivo existente sem perder ROI/mirror ajustados à mão.
 
-### 2.2 Automação não digita senha
+### 2.2 Automação não digita senha ✅
 
-Os 7 nós restantes só aceitam senha.
 [deploy/sync_authorized_keys.sh](../deploy/sync_authorized_keys.sh) usa
-`BatchMode=yes` e **pula** nós sem chave — ele serve para *propagar* chaves a
-partir de uma máquina já autorizada, não para o primeiro acesso.
+`BatchMode=yes` e **pula** nós sem chave — serve para *propagar* chaves, não
+para o primeiro acesso.
 
-**Decisão:** um passo único de bootstrap, com o operador digitando `pi123` oito
-vezes num loop só. Depois disso tudo é automatizado, e o
-`sync_authorized_keys.sh` passa a funcionar normalmente.
+**Resolvido:** [deploy/bootstrap_keys.sh](../deploy/bootstrap_keys.sh) roda
+`ssh-copy-id` por host (aceita um nó por vez — o fluxo real da bancada). Nó que
+já aceita a chave é pulado sem pedir senha.
 
-### 2.3 Internet nos Pis não confirmada
+### 2.3 Internet nos Pis ✅ (confirmada NA BANCADA, e só nela)
 
-Não se sabe se o switch terá saída para a internet. O script tenta o caminho
-documentado (§4: `apt` + `pip`) e cai para o método offline já provado na
-bancada (tarball do repo por `scp` + wheel pré-construído + venv com
-`--system-site-packages`).
+O Mac compartilhando internet no switch dá `apt`/`pip`/`git clone` durante o
+provisionamento (§1). A rede definitiva não terá saída — por isso
+[deploy/provision_node.sh](../deploy/provision_node.sh) **exige** internet e
+aborta com instrução em vez de cair num fallback offline: foi um caminho
+manual divergente que criou o caso especial do `lidar-01`.
 
-### 2.4 `baseline.duration_s` inconsistente
+### 2.4 `baseline.duration_s` inconsistente ✅
 
-O repo tem `2.0`; o [§8.6](INSTALACAO_PI.md) recomenda `6.0` com base em
-medição — com 2 s ficaram **66 de 720 bins angulares sem aprender**, e bin sem
-baseline vira foreground permanente ([node/processing.py](../node/processing.py),
-`foreground_mask`), gerando track fantasma imóvel. O ajuste foi feito só no Pi
-da bancada, não no repo.
+**Resolvido:** `6.0` é o default do repo desde 08/2026, com o porquê no
+comentário ([node/config.yaml](../node/config.yaml), medição no
+[§8.6](INSTALACAO_PI.md): 66/720 bins cegos com 2 s → track fantasma imóvel).
 
 ---
 
 ## 3. Plano
 
-### Fase 0 — Máquina nova
+### Fase 0 — Máquina nova ✅ (11/08/2026, MacBook Pro arm64)
 
-1. Instalar **Python 3.13** (não 3.14 — ver [INSTALACAO_SERVIDOR.md §1](INSTALACAO_SERVIDOR.md)) e Git.
-2. `git clone` do repositório.
-3. `py -3.13 -m venv .venv` e `.venv\Scripts\pip install -r server\requirements-server.txt`.
-4. **Gerar uma chave SSH nova nessa máquina** (`ssh-keygen -t ed25519`) — não
-   copiar a privada da máquina antiga. A pública entra em
-   [deploy/authorized_keys](../deploy/authorized_keys).
-5. `python w2_validate.py` — deve dar 12/12.
+Executada com desvios deliberados do plano original (que assumia Windows):
 
-### Fase 1 — Preparar o repo
+1. ~~Instalar Python 3.13~~ → **mantido o Python 3.14.4** do `.venv` já
+   existente: `w2_validate.py` **12/12** e `w1_validate.py` **21/21** passam
+   inteiros no macOS/3.14. (O 3.13 era por causa de wheel do pygame no
+   Windows; aqui o pygame 2.6.1 já estava instalado.)
+2. Repo já clonado; árvore limpa.
+3. ~~Gerar chave nova~~ → a `~/.ssh/id_ed25519` da máquina **já era** a única
+   linha de [deploy/authorized_keys](../deploy/authorized_keys) (fingerprint
+   conferida: `SHA256:8WHB57FUuniNT35ULkcZuPNrqy5GtHi79wMh7rmKY/E`).
+4. `bench_parse` de referência neste Mac: **0,2 %** de um core p/ 30k
+   amostras/s.
 
-| Arquivo | Ação |
+### Fase 1 — Preparar o repo ✅ (11/08/2026)
+
+| Arquivo | Estado |
 |---|---|
-| `deploy/provision_node.sh` | **criar** — provisionamento idempotente (detalhe abaixo) |
-| `deploy/bootstrap_keys.sh` | **criar** — distribuição inicial da chave, com senha |
-| `deploy/lidarmapper.service` | **modificar** — `ExecStart` ganha `--config /home/pi/node-config.yaml` |
-| `node/config.yaml` | **modificar** — `baseline.duration_s: 2.0 → 6.0`, com o porquê no comentário |
-| ~~`node/diag_bg.py`~~ | ✅ **feito** — diagnóstico de bins cegos e fantasmas |
-| `deploy/authorized_keys` | **modificar** — acrescentar a chave da máquina nova |
-| `docs/INSTALACAO_PI.md` | **modificar** — seção de provisionamento em lote + método offline |
+| [deploy/provision_node.sh](../deploy/provision_node.sh) | ✅ criado — provisionamento idempotente, um nó por vez |
+| [deploy/render_node_config.py](../deploy/render_node_config.py) | ✅ criado — gera/atualiza/valida o `node-config.yaml` (comentários preservados) |
+| [deploy/bootstrap_keys.sh](../deploy/bootstrap_keys.sh) | ✅ criado — primeiro acesso com senha, por host |
+| [deploy/push_repo.sh](../deploy/push_repo.sh) | ✅ criado — update da frota sem internet (`git archive` por SSH) |
+| [deploy/verify_node.sh](../deploy/verify_node.sh) | ✅ criado — Fase 4 automatizada por SSH |
+| [deploy/lidarmapper.service](../deploy/lidarmapper.service) | ✅ `ExecStart` com `--config /home/pi/node-config.yaml` |
+| [node/config.yaml](../node/config.yaml) | ✅ `baseline.duration_s: 6.0`, com o porquê no comentário |
+| ~~`node/diag_bg.py`~~ | ✅ já estava — diagnóstico de bins cegos e fantasmas |
+| [deploy/authorized_keys](../deploy/authorized_keys) | ✅ sem mudança — a chave do Mac já estava lá |
+| [docs/INSTALACAO_PI.md](INSTALACAO_PI.md) | ✅ bancada macOS (§1), `node-config.yaml` (§7/§9/§10), update sem internet (§11) |
 
-**`deploy/provision_node.sh`** — idempotente, roda da máquina de trabalho contra
-um nó por vez. Assinatura: `provision_node.sh <host> <panel_id>`. Deriva
-`udp.host` do `panel_id` (1–4 → `10.10.0.10`, 5–8 → `10.10.0.11`). Etapas, todas
-seguras para reexecutar:
+`provision_node.sh <host> <panel_id>` deriva `udp.host` do `panel_id`
+(1–4 → `10.10.0.10`, 5–8 → `10.10.0.11`; na bancada, `--udp-host 192.168.2.1`).
+Etapas (todas idempotentes): pré-checks + **MAC de `eth0`** → teste de
+internet (sem ela, aborta com instrução) → apt → dialout → cortes do §3 →
+clone/pull → venv (**sem** `--system-site-packages`) → udev → chrony →
+`node-config.yaml` (preserva o existente; `--rewrite-config` força) → systemd
+→ reboot se preciso → resumo. `--recreate-venv` existe para reprovisionar o
+`lidar-01` e eliminar o caso especial do §1.
 
-1. `apt install -y git python3-venv chrony` — detecta ausência de internet e
-   avisa para usar o modo offline
-2. `usermod -aG dialout pi`
-3. Cortes do §3: `disable-wifi` / `disable-bt` no `config.txt`, `dphys-swapfile` off
-4. Clone ou `git pull` de `~/lidarmapper`
-5. venv + `pip install -r node/requirements-pi.txt`
-6. [deploy/99-rplidar.rules](../deploy/99-rplidar.rules) → udev, reload, verifica `/dev/rplidar`
-7. [deploy/chrony-node.conf](../deploy/chrony-node.conf) → `/etc/chrony/conf.d/`, restart
-8. Gera `/home/pi/node-config.yaml` a partir de `node/config.yaml`, aplicando
-   `panel_id` e `udp.host`
-9. [deploy/lidarmapper.service](../deploy/lidarmapper.service) → systemd,
-   `daemon-reload`, `enable --now`
-10. **Reporta o MAC de `eth0`**, necessário para a reserva de DHCP do
-    [§3 de INSTALACAO.md](INSTALACAO.md)
-
-Reutiliza os arquivos que já existem em [deploy/](../deploy/) — não recria nada.
-
-### Fase 2 — Distribuir a chave (uma vez, com senha)
-
-`deploy/bootstrap_keys.sh` roda `ssh-copy-id` nos 8 hosts em sequência. O
-operador digita `pi123` oito vezes; daí em diante é tudo sem senha.
-
-### Fase 3 — Provisionar
-
-Um nó por vez, conferindo cada um antes do próximo:
+### Fase 2 — Chave, um nó por vez (na bancada)
 
 ```bash
-deploy/provision_node.sh lidar-01 1     # ... até lidar-08 / panel_id 8
+deploy/bootstrap_keys.sh lidar-01      # digita pi123 uma vez; repete por nó
 ```
 
-O `lidar-01` entra nessa lista: reprovisioná-lo elimina o caso especial do §1.
+### Fase 3 — Provisionar (um nó por vez, conferindo antes do próximo)
+
+```bash
+deploy/provision_node.sh lidar-01 1 --udp-host 192.168.2.1 --recreate-venv
+deploy/provision_node.sh lidar-02 2 --udp-host 192.168.2.1
+# ... até lidar-08 / panel_id 8
+```
+
+O `--udp-host 192.168.2.1` aponta o V2 para o Mac **durante a bancada**; a
+migração para os IPs definitivos é o bloco do
+[§3 de INSTALACAO.md](INSTALACAO.md) (modo `--update`, preserva ROI).
+
+**Ordem sugerida:** `lidar-01` (Pi 4, reprovisionado) primeiro, e um **Pi 3B+
+em segundo** — é o gate de CPU do §10 em hardware nunca medido; se reprovar, é
+problema de projeto e é melhor saber no segundo nó, não no oitavo.
 
 ### Fase 4 — Validar cada nó
 
-Na ordem do §8 do [INSTALACAO_PI.md](INSTALACAO_PI.md):
+```bash
+deploy/verify_node.sh lidar-01 --with-sensor
+```
 
-1. `node/test_e2e.py` — ambiente ARM, sem sensor
-2. `node/bench_parse.py --hz 30000` — **obrigatório nos 3 Pi 3B+**
-3. `node/test_lidar.py --duration 30` — `scans/s` 8–15, `desync=0 recon=0`
-4. `vcgencmd get_throttled` = `0x0` — **crítico no Pi 5**
-5. **Área livre → `fg=0 tracks=0`** ([§8.6](INSTALACAO_PI.md)) — o critério que
-   impede calibrar em cima de um fantasma
-6. No servidor: `server/test_udp_receiver.py --v2 --port 5555` com o `panel_id` certo
+Roda test_e2e, `bench_parse` 30k/40k (**critério definitivo nos 3B+**),
+test_lidar (com `--with-sensor`), `get_throttled` e o estado do serviço.
+Ficam manuais, e o script lembra ao final:
+
+1. **Área livre → `fg=0 tracks=0`** via `node/diag_bg.py` ([§8.6](INSTALACAO_PI.md))
+   — o critério que impede calibrar em cima de um fantasma
+2. No Mac: `.venv/bin/python server/test_udp_receiver.py --v2 --port 5555` —
+   ~30 pkts/s com o `panel_id` certo, `bad=0`
+
+### Runbook da bancada — quem liga o quê, em ordem
+
+1. Ligar o **switch**; adaptador Ethernet do **Mac** numa porta dele.
+   **Roteador fica FORA do switch** durante toda a bancada.
+2. Mac: Ajustes do Sistema → Geral → Compartilhamento → **Compartilhamento de
+   Internet** (Wi-Fi → adaptador Ethernet). O Mac vira `192.168.2.1`.
+3. Por nó: plugar **S3 no USB**, cabo de rede no switch, **por último** a
+   energia (fonte oficial; Pi 5 = 27 W). ~40 s até `ping lidar-0N.local`.
+4. `bootstrap_keys.sh` → `provision_node.sh` → `verify_node.sh` (acima).
+5. Nós validados podem ficar ligados; repetir o passo 3 para o próximo.
+6. Ao final dos 8: **desligar o Compartilhamento de Internet** e só então
+   plugar o roteador no switch.
 
 ---
 
@@ -187,14 +228,25 @@ do relay voltando a `0.0s`.
 
 ## 5. Riscos e pontos em aberto
 
-**Internet no switch não confirmada.** Sem rota para fora, o `apt install chrony`
-falha e o NTP fica pendente. O sistema funciona, mas o timestamp do header V2
-deixa de ser comparável entre nós — na bancada, com o relógio sincronizado à
-mão, o desvio medido foi de ~900 ms.
+**Janela única de internet.** Depois que o roteador (sem saída) assumir o
+switch, não há mais `apt`/`pip` na rede. Nó que ficar de fora da bancada exige
+trazer o Mac de volta com o Compartilhamento ligado — e o roteador desplugado.
+
+**NTP pendente até o server-a existir.** O
+[deploy/chrony-node.conf](../deploy/chrony-node.conf) aponta para `10.10.0.10`,
+que não existe na bancada nem terá esse IP na faixa do roteador. O sistema
+funciona sem NTP, mas o timestamp do header V2 fica incomparável entre nós
+(~900 ms de desvio medido). Quando os Windows entrarem: server-a como master
+NTP e atualizar o `server` do conf para o IP real
+([INSTALACAO.md §3](INSTALACAO.md)).
+
+**`udp.host` de bancada ≠ definitivo.** Os nós saem da bancada apontando para o
+Mac (`192.168.2.1`). A migração é o loop com `--update` do
+[§3 de INSTALACAO.md](INSTALACAO.md) — sem ele o relay real fica com `in=0` nos 8.
 
 **Os 3 Pi 3B+ são o gate do §10 e nunca foram medidos em hardware real.** Se o
 `bench_parse.py` reprovar neles, é problema de projeto, não de instalação —
-melhor descobrir no primeiro 3B+ provisionado, não no oitavo.
+melhor descobrir no segundo nó provisionado, não no oitavo.
 
 **O Pi 5 exige fonte oficial de 27 W.** Carregador GaN de 100 W entrega apenas
 3 A em 5 V; o Pi 5 negocia 5 A por USB-C PD e, sem esse perfil, corta a corrente
@@ -202,7 +254,7 @@ total de USB para 600 mA e trava. Ver [§2 de INSTALACAO_PI.md](INSTALACAO_PI.md
 
 **ROI, `angle_offset_deg` e `mirror` dependem da montagem física** e não podem
 ser definidos por script. O provisionamento entrega o nó publicando; o ajuste
-por painel é o §7 do doc do Pi.
+por painel é o §7 do doc do Pi — direto no `/home/pi/node-config.yaml`.
 
 **Os limiares do guard de calibração** (150 mm de lado, 0,05 m² de área) foram
 escolhidos na bancada, não vêm da spec. Se algum painel real for pequeno,

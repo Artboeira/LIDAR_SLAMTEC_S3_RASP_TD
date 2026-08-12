@@ -79,7 +79,28 @@ Central: 1 switch gigabit (ou VLAN isolada), 2 PCs Windows com TouchDesigner,
 ## 3. Plano de rede (§4)
 
 Rede cabeada gigabit dedicada ou VLAN isolada. DHCP com **reserva por MAC** —
-a imagem do SD é idêntica em todos os nós, só o `config.yaml` difere.
+a imagem do SD é idêntica em todos os nós, só o config por nó difere.
+
+> **Decisão de campo (08/2026):** o DHCP da instalação será um **roteador
+> Wi-Fi sem saída para a internet** ligado ao switch, e a faixa de IP será a
+> dele — **não** se força a `10.10.0.x` da tabela abaixo. A tabela permanece
+> como referência dos papéis; quando o roteador for configurado, registre aqui
+> os endereços reais e atualize `udp.host` dos 8 nós **sem perder a ROI
+> ajustada de cada um**, com o modo `--update`:
+>
+> ```bash
+> for n in 1 2 3 4 5 6 7 8; do
+>   ssh pi@lidar-0$n "~/lidarmapper/.venv/bin/python \
+>     ~/lidarmapper/deploy/render_node_config.py --panel $n \
+>     --udp-host <IP-do-servidor-do-painel> --update --out /home/pi/node-config.yaml \
+>     && sudo systemctl restart lidarmapper"
+> done
+> ```
+>
+> Atualize também o `server 10.10.0.10` de
+> [deploy/chrony-node.conf](../deploy/chrony-node.conf) para o IP real do
+> server-a. Os MACs para as reservas são reportados pelo `provision_node.sh`
+> de cada nó.
 
 | Host | IP | Função |
 |---|---|---|

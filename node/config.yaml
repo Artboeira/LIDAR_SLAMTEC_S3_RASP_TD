@@ -48,6 +48,9 @@ udp:
   max_points: 32
 
 baseline:
-  duration_s: 2.0           # tempo de captura do fundo estático no start
+  # 6.0 e não 2.0: com 2 s, 66 de 720 bins angulares ficaram sem aprender na
+  # bancada (Pi 4 + S3, 08/2026) e bin sem baseline vira foreground permanente
+  # → track fantasma imóvel. Com 6 s o fantasma sumiu. §8.6 do INSTALACAO_PI.md.
+  duration_s: 6.0           # tempo de captura do fundo estático no start
   margin_mm: 120            # ponto vira "foreground" se dist < bg[bin] - margin
   bins: 720                 # 0,5°/bin (§5.1 do legacy)

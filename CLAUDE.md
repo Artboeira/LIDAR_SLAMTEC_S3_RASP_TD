@@ -161,9 +161,18 @@ sem systemd).
   Windows 11 + Python 3.14. Em 3.14 o `pygame` não tem wheel — o
   `requirements-server.txt` troca para `pygame-ce` por marcador de
   ambiente. No Windows o venv é `.venv\Scripts\`, não `.venv/bin/`.
-- **Não verificado**: gate de CPU num 3B+ real; `node/` nunca rodou em
-  hardware Pi (a bancada travou em alimentação/cartão SD antes do
-  primeiro SSH — ver `docs/INSTALACAO_PI.md` §12).
+- **Validado em hardware Pi (08/2026)**: `lidar-01` (Pi 4) rodou o pipeline
+  completo com S3 real — 9,8 Hz, `desync=0 recon=0`, V2 chegando no relay.
+  Gate de CPU no Pi 4: 2,3 % de um core (limite 30 %).
+- **Não verificado**: gate de CPU num 3B+ real (os 3 da frota nunca foram
+  medidos — é o risco aberto do §5 de `docs/PROVISIONAMENTO_FROTA.md`).
+- **Frota (08/2026, em andamento)**: os 8 nós são provisionados por
+  `deploy/provision_node.sh` (um por vez, idempotente); primeiro acesso via
+  `deploy/bootstrap_keys.sh`; validação por `deploy/verify_node.sh`; update
+  sem internet por `deploy/push_repo.sh`. O config que o serviço lê é
+  `/home/pi/node-config.yaml` (fora do git, gerado por
+  `deploy/render_node_config.py`) — `node/config.yaml` é o template.
+  Plano e runbook: `docs/PROVISIONAMENTO_FROTA.md`.
 
 Instalação em campo: `docs/INSTALACAO.md` é o índice (Pi, servidor, TD).
 Roteiros de validação e o que eles **não** cobrem: `node/VALIDACAO.md`,

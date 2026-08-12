@@ -110,7 +110,26 @@ Registre o **MAC** da interface ethernet para a reserva de DHCP:
 cat /sys/class/net/eth0/address
 ```
 
-### Bancada: Pi ligado direto no PC, sem DHCP
+### Bancada: macOS com Compartilhamento de Internet (o caminho usado na frota)
+
+Com a bancada num Mac, o caminho mais simples cobre DHCP **e** internet de uma
+vez: ligue o adaptador Ethernet do Mac no switch dos Pis e ative **Ajustes do
+Sistema → Geral → Compartilhamento → Compartilhamento de Internet** (da
+interface Wi-Fi para o adaptador Ethernet). O macOS vira DHCP + NAT + gateway:
+
+- o Mac assume `192.168.2.1` no adaptador; os Pis recebem `192.168.2.x`;
+- os Pis têm saída para a internet (`apt`, `pip`, `git clone` funcionam);
+- cada nó resolve por Bonjour: `ping lidar-01.local`, `ssh pi@lidar-01.local`.
+
+> ⚠️ **Nunca com o roteador da instalação plugado no mesmo switch.** Dois
+> servidores DHCP na mesma rede fazem os Pis pegarem IP ora de um, ora de
+> outro — falha intermitente, difícil de diagnosticar. Um de cada vez.
+>
+> ⚠️ Enquanto o compartilhamento está ligado, os Pis (senha `pi123`) estão
+> atrás de NAT com saída para fora — vale o aviso da seção anterior. Desligue
+> o compartilhamento assim que terminar de provisionar.
+
+### Bancada: Pi ligado direto no PC Windows, sem DHCP
 
 Antes do switch existir, é comum ligar o Pi direto na ethernet do PC. Nesse
 cenário **não há servidor DHCP**, o Pi fica sem IPv4 e `ssh pi@lidar-01` não
@@ -312,8 +331,22 @@ O server-a precisa estar servindo NTP (ver
 
 ## 7. config.yaml — o que muda por nó
 
-Arquivo: [node/config.yaml](../node/config.yaml). É a **única** diferença entre
-os nós depois da golden image.
+**O config que o serviço lê é `/home/pi/node-config.yaml`** — fora da árvore
+git. Ele é gerado no provisionamento por
+[deploy/render_node_config.py](../deploy/render_node_config.py) a partir de
+[node/config.yaml](../node/config.yaml) (que segue versionado como *template*),
+e a unit do systemd o passa via `--config`. Motivo: se cada nó editasse o
+arquivo versionado, o `git pull` de atualização da frota (§11) conflitaria nos
+8 nós. Edite o `node-config.yaml` à vontade — o provisionamento não o
+sobrescreve (só com `--rewrite-config`).
+
+Para rodar à mão com esse config:
+
+```bash
+.venv/bin/python node/main.py --config /home/pi/node-config.yaml
+```
+
+Campos que variam por nó:
 
 | Campo | O que é | Muda por |
 |---|---|---|
@@ -353,7 +386,7 @@ Ajuste com o pipeline rodando e alguém andando na frente do painel:
 
 ```bash
 cd ~/lidarmapper
-.venv/bin/python node/main.py --no-publish --log-level info
+.venv/bin/python node/main.py --config /home/pi/node-config.yaml --no-publish --log-level info
 ```
 
 O campo `fg=` do log é o número de pontos foreground **dentro da ROI**. Ele
@@ -462,11 +495,8 @@ cair num desses setores cegos, ele vira um track permanente e imóvel.
 Medido na bancada (Pi 4 + S3, 08/2026): com `baseline.duration_s: 2.0` ficaram
 **66 de 720 bins cegos**, e uma superfície a 38 cm virou track fantasma fixo com
 `confidence=1.00`. Com **6,0 s** caiu para 58 bins e o fantasma desapareceu.
-
-```yaml
-baseline:
-  duration_s: 6.0    # 2.0 deixou setores cegos na bancada; 6.0 resolveu
-```
+Por isso `6.0` é o default do [node/config.yaml](../node/config.yaml) desde
+08/2026 — se um nó antigo ainda mostrar `2.0` no `node-config.yaml`, corrija.
 
 Como distinguir fantasma de detecção real no `test_udp_receiver.py --v2 --raw`:
 o fantasma tem **coordenada congelada** (varia menos de 1 mm entre frames) e
@@ -498,7 +528,7 @@ subir) e `Nice=-10`.
 ### O baseline no boot
 
 No start, o `BackgroundSubtractor` captura o fundo estático por
-`baseline.duration_s` (2 s). **A área precisa estar livre nesse instante.** Com
+`baseline.duration_s` (6 s — ver §8.6). **A área precisa estar livre nesse instante.** Com
 `Restart=always`, uma queda de energia religa o nó sozinho — se tiver gente
 parada na frente do painel nesse momento, essa pessoa vira "fundo" e some do
 tracking.
@@ -536,16 +566,17 @@ sudo sed -i "s/lidar-01/lidar-0N/g" /etc/hosts
 sudo reboot
 ```
 
-```yaml
-# ~/lidarmapper/node/config.yaml
-udp:
-  host: "10.10.0.11"   # 10.10.0.10 para os painéis 1-4
-  panel_id: 5          # ÚNICO por nó
-roi: { ... }           # conforme a montagem daquele painel
-processing:
-  angle_offset_deg: 0.0
-  mirror: false
+```bash
+# /home/pi/node-config.yaml — regenere com o panel_id do novo nó
+# (deriva udp.host sozinho: 1-4 → 10.10.0.10, 5-8 → 10.10.0.11)
+~/lidarmapper/.venv/bin/python ~/lidarmapper/deploy/render_node_config.py \
+    --panel 5 --out /home/pi/node-config.yaml
+# depois ajuste roi / angle_offset_deg / mirror à mão, conforme a montagem
 ```
+
+> Alternativa sem golden image (a usada nesta frota): cartões gravados
+> individualmente no Imager + [deploy/provision_node.sh](../deploy/provision_node.sh)
+> por nó — ver [PROVISIONAMENTO_FROTA.md](PROVISIONAMENTO_FROTA.md).
 
 4. Registre o MAC daquele Pi na reserva de DHCP do IP correspondente.
 5. Rode o checklist de bring-up do painel (§5 de [INSTALACAO.md](INSTALACAO.md)).
@@ -558,22 +589,26 @@ processing:
 
 ## 11. Atualizar a frota
 
-Com o repo já clonado nos 8 nós:
+**A rede definitiva não tem internet** (o roteador só serve a rede local), então
+`git pull` nos nós não funciona lá. O caminho é empurrar o HEAD commitado da
+máquina de trabalho por SSH:
 
 ```bash
-for h in lidar-0{1..8}; do
-  ssh $h 'cd lidarmapper && git pull && sudo systemctl restart lidarmapper'
-done
+deploy/push_repo.sh lidar-0{1..8}      # a frota
+deploy/push_repo.sh lidar-03           # um nó só
+ssh lidar-03 journalctl -u lidarmapper -n 30
 ```
 
-Cada restart refaz o baseline — **rode com a área livre**, nunca durante a
-operação com público.
+O script usa `git archive` (só vai o que está commitado), não toca no
+`/home/pi/node-config.yaml` e reinicia o serviço ao final. Cada restart refaz o
+baseline — **rode com a área livre**, nunca durante a operação com público.
+Se `node/requirements-pi.txt` mudou, o `pip install` no nó exige internet:
+volte a bancada com o Mac compartilhando internet (§1).
 
-Para atualizar um nó só:
+Numa rede COM internet, o equivalente manual continua valendo:
 
 ```bash
 ssh lidar-03 'cd lidarmapper && git pull && sudo systemctl restart lidarmapper'
-ssh lidar-03 journalctl -u lidarmapper -n 30
 ```
 
 ---

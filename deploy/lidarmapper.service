@@ -13,6 +13,11 @@
 #   journalctl -u lidarmapper -f
 #
 # Se o usuário do Pi não for `pi`, ajuste User= e todos os /home/pi.
+#
+# O config do nó vive FORA da árvore git (/home/pi/node-config.yaml, gerado
+# por deploy/render_node_config.py no provisionamento): assim o git pull de
+# atualização da frota nunca conflita com a edição local de panel_id/ROI.
+# Ver docs/PROVISIONAMENTO_FROTA.md §2.1.
 
 [Unit]
 Description=LidarMapper node (LIDAR -> UDP V2)
@@ -23,7 +28,7 @@ Wants=network-online.target
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/lidarmapper
-ExecStart=/home/pi/lidarmapper/.venv/bin/python /home/pi/lidarmapper/node/main.py
+ExecStart=/home/pi/lidarmapper/.venv/bin/python /home/pi/lidarmapper/node/main.py --config /home/pi/node-config.yaml
 Restart=always
 RestartSec=3
 # Dá tempo do udev criar /dev/rplidar e da rede subir antes do primeiro start.
