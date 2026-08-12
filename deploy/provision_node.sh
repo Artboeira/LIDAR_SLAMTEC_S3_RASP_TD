@@ -178,6 +178,13 @@ if probe "[ -d $REMOTE_REPO/.git ]"; then
     run "git -C $REMOTE_REPO pull --ff-only" || die "git pull falhou"
     ok "atualizado (git pull)"
 else
+    # Diretório sem .git = resto de provisionamento manual (o lidar-01 original
+    # recebeu o repo por scp). Afasta em vez de apagar e clona limpo.
+    if probe "[ -d $REMOTE_REPO ]"; then
+        run "mv $REMOTE_REPO $REMOTE_REPO.pre-provision.\$(date +%s)" \
+            || die "não consegui afastar o $REMOTE_REPO sem .git"
+        ok "cópia antiga (sem .git) afastada para $REMOTE_REPO.pre-provision.*"
+    fi
     run "git clone --depth 1 $REPO_URL $REMOTE_REPO" || die "git clone falhou"
     ok "clonado de $REPO_URL"
 fi
