@@ -167,7 +167,11 @@ deploy/bootstrap_keys.sh lidar-01      # digita pi123 uma vez; repete por nó
 | Nó | Modelo | MAC eth0 | panel_id | Provisionado | verify | diag_bg |
 |---|---|---|---|---|---|---|
 | lidar-01 | Pi 4 B r1.5 | `d8:3a:dd:9c:22:21` | 1 | ✅ 12/08 | ✅ (throttled só no boot) | ✅ limpo |
-| lidar-02..08 | — | — | 2–8 | ⬜ | ⬜ | ⬜ |
+| lidar-03 | Pi 4 B r1.5 | `88:a2:9e:70:ea:53` | 3 | ✅ 12/08 (1 run, zero intervenção) | ✅ 6/6, `0x0` | ⬜ |
+| lidar-02, 04..08 | — | — | 2, 4–8 | ⬜ | ⬜ | ⬜ |
+
+Com os dois no ar, o agregado no receiver: `panels=p1:30,p3:30`, 0 inválidos —
+demux por `panel_id` validado com nós reais.
 
 Aprendizados do lidar-01 (valem para os próximos 7):
 
