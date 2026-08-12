@@ -162,6 +162,30 @@ clone/pull → venv (**sem** `--system-site-packages`) → udev → chrony →
 deploy/bootstrap_keys.sh lidar-01      # digita pi123 uma vez; repete por nó
 ```
 
+### Estado da frota
+
+| Nó | Modelo | MAC eth0 | panel_id | Provisionado | verify | diag_bg |
+|---|---|---|---|---|---|---|
+| lidar-01 | Pi 4 B r1.5 | `d8:3a:dd:9c:22:21` | 1 | ✅ 12/08 | ✅ (throttled só no boot) | ✅ limpo |
+| lidar-02..08 | — | — | 2–8 | ⬜ | ⬜ | ⬜ |
+
+Aprendizados do lidar-01 (valem para os próximos 7):
+
+- **Chave SSH do Mac tem passphrase** — está na Keychain; o bloco `Host lidar-*`
+  no `~/.ssh/config` (com `UseKeychain yes`) resolve. Sem ele, `BatchMode` falha
+  com `Permission denied` mesmo com a chave instalada no nó.
+- **O Compartilhamento de Internet do macOS subiu em `192.168.3.1`** (bridge100),
+  não no `192.168.2.1` previsto — confira o IP real antes do `--udp-host`.
+- **Todo restart do serviço refaz o baseline** — scripts/testes que dão
+  `systemctl start|restart` com alguém na frente do sensor "engolem" a pessoa
+  no fundo e o tracking silencia (fg=0 com a área ocupada). Área livre SEMPRE.
+- **Subtensão transiente na partida do motor do S3** (`0x50000` com bits atuais
+  limpos): dois dips no boot, zero em operação. Não bloqueia; se aparecer dip
+  *durante* operação, trocar o cabo USB-C primeiro.
+- **Na bancada o S3 ficou de costas** — `angle_offset_deg: 180` no
+  `node-config.yaml` resolveu; medir a direção real com a mão antes de fechar a
+  ROI de cada painel (o plano de varredura é horizontal, na altura da torre).
+
 ### Fase 3 — Provisionar (um nó por vez, conferindo antes do próximo)
 
 ```bash
