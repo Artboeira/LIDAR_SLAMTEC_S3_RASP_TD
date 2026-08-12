@@ -372,25 +372,30 @@ def main() -> int:
     status_final = ""
     try:
         for i, (u, v) in enumerate(corners_norm):
-            ok = source.prompt(args.panel, i, CORNER_NAMES[i], u, v)
-            if not ok:
-                status_final = "abortado pelo operador"
-                log.warning(status_final)
-                rc = 1
+            # Canto falhou ≠ calibração perdida: repete O MESMO canto até
+            # coletar ou o operador desistir com 'q' (os já coletados ficam).
+            while True:
+                ok = source.prompt(args.panel, i, CORNER_NAMES[i], u, v)
+                if not ok:
+                    status_final = "abortado pelo operador"
+                    log.warning(status_final)
+                    rc = 1
+                    break
+                source.show_busy(f"{CORNER_NAMES[i]} — não se mexa")
+                mx, my, n = collect_corner(sock, args.panel,
+                                           cfg.calibration.collect_s,
+                                           cfg.calibration.min_pts)
+                if mx is None:
+                    log.error("canto %s falhou (%d pts, min=%d) — ENTER "
+                              "tenta DE NOVO o mesmo canto (q = sair)",
+                              CORNER_NAMES[i], n, cfg.calibration.min_pts)
+                    continue
+                log.info("[p%d %s] (%.1f, %.1f) mm  (%d pts)",
+                         args.panel, CORNER_NAMES[i], mx, my, n)
+                corners_mm.append((mx, my))
                 break
-            source.show_busy(f"{CORNER_NAMES[i]} — não se mexa")
-            mx, my, n = collect_corner(sock, args.panel,
-                                       cfg.calibration.collect_s,
-                                       cfg.calibration.min_pts)
-            if mx is None:
-                status_final = (f"canto {CORNER_NAMES[i]} falhou "
-                                f"({n} pts, min={cfg.calibration.min_pts})")
-                log.error(status_final)
-                rc = 1
+            if rc != 0:
                 break
-            log.info("[p%d %s] (%.1f, %.1f) mm  (%d pts)",
-                     args.panel, CORNER_NAMES[i], mx, my, n)
-            corners_mm.append((mx, my))
         else:
             # ANTES de calcular H: o erro de reprojeção não pega degeneração
             # (ver degenerate_reason). Recusar aqui é o que evita gravar uma
