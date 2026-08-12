@@ -83,7 +83,14 @@ class UdpPublisher:
 
 
 class RateLimiter:
-    """Limita chamadas periódicas a `rate_hz`. Portado intacto do legacy."""
+    """Limita chamadas periódicas a `rate_hz`.
+
+    DIVERGÊNCIA DO LEGACY (bugfix 08/2026): o legacy ancorava o próximo
+    disparo em `agora + período`, herdando a cada frame o atraso do sleep
+    do loop chamador (~3 ms) — 30 Hz pedidos viravam ~27,3 Hz medidos no
+    nó e no receiver. Ancorar no deadline anterior elimina a deriva; se o
+    chamador atrasar mais que um período inteiro, re-ancora em `agora`
+    para não disparar rajada de recuperação."""
 
     def __init__(self, rate_hz: float):
         self.set_rate(rate_hz)
@@ -97,6 +104,8 @@ class RateLimiter:
             return True
         t = time.monotonic() if now is None else now
         if t >= self._next:
-            self._next = t + self.period
+            self._next += self.period
+            if t >= self._next:          # atrasou 1+ período: re-ancora
+                self._next = t + self.period
             return True
         return False
