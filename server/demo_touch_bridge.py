@@ -95,7 +95,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--panel", type=int, required=True, help="panel_id do nó (1..8)")
-    ap.add_argument("--dest", required=True, help="IP do Windows/TD")
+    ap.add_argument("--dest", required=True,
+                    help="IP do TD — ou vários separados por vírgula "
+                         "(ex.: 127.0.0.1,192.168.1.101)")
     ap.add_argument("--dest-port", type=int, default=7000,
                     help="porta no TD (OSC In CHOP ou UDP In DAT) [7000]")
     ap.add_argument("--listen-port", type=int, default=5555,
@@ -109,12 +111,13 @@ def main() -> int:
 
     calib_path = args.calib or os.path.join(HERE, f"calib_p{args.panel}.json")
 
+    dests = [d.strip() for d in args.dest.split(",") if d.strip()]
     if args.format == "osc":
         from pythonosc.udp_client import SimpleUDPClient
-        osc = SimpleUDPClient(args.dest, args.dest_port)
+        oscs = [SimpleUDPClient(d, args.dest_port) for d in dests]
         send_sock = None
     else:
-        osc = None
+        oscs = []
         send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     rx = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -122,7 +125,7 @@ def main() -> int:
     rx.settimeout(0.25)
 
     print(f"[demo] V2 painel {args.panel} em :{args.listen_port} → "
-          f"{args.format.upper()} {args.dest}:{args.dest_port}")
+          f"{args.format.upper()} {', '.join(dests)} :{args.dest_port}")
     print(f"[demo] calib: {calib_path}  (hot-reload por mtime)")
     print("[demo] canais: x1 y1 active1 x2 y2 active2 — 0..1, origem "
           + ("CIMA-esq (--no-flip-y)" if args.no_flip_y else "EMBAIXO-esq"))
@@ -179,16 +182,18 @@ def main() -> int:
             slots.update(tracks, now)
 
             ch = slots.channels()
-            if osc is not None:
-                osc.send_message("/x1", ch[0])
-                osc.send_message("/y1", ch[1])
-                osc.send_message("/active1", ch[2])
-                osc.send_message("/x2", ch[3])
-                osc.send_message("/y2", ch[4])
-                osc.send_message("/active2", ch[5])
+            if oscs:
+                for osc in oscs:
+                    osc.send_message("/x1", ch[0])
+                    osc.send_message("/y1", ch[1])
+                    osc.send_message("/active1", ch[2])
+                    osc.send_message("/x2", ch[3])
+                    osc.send_message("/y2", ch[4])
+                    osc.send_message("/active2", ch[5])
             else:
                 line = ",".join(f"{c:.4f}" for c in ch) + "\n"
-                send_sock.sendto(line.encode("ascii"), (args.dest, args.dest_port))
+                for d in dests:
+                    send_sock.sendto(line.encode("ascii"), (d, args.dest_port))
             n_out += 1
         else:
             # sem pacote: expira slots mesmo assim (nó caiu ≠ toque preso)
