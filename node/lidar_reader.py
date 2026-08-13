@@ -164,12 +164,28 @@ class LidarReader:
                 pass
             # espera o motor estabilizar
             time.sleep(0.5)
-            self._serial.reset_input_buffer()
-            self._serial.write(_CMD_START_SCAN)
-            self._serial.flush()
-            hdr = self._serial.read(7)
-            if len(hdr) < 7 or hdr[0] != 0xA5 or hdr[1] != 0x5A:
-                self._status = f"resposta START_SCAN inválida: {hdr.hex()}"
+            # S3 pode acordar TRAVADO após corte de energia (visto em campo
+            # nos painéis 4 e 6: START_SCAN responde vazio para sempre, e o
+            # serviço entrava em crash-loop até um RESET manual). Com
+            # desligamento diário do evento isso precisa se auto-curar:
+            # até 3 tentativas, com STOP+RESET (A5 40) entre elas.
+            hdr = b""
+            for _attempt in range(3):
+                self._serial.reset_input_buffer()
+                self._serial.write(_CMD_START_SCAN)
+                self._serial.flush()
+                hdr = self._serial.read(7)
+                if len(hdr) == 7 and hdr[0] == 0xA5 and hdr[1] == 0x5A:
+                    break
+                self._serial.write(_CMD_STOP)
+                self._serial.flush()
+                time.sleep(0.1)
+                self._serial.write(_CMD_RESET)
+                self._serial.flush()
+                time.sleep(2.5)          # reboot interno do sensor
+            else:
+                self._status = (f"resposta START_SCAN inválida após 3 "
+                                f"tentativas com RESET: {hdr.hex()}")
                 self._safe_disconnect()
                 return False
             self._port = port
