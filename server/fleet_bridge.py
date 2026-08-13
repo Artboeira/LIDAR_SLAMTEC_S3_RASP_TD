@@ -50,8 +50,7 @@ PLUM = (88, 45, 64)
 FG_MUTED = (69, 70, 63)
 
 OFFLINE_S = 1.5          # sem pacote por mais que isso = nó OFF
-CARD_W, CARD_H = 420, 300
-PAD = 24
+PAD = 20
 
 
 class PanelState:
@@ -116,9 +115,15 @@ def main() -> int:
 
     import pygame
     pygame.init()
-    cols = 2
+    # Grade horizontal: até 4 painéis em 2 colunas; acima disso, 4 colunas
+    # (8 painéis = 4x2) com cartão compacto para caber em tela de notebook.
+    cols = 2 if len(panel_ids) <= 4 else 4
+    card_w = 420 if cols == 2 else 330
+    mini_w = card_w - 56
+    mini_h = int(mini_w * 9 / 16)
+    card_h = 56 + mini_h + 44
     rows = (len(panel_ids) + cols - 1) // cols
-    win = (PAD + cols * (CARD_W + PAD), 96 + rows * (CARD_H + PAD))
+    win = (PAD + cols * (card_w + PAD), 96 + rows * (card_h + PAD))
     screen = pygame.display.set_mode(win)
     pygame.display.set_caption(f"fleet bridge :{args.listen_port}")
     font = pygame.font.SysFont("Menlo", 13)
@@ -220,9 +225,9 @@ def main() -> int:
 
         for i, pid in enumerate(panel_ids):
             ps = panels[pid]
-            cx = PAD + (i % cols) * (CARD_W + PAD)
-            cy = 96 + (i // cols) * (CARD_H + PAD)
-            pygame.draw.rect(screen, INK, (cx, cy, CARD_W, CARD_H), 1)
+            cx = PAD + (i % cols) * (card_w + PAD)
+            cy = 96 + (i // cols) * (card_h + PAD)
+            pygame.draw.rect(screen, INK, (cx, cy, card_w, card_h), 1)
 
             on = ps.online
             dot_color = MOSS if on else EMBER
@@ -238,8 +243,8 @@ def main() -> int:
                 True, INK if calib_ok else EMBER), (cx + 30, cy + 32))
 
             # miniatura 16:9 da tela com os 2 toques
-            mw, mh = CARD_W - 60, int((CARD_W - 60) * 9 / 16)
-            mx0, my0 = cx + 30, cy + 56
+            mw, mh = mini_w, mini_h
+            mx0, my0 = cx + 28, cy + 56
             pygame.draw.rect(screen, RULE_SOFT, (mx0, my0, mw, mh), 1)
             ch = ps.slots.channels()
             for s, color in ((0, EMBER), (1, STEEL)):
@@ -250,10 +255,11 @@ def main() -> int:
                     pygame.draw.circle(screen, color, px, 7)
                 else:
                     pygame.draw.circle(screen, color, px, 7, 1)
+                # os dois t's lado a lado, uma linha só (cartão compacto)
                 screen.blit(font.render(
                     f"t{s+1} {x:.2f},{y:.2f} {'ON' if a else '--'}",
                     True, color),
-                    (mx0, my0 + mh + 6 + 15 * s))
+                    (mx0 + s * (mw // 2 + 6), my0 + mh + 6))
 
         pygame.display.flip()
         clock.tick(60)
