@@ -11,6 +11,11 @@ Canais OSC (endereços) por painel N:
 No TD: um único OSC In CHOP na porta --dest-port recebe TUDO — com 4
 painéis são 24 canais (p1_x1 ... p4_active2), nomes prontos, sem código.
 
+Saída para o MAX (áudio da instalação): `/touch/N 1` quando a tela N ganha
+o primeiro toque e `/touch/N 0` quando solta — SÓ nas transições (o patch
+do Max faz `route /touch/1 ... /touch/8`). Default 127.0.0.1:7500 (Max na
+mesma máquina); `--max-dest` muda o IP, `--no-max` desliga.
+
 Dashboard pygame (paleta Estúdio AB, igual ao radar_view): um cartão por
 painel com status ON/OFF (idade do último pacote V2), fps de entrada,
 estado da calibração e os dois toques numa miniatura 16:9 da tela.
@@ -66,6 +71,7 @@ class PanelState:
         self.in_count = 0
         self.in_rate = 0.0
         self.frame = 0
+        self.max_active = 0      # último /touch/N enviado ao Max (0|1)
 
     def reload_calib(self) -> None:
         try:
@@ -95,6 +101,12 @@ def main() -> int:
     ap.add_argument("--listen-port", type=int, default=5555)
     ap.add_argument("--no-flip-y", action="store_true",
                     help="mantém origem em cima-esquerda")
+    ap.add_argument("--max-dest", default="127.0.0.1",
+                    help="IP do Max (audio): /touch/N 1|0 nas transições [127.0.0.1]")
+    ap.add_argument("--max-port", type=int, default=7500,
+                    help="porta OSC do Max [7500]")
+    ap.add_argument("--no-max", action="store_true",
+                    help="desliga a saída pro Max")
     args = ap.parse_args()
 
     panel_ids = [int(p) for p in args.panels.split(",")]
@@ -103,11 +115,12 @@ def main() -> int:
 
     osc_clients: list = []
     csv_sock = None
+    from pythonosc.udp_client import SimpleUDPClient
     if args.format == "osc":
-        from pythonosc.udp_client import SimpleUDPClient
         osc_clients = [SimpleUDPClient(d, args.dest_port) for d in dests]
     else:
         csv_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    max_osc = None if args.no_max else SimpleUDPClient(args.max_dest, args.max_port)
 
     rx = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     rx.bind(("0.0.0.0", args.listen_port))
@@ -203,6 +216,17 @@ def main() -> int:
             if pid not in touched:
                 ps.slots.update([], now)
 
+        # Max (áudio): /touch/N 1|0 — active1 de cada tela, só na transição.
+        if max_osc is not None:
+            for pid, ps in panels.items():
+                a = 1 if ps.slots.slot_id[0] is not None else 0
+                if a != ps.max_active:
+                    ps.max_active = a
+                    try:
+                        max_osc.send_message(f"/touch/{pid}", a)
+                    except OSError:
+                        pass
+
         if now - rate_t0 >= 1.0:
             dt = now - rate_t0
             for ps in panels.values():
@@ -214,9 +238,11 @@ def main() -> int:
         # --- desenho ---
         screen.fill(BONE)
         n_on = sum(1 for ps in panels.values() if ps.online)
+        max_txt = ("" if max_osc is None
+                   else f"   MAX /touch/N → {args.max_dest}:{args.max_port}")
         hdr = (f"FLEET BRIDGE :{args.listen_port}   nós {n_on}/{len(panels)} ON   "
                f"out={out_rate:6.1f} pkt/s → {','.join(dests)}:{args.dest_port} "
-               f"({args.format.upper()})")
+               f"({args.format.upper()}){max_txt}")
         screen.blit(font_big.render(hdr, True, INK), (PAD, 20))
         screen.blit(font.render(
             "canais por painel: pN_x1 pN_y1 pN_active1 pN_x2 pN_y2 pN_active2"
