@@ -162,16 +162,35 @@ clone/pull → venv (**sem** `--system-site-packages`) → udev → chrony →
 deploy/bootstrap_keys.sh lidar-01      # digita pi123 uma vez; repete por nó
 ```
 
-### Estado da frota
+### Estado da frota — COMPLETA (madrugada 12→13/08/2026)
 
-| Nó | Modelo | MAC eth0 | panel_id | Provisionado | verify | diag_bg |
-|---|---|---|---|---|---|---|
-| lidar-01 | Pi 4 B r1.5 | `d8:3a:dd:9c:22:21` | 1 | ✅ 12/08 | ✅ (throttled só no boot) | ✅ limpo |
-| lidar-03 | Pi 4 B r1.5 | `88:a2:9e:70:ea:53` | 3 | ✅ 12/08 (1 run, zero intervenção) | ✅ 6/6, `0x0` | ⬜ |
-| lidar-02, 04..08 | — | — | 2, 4–8 | ⬜ | ⬜ | ⬜ |
+**8/8 provisionados, orientados e CALIBRADOS em campo.** As homografias estão
+em `server/calib_p1..8.json` (commit `eb1b423`). O `panel_id` segue a POSIÇÃO
+FÍSICA da tela, não o número do cartão/hostname:
 
-Com os dois no ar, o agregado no receiver: `panels=p1:30,p3:30`, 0 inválidos —
-demux por `panel_id` validado com nós reais.
+| Painel | Hostname | Modelo | MAC eth0 | Observações |
+|---|---|---|---|---|
+| p1 | lidar-01 | Pi 4 B r1.5 | `d8:3a:dd:9c:22:21` | subtensão só no boot |
+| p2 | lidar-03 | Pi 4 B r1.5 | `88:a2:9e:70:ea:53` | fantasma a 1,8 m resolvido c/ baseline 10 s |
+| p3 | lidar-08 | **Pi 5** r1.0 | `2c:cf:67:4c:82:5e` | `usb_max_current_enable=1` + fonte aux no S3; **precisa fonte 27 W** |
+| p4 | lidar-06 | **Pi 3B** r1.2 | `b8:27:eb:d1:86:93` | gate §10 medido: **6,8 %/core** ✅; fonte fraca (dips em operação); S3 travou 1× (RESET A5 40 resolveu) |
+| p5 | lidar-07 | Pi 3B r1.2 | `b8:27:eb:92:88:1e` | inclinação corrigida em campo (plano batia na tela a 0,4 m) |
+| p6 | lidar-02 | Pi 4 B r1.5 | `d8:3a:dd:9c:1f:06` | S3 travou 1× (RESET resolveu) |
+| p7 | lidar-04 | Pi 4 B r1.5 | `88:a2:9e:70:ea:3b` | era "tela 5" até a troca de rótulo; inclinação corrigida em campo |
+| p8 | lidar-05 | Pi 3B r1.2 | `b8:27:eb:a8:e0:e8` | boot falho da tarde era cabo de rede |
+
+Config de frota aplicado em todos (`/home/pi/node-config.yaml`):
+`angle_offset_deg: 180` (frente física ~270°), `roi.y_max: 4000`,
+`baseline.duration_s: 10`. Rede: roteador Wi-Fi com DHCP (faixa
+`192.168.1.x`), `udp.host` apontando para a máquina de trabalho —
+**na entrega, re-apontar para os servidores e fazer reserva DHCP por MAC**
+(tabela acima) no roteador.
+
+Ferramentas nascidas nesta fase (server/): `radar_view.py` (radar + calibração
+1-4/S + ponte), `demo_touch_bridge.py` (1 painel → 6 canais OSC/CSV),
+`fleet_bridge.py` (N painéis → 6 canais/painel + monitor da frota).
+Contrato TD: OSC In CHOP :7000, canais `pN_x1 pN_y1 pN_active1 pN_x2 pN_y2
+pN_active2`, 0..1, origem embaixo-esquerda, 30 Hz, active segura o último x/y.
 
 Aprendizados do lidar-01 (valem para os próximos 7):
 
