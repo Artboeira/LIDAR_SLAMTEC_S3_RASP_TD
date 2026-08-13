@@ -24,20 +24,24 @@ descompacte `lidarmapper_curva.zip` em `C:\lidarmapper`. O zip já contém as
 git clone https://github.com/Artboeira/LIDAR_SLAMTEC_S3_RASP_TD.git C:\lidarmapper
 ```
 
-Depois, em qualquer dos casos (PowerShell, dentro de `C:\lidarmapper`):
+Depois, em qualquer dos casos, **um comando faz o resto** (Python 3.11+
+instalado antes, de python.org, com "Add to PATH"):
 
 ```powershell
-py -3 -m venv .venv
-.venv\Scripts\pip install -r server\requirements-server.txt
+cd C:\lidarmapper
+powershell -ExecutionPolicy Bypass -File deploy\install_server.ps1
 ```
 
-Python 3.11+ (3.13/3.14 ok — em 3.14 o requirements troca `pygame` por
-`pygame-ce` sozinho). Teste: `.venv\Scripts\python w2_validate.py` → 12/12.
+O instalador cria o venv, instala as dependências, roda o `w2_validate`
+(12/12 = ok), libera o firewall (UDP 5555/7000), gera o `start_fleet.bat`
+(+ auto-start opcional) e, se você quiser, gera a chave SSH e instala nos 8
+nós (pede a senha `pi123` uma vez por nó). Reexecutável — pula o que já fez.
 
-## 2. SSH do Windows para os nós (uma vez)
+As seções abaixo documentam o que ele faz, para ajuste fino manual.
 
-As operações de baseline/ajuste falam com os Pis por SSH. O Windows 10/11 já
-tem cliente OpenSSH. Gere uma chave e instale nos 8 (senha `pi123` a cada um):
+## 2. SSH do Windows para os nós (o instalador oferece isso)
+
+Manual, se preferir (Windows 10/11 já tem cliente OpenSSH):
 
 ```powershell
 ssh-keygen -t ed25519          # ENTER nas perguntas (sem passphrase é ok aqui)
