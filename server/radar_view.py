@@ -174,15 +174,23 @@ def main() -> int:
                 tracks.append((p.id, u, y))
         slots.update(tracks, time.time())
         ch = slots.channels()
+        # Destino fora do ar (Windows dormiu, cabo fora) não pode derrubar a
+        # ponte: macOS levanta OSError (Host is down / unreachable) no sendto.
         if osc_clients:
             for cli in osc_clients:
-                for name, val in zip(("/x1", "/y1", "/active1",
-                                      "/x2", "/y2", "/active2"), ch):
-                    cli.send_message(name, val)
+                try:
+                    for name, val in zip(("/x1", "/y1", "/active1",
+                                          "/x2", "/y2", "/active2"), ch):
+                        cli.send_message(name, val)
+                except OSError:
+                    pass
         else:
             line = ",".join(f"{c:.4f}" for c in ch) + "\n"
             for d in dests:
-                csv_sock.sendto(line.encode("ascii"), (d, args.dest_port))
+                try:
+                    csv_sock.sendto(line.encode("ascii"), (d, args.dest_port))
+                except OSError:
+                    pass
         out_count += 1
 
     def flash(text: str) -> None:

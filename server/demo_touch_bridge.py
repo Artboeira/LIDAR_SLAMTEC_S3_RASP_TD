@@ -182,18 +182,25 @@ def main() -> int:
             slots.update(tracks, now)
 
             ch = slots.channels()
+            # Destino fora do ar não derruba a ponte (OSError no sendto).
             if oscs:
                 for osc in oscs:
-                    osc.send_message("/x1", ch[0])
-                    osc.send_message("/y1", ch[1])
-                    osc.send_message("/active1", ch[2])
-                    osc.send_message("/x2", ch[3])
-                    osc.send_message("/y2", ch[4])
-                    osc.send_message("/active2", ch[5])
+                    try:
+                        osc.send_message("/x1", ch[0])
+                        osc.send_message("/y1", ch[1])
+                        osc.send_message("/active1", ch[2])
+                        osc.send_message("/x2", ch[3])
+                        osc.send_message("/y2", ch[4])
+                        osc.send_message("/active2", ch[5])
+                    except OSError:
+                        pass
             else:
                 line = ",".join(f"{c:.4f}" for c in ch) + "\n"
                 for d in dests:
-                    send_sock.sendto(line.encode("ascii"), (d, args.dest_port))
+                    try:
+                        send_sock.sendto(line.encode("ascii"), (d, args.dest_port))
+                    except OSError:
+                        pass
             n_out += 1
         else:
             # sem pacote: expira slots mesmo assim (nó caiu ≠ toque preso)
