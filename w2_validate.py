@@ -32,6 +32,9 @@ import yaml  # noqa: E402
 PY = sys.executable
 ENV = os.environ.copy()
 ENV["PYTHONPATH"] = ROOT
+# No Windows, stdout em pipe (capture_output) vira cp1252 e os prints com
+# ✓/§/acentos dos testes morrem em UnicodeEncodeError. Força UTF-8 nos filhos.
+ENV["PYTHONUTF8"] = "1"
 
 fails = []
 
@@ -94,7 +97,8 @@ def make_calib(path, cx=1500):
 
 # ---------------- 1. protocol ----------------
 print("== 1. shared/protocol.py — testes unitários ==")
-r = subprocess.run([PY, "shared/test_protocol.py"], capture_output=True, text=True)
+r = subprocess.run([PY, "shared/test_protocol.py"], capture_output=True,
+                   text=True, env=ENV)
 check("shared/test_protocol.py exit 0", r.returncode == 0,
       f"rc={r.returncode}\n{r.stdout[-500:] if r.returncode else ''}")
 
