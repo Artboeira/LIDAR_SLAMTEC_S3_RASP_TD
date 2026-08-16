@@ -8,6 +8,17 @@ serviço rodando sozinho no boot. Base: §6, §9, §10, §11 e §12 da
 **Faça este documento inteiro uma vez, no lidar-01, na bancada.** Os outros 7
 nós saem da golden image (§10) e só precisam das seções 7, 10 e 11.
 
+> **A frota real foi provisionada em 08/2026** com as ferramentas de
+> [deploy/](../deploy/), que automatizam este documento: primeiro acesso por
+> `bootstrap_keys.sh` (digita `pi123` 1×), provisionamento idempotente por
+> `provision_node.sh <host> <panel_id>` (apt, cortes, venv, udev, chrony,
+> config, systemd — reexecutar é o jeito de consertar nó meio-provisionado;
+> **exige internet no Pi**), validação por `verify_node.sh`, update sem
+> internet por `push_repo.sh`. A tabela painel↔hostname↔MAC da frota e os
+> runbooks de operação estão no [MANUAL_DE_CAMPO.md](MANUAL_DE_CAMPO.md).
+> Config de frota aplicado: `angle_offset_deg 180`, `roi.y_max 4000`,
+> `baseline.duration_s 10`.
+
 Índice:
 
 1. [Imagem e primeiro boot](#1-imagem-e-primeiro-boot)
@@ -209,6 +220,20 @@ placa alimentada mesmo sem sistema operacional de pé.
 > dentro do que qualquer porta de 5 V entrega. Se o travamento aparecer também
 > neles, o suspeito **não** é a fonte — vá para o cartão SD (§12).
 
+**Aprendizados da frota real (08/2026):**
+
+- **Pi 5 sem a fonte de 27 W**: o S3 entra em loop de desconexão por
+  over-current (USB capado em 600 mA). Paliativo que segurou o show:
+  `usb_max_current_enable=1` no `config.txt` **+ alimentação auxiliar no S3**
+  (cabo de força extra no sensor). Definitivo: fonte oficial 27 W.
+- **Alimentação auxiliar do S3 vale para qualquer modelo** — o motor do
+  sensor no USB do Pi sozinho é o modo de falha mais comum da frota.
+- **`throttled=0x50000`** = subtensão **no passado** (bits de histórico);
+  transientes na partida do motor do S3 são normais. Preocupante é bit baixo
+  ativo (`0x...5`) **durante** a operação — aí é fonte/cabo.
+- Nos Pi 3B da frota, fonte fraca aparece como dips intermitentes em operação
+  — trocar a fonte, não o cartão.
+
 Confira depois de alguns minutos com o S3 girando:
 
 ```bash
@@ -319,13 +344,18 @@ chronyc sources -v
 ```
 
 Esperado: `Leap status : Normal`, offset na casa dos milissegundos, e o
-`10.10.0.10` marcado com `^*` em `sources`.
+servidor marcado com `^*` em `sources`.
 
-Se o diretório `/etc/chrony/conf.d/` não existir nessa imagem, acrescente a
-linha `server 10.10.0.10 iburst prefer` ao fim de `/etc/chrony/chrony.conf`.
+O IP dentro de [deploy/chrony-node.conf](../deploy/chrony-node.conf) precisa
+ser o do servidor real da instalação (o default `10.10.0.10` vem da spec e
+não existe na rede real — ajuste antes de copiar). Se o diretório
+`/etc/chrony/conf.d/` não existir nessa imagem, acrescente a linha
+`server <IP-do-servidor> iburst prefer` ao fim de `/etc/chrony/chrony.conf`.
 
-O server-a precisa estar servindo NTP (ver
-[INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md) §4).
+O servidor precisa estar servindo NTP (ver
+[INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md) §4) — a instalação real
+roda sem NTP local (o sistema funciona; só o timestamp do V2 fica
+incomparável entre nós).
 
 ---
 
@@ -351,7 +381,7 @@ Campos que variam por nó:
 | Campo | O que é | Muda por |
 |---|---|---|
 | `udp.panel_id` | identidade do painel, `1..8` | **nó** — obrigatório, único |
-| `udp.host` | `10.10.0.10` (painéis 1–4) ou `10.10.0.11` (5–8) | servidor de destino |
+| `udp.host` | o IP do servidor (com reserva DHCP por MAC) | servidor de destino — re-aponte com `render_node_config.py --update` ([MANUAL R2](MANUAL_DE_CAMPO.md)) |
 | `roi.*` | recorte em mm no referencial do sensor | montagem física |
 | `processing.angle_offset_deg` | rotação do sensor | montagem física |
 | `processing.mirror` | espelhamento do eixo | montagem física |
@@ -568,15 +598,21 @@ sudo reboot
 
 ```bash
 # /home/pi/node-config.yaml — regenere com o panel_id do novo nó
-# (deriva udp.host sozinho: 1-4 → 10.10.0.10, 5-8 → 10.10.0.11)
+# (sem --udp-host, deriva o default da spec: 1-4 → 10.10.0.10, 5-8 →
+#  10.10.0.11 — na instalação real, passe SEMPRE --udp-host <IP-do-servidor>)
 ~/lidarmapper/.venv/bin/python ~/lidarmapper/deploy/render_node_config.py \
-    --panel 5 --out /home/pi/node-config.yaml
+    --panel 5 --udp-host <IP-do-servidor> --out /home/pi/node-config.yaml
 # depois ajuste roi / angle_offset_deg / mirror à mão, conforme a montagem
 ```
 
 > Alternativa sem golden image (a usada nesta frota): cartões gravados
 > individualmente no Imager + [deploy/provision_node.sh](../deploy/provision_node.sh)
-> por nó — ver [PROVISIONAMENTO_FROTA.md](PROVISIONAMENTO_FROTA.md).
+> por nó (idempotente; exige internet no Pi).
+
+> **Trocar só a placa** (Pi queimado, cartão bom) é plug-and-play: o cartão é
+> a identidade do nó e a imagem é a mesma para 3B+/4/5 — runbook R7 do
+> [MANUAL_DE_CAMPO.md](MANUAL_DE_CAMPO.md). Mantenha a alimentação auxiliar
+> do S3; o MAC muda (reserva DHCP a refazer).
 
 4. Registre o MAC daquele Pi na reserva de DHCP do IP correspondente.
 5. Rode o checklist de bring-up do painel (§5 de [INSTALACAO.md](INSTALACAO.md)).
@@ -621,6 +657,7 @@ ssh lidar-03 'cd lidarmapper && git pull && sudo systemctl restart lidarmapper'
 | `/dev/rplidar` não existe | regra udev não aplicada, ou S3 sem enumerar | `lsusb \| grep -i cp210`, `sudo udevadm trigger`, replugar o USB |
 | `Permission denied` na porta serial | usuário fora do grupo `dialout` | `sudo usermod -aG dialout $USER` e **relogar** |
 | `LIDAR não iniciou` no log | porta errada, motor travado, cabo | `ls -l /dev/rplidar`, testar com `--port /dev/ttyUSB0` |
+| `meas/s=0 scans/s=0.0` com serviço `active` (típico pós-queda de energia) | S3 acordou travado | `sudo systemctl restart lidarmapper` — o reader tenta START_SCAN 3× com STOP+RESET (A5 40) entre elas e destrava sozinho. Área livre no restart |
 | `throttled` ≠ `0x0` | fonte/cabo insuficiente ou calor | fonte oficial, cabo curto, dissipador (§2) |
 | `meas/s` baixo ou oscilando | cabo USB ruim, subtensão | trocar cabo; conferir `throttled` |
 | `desync`/`recon` crescendo | ruído na serial, alimentação | mesmo acima; se persistir, trocar o cabo do S3 |

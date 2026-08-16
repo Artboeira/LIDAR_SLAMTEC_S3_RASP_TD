@@ -17,8 +17,8 @@ RADAR DO PAINEL — visão em mm (sensor no topo), ROI, cursores ao vivo, e:
              B     refaz o BASELINE deste nó via SSH (área livre ~15 s!)
              ESC   volta pra grade
 
-O baseline via SSH usa o mapa painel→hostname da instalação CURVA (tabela em
-docs/PROVISIONAMENTO_FROTA.md), sobrescritível com --hosts "1=lidar-01,...".
+O baseline via SSH usa o mapa painel→hostname da instalação CURVA (tabela
+canônica: docs/MANUAL_DE_CAMPO.md §2), sobrescritível com --hosts "1=lidar-01,...".
 Exige chave SSH instalada nos nós (deploy/install_server.ps1 §6).
 
 Saídas (iguais às versões anteriores):
@@ -72,7 +72,7 @@ POINT_TTL = 0.6            # cursor no radar some após esse silêncio
 PAD = 20
 
 # Instalação CURVA: painel físico → hostname do cartão SD
-# (docs/PROVISIONAMENTO_FROTA.md, "Estado da frota"). --hosts sobrescreve.
+# (tabela canônica: docs/MANUAL_DE_CAMPO.md §2). --hosts sobrescreve.
 DEFAULT_HOSTS = {1: "lidar-01", 2: "lidar-03", 3: "lidar-08", 4: "lidar-06",
                  5: "lidar-07", 6: "lidar-02", 7: "lidar-04", 8: "lidar-05"}
 

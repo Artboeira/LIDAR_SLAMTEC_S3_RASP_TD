@@ -1,5 +1,23 @@
 # LidarMapper Distribuído v3 — 8 painéis, 8 nós Pi, middleware, 2 servidores TD
 
+> **NOTA DE STATUS (15/08/2026, pós-instalação).** Este documento é a spec
+> original do projeto. Depois da instalação real (evento CURVA), seu papel
+> mudou:
+>
+> - O **§3 (protocolos V1/V2/OSC) continua NORMATIVO** — não muda sem
+>   atualizar este guia primeiro.
+> - A **topologia foi substituída**: a rede `10.10.0.x` com 2 servidores
+>   Windows não foi adotada. A instalação real usa a faixa do roteador do
+>   evento (`192.168.1.x`, com reserva DHCP por MAC) e **1 servidor** rodando
+>   o `server/fleet_bridge.py` — que ocupa o papel do relay descrito aqui.
+> - O **consumo no TD mudou**: em vez de V1 binário em UDP In DATs, o TD
+>   recebe **OSC** (6 canais por painel, porta 7000). O caminho V1 continua
+>   implementado e válido como alternativa.
+>
+> Fonte de verdade operacional: **[docs/MANUAL_DE_CAMPO.md](docs/MANUAL_DE_CAMPO.md)**.
+> O restante deste guia vale como arquitetura de referência e registro do
+> projeto.
+
 Arquitetura 2026-07-14; revisão multi-modelo e **middleware (Opção C)**
 em 2026-08-05:
 

@@ -1,19 +1,62 @@
 # Configuração do TouchDesigner
 
 O TouchDesigner é **consumidor puro** no v3: recebe cursores já em coordenadas
-normalizadas `0..1`, um painel por porta, e preenche uma tabela. Sem
-homografia, sem demux, sem calibração, sem `struct` além do callback abaixo.
+normalizadas `0..1` e não faz homografia, demux nem calibração.
 
-Base: §8 da [spec](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) e o
-`TOUCHDESIGNER.md` do sistema single-node (em `legacy_recovery/`).
-
-Cada servidor tem seu TD, e os dois projetos são idênticos: **4 UDP In DATs nas
-portas 6001–6004**. O que muda é qual painel físico está do outro lado — isso é
-problema do relay, não do TD.
+Existem **dois modos de consumo**. O que a instalação real (evento CURVA)
+usa é o **OSC** (§0, abaixo) — configure esse. O modo V1 binário (§1–§6) é o
+da spec original, continua implementado e vale como alternativa quando o
+servidor roda o `server_relay.py` em vez do `fleet_bridge.py`.
 
 ---
 
-## 1. O que chega na porta
+## 0. MODO REAL — OSC In CHOP, porta 7000 (fleet_bridge)
+
+O `server/fleet_bridge.py` envia por OSC **6 canais por painel** (48 canais
+com os 8 painéis), a 30 Hz por painel:
+
+```
+/p1_x1  /p1_y1  /p1_active1  /p1_x2  /p1_y2  /p1_active2
+/p2_x1  ...                                   ... /p8_active2
+```
+
+Semântica:
+
+- `x`/`y` em `0..1`, **origem embaixo-esquerda** (padrão UV do TD — sem flip).
+- Até **2 toques por painel**, em slots estáveis: um toque contínuo não muda
+  de slot entre frames.
+- `active` = 1 enquanto o toque existe; ao soltar vai a `0`, mas `x`/`y`
+  **seguram o último valor** — sem salto para a origem. Use `active` como
+  gate/máscara.
+
+Montagem (1 operador, só isso):
+
+| Parâmetro do **OSC In CHOP** | Valor |
+|---|---|
+| Network Port | `7000` |
+| OSC Address Scope | `*` (ou filtre `/p*`) |
+
+Os canais aparecem com os nomes `p1_x1 ... p8_active2`. Selecione por painel
+com um Select CHOP (`p3_*`) e monte o efeito.
+
+Firewall: o instalador do servidor já libera UDP 7000; se o TD roda em OUTRA
+máquina, libere lá também (regra de entrada UDP 7000) e acrescente o IP dela
+no `--dest` do fleet_bridge (aceita vários, separados por vírgula).
+
+Teste rápido sem tocar em painel: rodar o fleet_bridge com o simulador **não
+é necessário** — basta o show real; para bancada, use
+`server/test_node_sim.py` alimentando o fleet_bridge e veja os canais mexerem.
+
+O resto deste documento descreve o modo alternativo V1 binário.
+
+---
+
+## 1. MODO ALTERNATIVO (V1 binário) — o que chega na porta
+
+> Deste ponto em diante: modo relay+V1 da spec (§8 do
+> [GUIA](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md), base no `TOUCHDESIGNER.md`
+> do single-node em `legacy_recovery/`). Só se aplica com o
+> `server_relay.py` rodando — não com o fleet_bridge.
 
 Protocolo V1 (§3.1), pacote binário sem padding, little-endian:
 

@@ -2,12 +2,16 @@
 
 Rastreamento de toque em painéis LED de grande formato por LIDAR, distribuído
 em 8 painéis. Cada painel tem um RPLIDAR S3 ligado a um Raspberry Pi que
-detecta e rastreia pessoas/mãos no plano do painel; dois servidores Windows
-convertem essas posições em coordenadas de tela e entregam ao TouchDesigner
+detecta e rastreia pessoas/mãos no plano do painel; um servidor Windows
+converte essas posições em coordenadas de tela e entrega ao TouchDesigner
 (visual) e ao Max/MSP (som).
 
 Instalação interativa — o sistema roda por horas seguidas, sem operador, e
 precisa voltar sozinho de uma queda de energia.
+
+> **Sistema instalado e em operação (08/2026).** Para operar, diagnosticar ou
+> reinstalar qualquer parte, comece pelo
+> **[docs/MANUAL_DE_CAMPO.md](docs/MANUAL_DE_CAMPO.md)**.
 
 ---
 
@@ -29,6 +33,13 @@ precisa voltar sozinho de uma queda de energia.
                              +--- OSC /touch/N :7500 ---> Max/MSP               |
                              +--------------------------------------------------+
 ```
+
+O diagrama acima mostra o modo relay+V1 da spec. **Na instalação real (evento
+CURVA), o lugar do relay é ocupado pelo `server/fleet_bridge.py`**: mesmo
+papel (demux por painel, homografia, detecção de toque), mas com UI de
+monitoramento/calibração e saída **OSC** — 6 canais por painel para o
+TouchDesigner (`/pN_x1..pN_active2`, porta 7000) e `/touch/N 1|0` para o
+Max (porta 7500). Detalhes no [manual de campo](docs/MANUAL_DE_CAMPO.md).
 
 Três decisões definem a arquitetura:
 
@@ -130,17 +141,20 @@ python server/test_udp_receiver.py --v1 --port 6001    # saída pro TD
 
 | Documento | O que é |
 |---|---|
-| [GUIA_LIDARMAPPER_DISTRIBUIDO_1.md](GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) | **A spec — fonte de verdade.** Topologia, protocolos, rede, setup, calibração, gates de performance |
+| [docs/MANUAL_DE_CAMPO.md](docs/MANUAL_DE_CAMPO.md) | **Comece aqui.** Operação, runbooks, troubleshooting, tabela canônica da frota |
+| [docs/OPERACAO_EVENTO_WINDOWS.md](docs/OPERACAO_EVENTO_WINDOWS.md) | Operar tudo a partir do servidor Windows: installer, SSH, rotina diária |
+| [GUIA_LIDARMAPPER_DISTRIBUIDO_1.md](GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) | A spec original do projeto. **§3 (protocolos) é normativo**; topologia e consumo do TD foram substituídos na instalação real |
 | [docs/INSTALACAO.md](docs/INSTALACAO.md) | Índice da instalação: rede, ordem das etapas, checklist de bring-up por painel |
-| [docs/INSTALACAO_PI.md](docs/INSTALACAO_PI.md) | Nó Raspberry Pi: imagem, udev, chrony, `config.yaml`, systemd, golden image |
-| [docs/INSTALACAO_SERVIDOR.md](docs/INSTALACAO_SERVIDOR.md) | Servidor Windows: Python, firewall, `config_server.yaml`, relay, calibração |
-| [docs/INSTALACAO_TOUCHDESIGNER.md](docs/INSTALACAO_TOUCHDESIGNER.md) | TouchDesigner: 4 UDP In DATs, callback V1, consumo dos cursores |
+| [docs/INSTALACAO_PI.md](docs/INSTALACAO_PI.md) | Nó Raspberry Pi: imagem, udev, chrony, config, systemd, provisionamento da frota |
+| [docs/INSTALACAO_SERVIDOR.md](docs/INSTALACAO_SERVIDOR.md) | Servidor Windows: installer, firewall, fleet_bridge, calibração |
+| [docs/INSTALACAO_TOUCHDESIGNER.md](docs/INSTALACAO_TOUCHDESIGNER.md) | TouchDesigner: OSC In CHOP (modo real) e V1 binário (alternativo) |
+| [docs/PROVISIONAMENTO_FROTA.md](docs/PROVISIONAMENTO_FROTA.md) | Stub histórico — o provisionamento foi concluído; conteúdo migrou p/ manual e INSTALACAO_PI |
 | [node/VALIDACAO.md](node/VALIDACAO.md) · [server/VALIDACAO.md](server/VALIDACAO.md) | Roteiros de validação e o que cada um **não** cobre |
 | [CLAUDE.md](CLAUDE.md) | Regras do repositório para sessões de Claude Code |
-| [KICKOFF_CLAUDE_CODE.md](KICKOFF_CLAUDE_CODE.md) | Prompts das sessões W0/W1/W2 (histórico de processo) |
 
-Em conflito entre a spec e qualquer outro documento (ou o código), **a spec
-vence**.
+Hierarquia em conflito: **manual de campo** (operação e topologia real) →
+**GUIA §3** (protocolos) → demais docs. O restante do GUIA é arquitetura de
+referência, não descrição do sistema instalado.
 
 ---
 
@@ -166,13 +180,12 @@ que já estava validado continua valendo sem uma linha de mudança.
 | Área | Estado |
 |---|---|
 | `shared/protocol.py` | pronto — 24 asserts de round-trip |
-| `node/` | pronto — validado 21/21 sem hardware; falta o gate de CPU num 3B+ real |
-| `server/` relay + calibrador | pronto — validado 12/12 com simulador |
-| `server/ui.py` (painel de status) | **não implementado** — o monitoramento hoje é o log 1×/s do relay |
-| Windows (server-a/server-b) | **validado em 08/2026** — `w2_validate.py` passa inteiro no Windows 11 com Python 3.14 + `pygame-ce`. Falta só o §7 (conflito de porta relay↔calibrador), que nenhum teste cobre |
-| Nó em hardware real | **ainda não** — bancada travou em alimentação/cartão SD antes do primeiro SSH ([INSTALACAO_PI.md §12](docs/INSTALACAO_PI.md)) |
-| Contraparte TD do `--target-source td` | **não implementada** — ver [docs/INSTALACAO_TOUCHDESIGNER.md](docs/INSTALACAO_TOUCHDESIGNER.md) §7 |
-| `calib_p*.json` | não existem no repo — são gerados na calibração de cada instalação |
+| `node/` | pronto — **8/8 nós em hardware real** (frota provisionada e calibrada, 08/2026). Gate de CPU medido: Pi 4 = 2,3 %, Pi 3B = 6,8 % de um core |
+| `server/` relay + calibrador | pronto — validado 12/12 com simulador e em Windows 11 (Python 3.14 + `pygame-ce`) |
+| `server/fleet_bridge.py` | **a central da operação real**: monitor dos 8 painéis + radar + calibração 4 cantos + baseline por SSH + saídas OSC (TD :7000, Max :7500) |
+| Instalador Windows | [deploy/install_server.ps1](deploy/install_server.ps1) — venv, validação, firewall, `start_fleet.bat`, chaves SSH em um comando |
+| `calib_p*.json` | **as 8 calibrações da instalação CURVA estão versionadas** em `server/` — artefato de instalação; refazer via radar do fleet_bridge |
+| Contraparte TD do `--target-source td` | não implementada (a calibração real é pelo radar, tornou-se desnecessária) |
 
 ---
 

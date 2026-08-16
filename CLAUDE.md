@@ -7,22 +7,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Instalação interativa: 8 painéis LED, 8 nós Raspberry Pi (3B+/4/5) com
 RPLIDAR S3, 2 servidores Windows com TouchDesigner + relay Python.
 
-**Spec / fonte de verdade: `GUIA_LIDARMAPPER_DISTRIBUIDO_1.md`.** Leia
-antes de qualquer implementação. Em conflito entre guia e código (ou
-qualquer doc), o guia vence. O §3 (protocolos) não muda sem atualizar o
-guia primeiro.
+**Hierarquia de verdade (pós-instalação, 08/2026):**
 
-`README.md` é a visão de produto; `KICKOFF_CLAUDE_CODE.md` é histórico de
-processo (os prompts das sessões W0/W1/W2, já concluídas).
+1. **`docs/MANUAL_DE_CAMPO.md`** — operação, topologia REAL, runbooks,
+   troubleshooting e a tabela canônica da frota (painel↔hostname↔MAC).
+   Para qualquer pergunta sobre "como o sistema instalado funciona", é aqui.
+2. **`GUIA_LIDARMAPPER_DISTRIBUIDO_1.md` §3 (protocolos)** — normativo; não
+   muda sem atualizar o guia primeiro. O RESTANTE do guia é a spec original
+   (arquitetura de referência): a topologia `10.10.0.x` e o consumo V1 no TD
+   descritos lá NÃO foram adotados na instalação real.
+3. Este arquivo — regras de código.
+
+`README.md` é a visão de produto; `docs/historico/KICKOFF_CLAUDE_CODE.md` é
+histórico de processo (os prompts das sessões W0/W1/W2, já concluídas).
 
 ## Arquitetura (visão geral)
 
 Fluxo de dados: **Pi (sender burro)** lê o S3, filtra, rastreia e envia
-cursores em **mm** via UDP **V2** (`:5555`) → **`server_relay.py`
-(middleware)** demultiplexa por `panel_id`, aplica homografia
-(`calib_pN.json`), deriva eventos down → OSC `/touch/N` ao Max, e
-reempacota **V1 (0..1)** via localhost (`:600N`) → **TouchDesigner**
-consome V1 puro, sem matemática.
+cursores em **mm** via UDP **V2** (`:5555`) → um processo servidor
+demultiplexa por `panel_id`, aplica homografia (`calib_pN.json`) e entrega
+às saídas. Há dois processos servidores possíveis (mesma porta 5555 — **um
+por vez**):
+
+- **`server/fleet_bridge.py`** — o modo da instalação real: monitor dos 8
+  painéis + radar + calibração + baseline por SSH; saída **OSC** pro TD
+  (6 canais/painel, `:7000`) e `/touch/N 1|0` pro Max (`:7500`).
+- **`server_relay.py`** — o modo relay da spec: headless, reempacota
+  **V1 (0..1)** via localhost (`:600N`) pro TD consumir puro + OSC
+  `/touch/N` ao Max.
 
 - Protocolo V2 (Pi → relay): header `"<BBIdH"`, ponto `"<Ifff"` (§3 do guia)
 - Protocolo V1 (relay → TD): header `"<IdH"`, ponto `"<Ifff"` (§3.1)
@@ -30,10 +42,12 @@ consome V1 puro, sem matemática.
 - V1 é byte-idêntico ao do LidarMapper single-node: o callback do TD que
   já estava validado continua valendo sem mudança.
 
-### Invariantes do relay (leia antes de editar `server/server_relay.py`)
+### Invariantes do relay (valem também para o `fleet_bridge.py`)
 
 - Loop **single-threaded**, um socket de entrada com `settimeout(0.25)`.
   Não há locks em lugar nenhum — não introduza threads sem repensar isso.
+  (Única exceção existente: o `fleet_bridge` dispara o restart de baseline
+  por SSH numa thread descartável, que não toca em estado compartilhado.)
 - Calibração com **hot-reload por `mtime`**, checado a cada pacote.
   Arquivo sumido ou inválido = mantém a `H` antiga (nunca derruba o show).
 - Painel sem `calib_pN.json` **descarta** os pacotes (status mostra `[-]`).
@@ -150,30 +164,32 @@ Alvos de execução: `node/` roda em Linux arm64 headless (mas deve rodar
 no dev x86 também); `server/` tem Windows como alvo (paths, sockets,
 sem systemd).
 
-## Estado atual
+## Estado atual (08/2026 — SISTEMA INSTALADO E EM OPERAÇÃO)
 
-- `shared/protocol.py`, `node/`, `server/` (relay + calibrador): prontos e
-  validados sem hardware.
-- **Não implementado**: `server/ui.py` (painel de status — hoje o
-  monitoramento é o log 1×/s do relay) e a contraparte TD do
-  `calibrate.py --target-source td` (ver `docs/INSTALACAO_TOUCHDESIGNER.md` §7).
-- **Validado no Windows (08/2026)**: `w2_validate.py` passa inteiro em
-  Windows 11 + Python 3.14. Em 3.14 o `pygame` não tem wheel — o
-  `requirements-server.txt` troca para `pygame-ce` por marcador de
-  ambiente. No Windows o venv é `.venv\Scripts\`, não `.venv/bin/`.
-- **Validado em hardware Pi (08/2026)**: `lidar-01` (Pi 4) rodou o pipeline
-  completo com S3 real — 9,8 Hz, `desync=0 recon=0`, V2 chegando no relay.
-  Gate de CPU no Pi 4: 2,3 % de um core (limite 30 %).
-- **Não verificado**: gate de CPU num 3B+ real (os 3 da frota nunca foram
-  medidos — é o risco aberto do §5 de `docs/PROVISIONAMENTO_FROTA.md`).
-- **Frota (08/2026, em andamento)**: os 8 nós são provisionados por
-  `deploy/provision_node.sh` (um por vez, idempotente); primeiro acesso via
-  `deploy/bootstrap_keys.sh`; validação por `deploy/verify_node.sh`; update
-  sem internet por `deploy/push_repo.sh`. O config que o serviço lê é
-  `/home/pi/node-config.yaml` (fora do git, gerado por
-  `deploy/render_node_config.py`) — `node/config.yaml` é o template.
-  Plano e runbook: `docs/PROVISIONAMENTO_FROTA.md`.
+- **Frota COMPLETA**: 8/8 nós provisionados, orientados e calibrados em
+  campo. Tabela canônica painel↔hostname↔MAC: `docs/MANUAL_DE_CAMPO.md` §2.
+  As 8 homografias (`server/calib_p1..8.json`) estão **versionadas** —
+  artefato de instalação, não gere por cima sem motivo.
+- **Central da operação**: `server/fleet_bridge.py` (grade + radar +
+  calibração 4 cantos + baseline por SSH + OSC pro TD e Max). O relay
+  headless continua disponível como modo alternativo.
+- **Servidor Windows**: instalação por `deploy/install_server.ps1` (um
+  comando; os `.ps1` do deploy são **ASCII puro de propósito** — PowerShell
+  5.1 sem BOM lê como ANSI). Em Python 3.14 o `requirements-server.txt`
+  troca `pygame`→`pygame-ce` por marcador. Venv é `.venv\Scripts\` e **não é
+  portátil entre máquinas**. Subprocesso com stdout em pipe precisa de
+  `PYTHONUTF8=1` (cp1252 mata ✓/§).
+- **Gates de CPU medidos em hardware real**: Pi 4 = 2,3 %, Pi 3B = 6,8 % de
+  um core (limite 30 %) — risco encerrado.
+- **Nó**: config vivo é `/home/pi/node-config.yaml` (fora do git, gerado por
+  `deploy/render_node_config.py`; modo `--update` preserva ROI/offset) —
+  `node/config.yaml` é o template. Frota padronizada: `angle_offset_deg 180`,
+  `roi.y_max 4000`, `baseline.duration_s 10`. O reader tem auto-RESET do S3
+  no start (sensores travam após corte de energia).
+- **Não implementado**: contraparte TD do `calibrate.py --target-source td`
+  (desnecessária — a calibração real é pelo radar do fleet_bridge).
 
+Operação, runbooks e troubleshooting: `docs/MANUAL_DE_CAMPO.md`.
 Instalação em campo: `docs/INSTALACAO.md` é o índice (Pi, servidor, TD).
 Roteiros de validação e o que eles **não** cobrem: `node/VALIDACAO.md`,
 `server/VALIDACAO.md`.

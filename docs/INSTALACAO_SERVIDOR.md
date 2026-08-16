@@ -1,14 +1,29 @@
-# Instalação do servidor — Windows (server-a / server-b)
+# Instalação do servidor — Windows
 
-O servidor roda o **middleware**: recebe V2 dos Pis, aplica a homografia,
-dispara OSC para o Max e entrega V1 ao TouchDesigner. Toda a calibração do
-sistema vive aqui.
+O servidor roda o **middleware**: recebe V2 dos Pis, aplica a homografia e
+entrega às saídas (TD e Max). Toda a calibração do sistema vive aqui.
+
+> **O caminho rápido é o instalador.** Os §1–§3 e o `start_fleet.bat` são
+> feitos em um comando por
+> [deploy/install_server.ps1](../deploy/install_server.ps1):
+>
+> ```powershell
+> cd C:\lidarmapper
+> powershell -ExecutionPolicy Bypass -File deploy\install_server.ps1
+> ```
+>
+> Runbook completo de troca de servidor (zip, venv não-portátil, re-aponte
+> dos nós): [MANUAL_DE_CAMPO.md R1–R2](MANUAL_DE_CAMPO.md). As seções abaixo
+> documentam o passo a passo manual equivalente.
+
+Na instalação real roda **1 servidor** com o `server/fleet_bridge.py`
+(monitor + calibração + OSC — ver o manual). O modo da spec com **2
+servidores** (server-a: painéis 1–4 e NTP; server-b: 5–8) e relay+V1 continua
+documentado aqui como variante — os relays são independentes, o demux é por
+`panel_id` dentro do pacote.
 
 Base: §2, §4, §5.2 e §7 da [spec](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) + o
 roteiro de [server/VALIDACAO.md](../server/VALIDACAO.md).
-
-Faça este procedimento no **server-a** primeiro (ele também é o master de NTP)
-e repita no **server-b** trocando os painéis.
 
 Índice:
 
@@ -86,14 +101,15 @@ Confirme o ambiente:
 
 ## 3. Firewall
 
-Só a **entrada UDP 5555** precisa de regra: é por onde os Pis falam. As portas
-6001–6004 (relay → TD) e 7500 (relay → Max) são tráfego de `127.0.0.1` e o
-firewall do Windows não filtra loopback.
-
-Num PowerShell/CMD **como administrador**:
+Regras de **entrada UDP 5555** (V2 dos Pis) e **UDP 7000** (OSC do
+fleet_bridge para um TD em outra máquina — na mesma máquina é loopback e não
+precisa). As portas 6001–6004 (relay → TD) e 7500 (→ Max local) são tráfego
+de `127.0.0.1` e o firewall do Windows não filtra loopback. O instalador cria
+as duas regras; na mão, num PowerShell/CMD **como administrador**:
 
 ```
 netsh advfirewall firewall add rule name="LidarMapper V2 in" dir=in action=allow protocol=UDP localport=5555
+netsh advfirewall firewall add rule name="LidarMapper OSC in" dir=in action=allow protocol=UDP localport=7000
 ```
 
 Conferir:
@@ -109,13 +125,15 @@ ajuste `osc.host` no `config_server.yaml` (§5).
 
 ## 4. Rede e relógio
 
-**IP fixo:** `10.10.0.10` no server-a, `10.10.0.11` no server-b, máscara
-`255.255.255.0`, na interface cabeada. Sem gateway se a rede for isolada.
+**IP do servidor: fixe por reserva DHCP (por MAC) no roteador do evento** —
+é a pendência que mais derrubou o sistema em campo: o IP do servidor mudou
+num reboot e os 8 nós ficaram publicando para o vazio. A faixa é a do
+roteador (na instalação CURVA, `192.168.1.x`). Reserve também os 8 Pis
+(MACs na tabela do [MANUAL_DE_CAMPO.md §2](MANUAL_DE_CAMPO.md)).
 
-**Reservas de DHCP** dos 8 Pis por MAC, conforme a tabela de
-[INSTALACAO.md §3](INSTALACAO.md#3-plano-de-rede-4).
-
-**NTP — o server-a é o master.** Os Pis apontam para `10.10.0.10` via chrony.
+**NTP (opcional).** Os Pis apontam para o IP do
+[deploy/chrony-node.conf](../deploy/chrony-node.conf) via chrony — ajuste-o
+para o IP real do servidor.
 Para o Windows responder como servidor NTP, num terminal como administrador:
 
 ```
@@ -132,10 +150,9 @@ E libere a entrada UDP 123:
 netsh advfirewall firewall add rule name="NTP in" dir=in action=allow protocol=UDP localport=123
 ```
 
-Do lado do Pi, `chronyc sources -v` precisa mostrar o `10.10.0.10` com `^*`.
+Do lado do Pi, `chronyc sources -v` precisa mostrar o servidor com `^*`.
 Se o serviço NTP do Windows der trabalho, a alternativa é apontar todos os Pis
-(e o chrony do server-a) para um roteador/appliance da rede — o que importa é
-**uma referência comum**, não qual é.
+para o roteador da rede — o que importa é **uma referência comum**, não qual é.
 
 > Não é cosmético: o `timestamp` do V2 vem do relógio do Pi, e é ele que
 > alimenta a latência reportada por `test_udp_receiver.py`. Sem NTP, esse
@@ -251,6 +268,14 @@ A calibração casa **milímetros no plano do sensor** com **coordenadas
 normalizadas do painel**. São 4 cantos (TL → TR → BR → BL), DLT/SVD, e um
 `calib_pN.json` gravado em `server\`.
 
+> **O caminho usado na instalação real é o radar do fleet_bridge** (uma
+> pessoa encosta a mão no canto físico da tela; teclas 1–4 capturam, S
+> salva) — runbook R6 do [MANUAL_DE_CAMPO.md](MANUAL_DE_CAMPO.md). O
+> `calibrate.py` abaixo é o caminho alternativo com alvos desenhados
+> (pygame/TD); os cuidados de coleta e o guard de degeneração desta seção
+> valem para os dois. As 8 calibrações da instalação CURVA estão
+> **versionadas** em `server/calib_p1..8.json`.
+
 ### Pré-requisitos
 
 - O nó daquele painel publicando: confirme com
@@ -358,14 +383,18 @@ gravação termina, o próximo pacote daquele painel já usa a homografia nova �
 
 ## 8. Operação diária
 
+O modo normal do evento é o fleet_bridge (`start_fleet.bat` — 8 cartões
+verdes com `in=30/s`; teclas e rotina no
+[MANUAL_DE_CAMPO.md §3](MANUAL_DE_CAMPO.md)). O que segue é o modo
+alternativo relay+V1.
+
 Antes do show, com o TouchDesigner ainda fechado:
 
 ```
 deploy\start_relay.bat
 ```
 
-Deixe a janela aberta. Enquanto o `server/ui.py` não existir, esse console é o
-monitor de saúde do sistema:
+Deixe a janela aberta — esse console é o monitor de saúde do modo relay:
 
 ```
 p1[C] in=30 out=30 drop=0 down=2 age= 0.0s   p2[C] in=30 out=29 drop=1 down=0 age= 0.0s
@@ -390,13 +419,13 @@ Ordem inversa no fim: feche o TD, depois o relay. Os Pis podem ficar ligados.
 
 | Sintoma | Causa provável | O que fazer |
 |---|---|---|
-| `in=0` em todos os painéis | firewall, IP errado no Pi, cabo | regra UDP 5555 (§3); `udp.host` no `node/config.yaml`; `ping lidar-0N` |
+| `in=0` em todos os painéis | firewall, ou nós apontando para IP velho do servidor | regra UDP 5555 (§3); re-apontar `udp.host` dos nós ([MANUAL R2](MANUAL_DE_CAMPO.md)); `ping lidar-0N.local` |
 | `in=0` num painel só | aquele nó caiu ou está com `panel_id` errado | `ssh lidar-0N systemctl status lidarmapper` |
 | `panel_id=9 fora do config_server.yaml` no log | `panel_id` do Pi não está no `panels:` | corrigir o `config.yaml` do nó ou o `config_server.yaml` |
 | Painel em `[-]` | falta `calib_pN.json` | calibrar (§7) |
 | `in` alto, `out=0`, `drop` alto | homografia errada ou ROI larga: tudo cai fora de `0..1` | recalibrar; conferir a ROI do nó |
 | `age` subindo | nó parou de publicar | ver o Pi ([INSTALACAO_PI.md §12](INSTALACAO_PI.md#12-troubleshooting)) |
-| `V2 inválido de ('10.10.0.2x', …)` | versão de protocolo divergente entre Pi e servidor | `git pull` nos dois lados; o `shared/protocol.py` é o contrato |
+| `V2 inválido de ('192.168.1.x', …)` | versão de protocolo divergente entre Pi e servidor | atualizar os dois lados (`deploy/push_repo.sh` no nó); o `shared/protocol.py` é o contrato |
 | Relay não sobe: `ModuleNotFoundError: server` | executado de dentro de `server\` | rodar da raiz, ou usar o `.bat` (§2) |
 | Relay não sobe: `Address already in use` | já tem um relay ou um `calibrate.py` na 5555 | fechar o outro processo (`netstat -ano \| findstr :5555`) |
 | `down` não sobe ao tocar | tracker não formou cluster, ou já havia a mesma id ativa | tocar com a mão espalmada; conferir `tracks` no log do Pi |

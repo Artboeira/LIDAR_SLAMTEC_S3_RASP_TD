@@ -10,7 +10,7 @@
 
 param([Parameter(Mandatory=$true)][string]$Painel)
 
-# painel fisico -> hostname do cartao (tabela em docs/PROVISIONAMENTO_FROTA.md)
+# painel fisico -> hostname do cartao (tabela canonica: docs/MANUAL_DE_CAMPO.md secao 2)
 $Mapa = @{
     "1" = "lidar-01"; "2" = "lidar-03"; "3" = "lidar-08"; "4" = "lidar-06"
     "5" = "lidar-07"; "6" = "lidar-02"; "7" = "lidar-04"; "8" = "lidar-05"

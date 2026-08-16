@@ -4,9 +4,10 @@ Guia para operar o sistema inteiro a partir de um servidor Windows, sem a
 máquina de desenvolvimento: rodar a ponte dos 8 painéis, recalibrar uma tela,
 refazer baseline, ajustar config de nó, e a rotina de ligar/desligar do evento.
 
-Pré-requisito de leitura: [INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md)
-(instalação base). Este guia assume a frota já provisionada e calibrada
-(ver "Estado da frota" em [PROVISIONAMENTO_FROTA.md](PROVISIONAMENTO_FROTA.md)).
+Pré-requisito de leitura: [MANUAL_DE_CAMPO.md](MANUAL_DE_CAMPO.md) (a visão
+geral, os runbooks e a **tabela canônica da frota** — §2 de lá). Este guia
+assume a frota já provisionada e calibrada; a instalação base do servidor é
+[INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md).
 
 ---
 
@@ -57,10 +58,11 @@ os IPs fixos da reserva DHCP (§6).
 
 ## 3. Apontar os nós para o servidor (uma vez, na mudança de máquina)
 
-Cada nó envia o V2 para UM IP (`udp.host`). Hoje apontam para a máquina de
-dev. Descubra o IP do servidor (`ipconfig`) e re-aponte os 8
+Cada nó envia o V2 para UM IP (`udp.host`). Descubra o IP do servidor
+(`ipconfig`), **fixe-o por reserva DHCP no roteador**, e re-aponte os 8
 (o `--update` preserva ROI/offset/baseline; o painel N de cada nó está na
-tabela da frota — NÃO troque o número):
+tabela canônica do [MANUAL_DE_CAMPO.md §2](MANUAL_DE_CAMPO.md) — NÃO troque
+o número). Loop pronto em bash e PowerShell: runbook R2 do manual.
 
 ```powershell
 # exemplo: lidar-01 é o painel 1, servidor em 192.168.1.50

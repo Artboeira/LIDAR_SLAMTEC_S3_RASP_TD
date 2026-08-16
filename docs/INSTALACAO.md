@@ -1,20 +1,27 @@
 # Instalação — LidarMapper Distribuído v3
 
 Guia de campo para instalar o sistema do zero: 8 painéis LED, 8 nós Raspberry
-Pi com RPLIDAR S3, 2 servidores Windows com TouchDesigner + relay Python.
+Pi com RPLIDAR S3, servidor Windows com TouchDesigner + ponte Python.
+
+> **O sistema já está instalado (08/2026).** Para operar, diagnosticar ou
+> refazer partes da instalação existente, use o
+> **[MANUAL_DE_CAMPO.md](MANUAL_DE_CAMPO.md)** — este índice serve para uma
+> instalação nova do zero.
 
 Este documento é o índice e a visão geral. O procedimento detalhado está
 dividido por função:
 
 | Documento | Para quem | O que cobre |
 |---|---|---|
-| [INSTALACAO_PI.md](INSTALACAO_PI.md) | quem monta os nós | imagem, udev, chrony, `config.yaml`, systemd, golden image |
-| [INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md) | quem opera server-a/server-b | Python no Windows, firewall, `config_server.yaml`, relay, calibração |
-| [INSTALACAO_TOUCHDESIGNER.md](INSTALACAO_TOUCHDESIGNER.md) | quem monta o projeto TD | 4 UDP In DATs, callback V1, consumo dos cursores |
+| [MANUAL_DE_CAMPO.md](MANUAL_DE_CAMPO.md) | operador / herdeiro do sistema | operação, runbooks, troubleshooting, tabela canônica da frota |
+| [OPERACAO_EVENTO_WINDOWS.md](OPERACAO_EVENTO_WINDOWS.md) | operador do servidor | installer em 1 comando, SSH, rotina diária do evento |
+| [INSTALACAO_PI.md](INSTALACAO_PI.md) | quem monta os nós | imagem, udev, chrony, config, systemd, provisionamento da frota |
+| [INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md) | quem monta o servidor | Python no Windows, firewall, fleet_bridge/relay, calibração |
+| [INSTALACAO_TOUCHDESIGNER.md](INSTALACAO_TOUCHDESIGNER.md) | quem monta o projeto TD | OSC In CHOP (modo real) e V1 binário (alternativo) |
 
-> A spec do sistema é o [GUIA_LIDARMAPPER_DISTRIBUIDO_1.md](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md).
-> Em conflito entre este guia de instalação e a spec, **a spec vence** — abra
-> uma correção aqui. Cada seção abaixo aponta o § de origem.
+> A spec do projeto é o [GUIA_LIDARMAPPER_DISTRIBUIDO_1.md](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) —
+> o **§3 (protocolos) é normativo**; a topologia e o consumo do TD descritos
+> lá foram substituídos na instalação real (ver a nota de status no topo dela).
 
 ---
 
@@ -46,9 +53,10 @@ As três regras que explicam todo o resto:
 
 1. **O Pi é burro.** Ele não sabe onde fica o painel; publica coordenadas em
    **milímetros no referencial do sensor**. Não existe `calibration.json` no Pi.
-2. **A calibração vive só no servidor.** `calib_p1.json .. calib_p4.json` ficam
+2. **A calibração vive só no servidor.** `calib_p1.json .. calib_p8.json` ficam
    em [server/](../server/) e são recarregados a quente (por `mtime`) — trocar
-   uma calibração não derruba nada.
+   uma calibração não derruba nada. (O diagrama mostra o modo relay+V1 da
+   spec; na instalação real o `fleet_bridge.py` faz esse papel com saída OSC.)
 3. **O TouchDesigner só consome.** Ele recebe coordenadas já em `0..1` e
    preenche uma tabela. Nenhuma matemática, nenhum demux, nenhuma calibração.
 
@@ -76,54 +84,46 @@ Central: 1 switch gigabit (ou VLAN isolada), 2 PCs Windows com TouchDesigner,
 
 ---
 
-## 3. Plano de rede (§4)
+## 3. Plano de rede (o que a instalação real usa)
 
-Rede cabeada gigabit dedicada ou VLAN isolada. DHCP com **reserva por MAC** —
-a imagem do SD é idêntica em todos os nós, só o config por nó difere.
+Rede cabeada gigabit. O DHCP é o **roteador do evento** (com ou sem saída
+para a internet) ligado ao switch, e a faixa de IP é a dele — na instalação
+CURVA, `192.168.1.x`. **Reserva DHCP por MAC é obrigatória para o servidor**
+(sem ela, o IP muda num reboot e os 8 nós ficam mudos — aconteceu) e
+recomendada para os 8 Pis (MACs na tabela do
+[MANUAL_DE_CAMPO.md §2](MANUAL_DE_CAMPO.md)).
 
-> **Decisão de campo (08/2026):** o DHCP da instalação será um **roteador
-> Wi-Fi sem saída para a internet** ligado ao switch, e a faixa de IP será a
-> dele — **não** se força a `10.10.0.x` da tabela abaixo. A tabela permanece
-> como referência dos papéis; quando o roteador for configurado, registre aqui
-> os endereços reais e atualize `udp.host` dos 8 nós **sem perder a ROI
-> ajustada de cada um**, com o modo `--update`:
->
-> ```bash
-> for n in 1 2 3 4 5 6 7 8; do
->   ssh pi@lidar-0$n "~/lidarmapper/.venv/bin/python \
->     ~/lidarmapper/deploy/render_node_config.py --panel $n \
->     --udp-host <IP-do-servidor-do-painel> --update --out /home/pi/node-config.yaml \
->     && sudo systemctl restart lidarmapper"
-> done
-> ```
->
-> Atualize também o `server 10.10.0.10` de
-> [deploy/chrony-node.conf](../deploy/chrony-node.conf) para o IP real do
-> server-a. Os MACs para as reservas são reportados pelo `provision_node.sh`
-> de cada nó.
+Cada nó envia o V2 para UM IP (`udp.host`). Para (re)apontar os 8 sem perder
+a ROI ajustada de cada um, use o modo `--update` — o runbook completo (bash e
+PowerShell, com o mapa painel→hostname) é o
+[R2 do manual](MANUAL_DE_CAMPO.md):
 
-| Host | IP | Função |
-|---|---|---|
-| server-a | 10.10.0.10 | TD #1 (painéis 1–4), relay, **master NTP** |
-| server-b | 10.10.0.11 | TD #2 (painéis 5–8), relay |
-| lidar-01 … lidar-04 | 10.10.0.21 … .24 | `panel_id` 1–4 → 10.10.0.10:5555 |
-| lidar-05 … lidar-08 | 10.10.0.25 … .28 | `panel_id` 5–8 → 10.10.0.11:5555 |
+```bash
+ssh pi@<hostname> "~/lidarmapper/.venv/bin/python \
+  ~/lidarmapper/deploy/render_node_config.py --panel <N> \
+  --udp-host <IP-do-servidor> --update --out /home/pi/node-config.yaml \
+  && sudo systemctl restart lidarmapper"
+```
+
+Se usar NTP local, atualize o `server` de
+[deploy/chrony-node.conf](../deploy/chrony-node.conf) para o IP real do
+servidor (o default `10.10.0.10` vem da spec e não existe na rede real).
 
 Portas:
 
 | Porta | Protocolo | De → Para | Firewall |
 |---|---|---|---|
-| **UDP 5555** | V2 (mm) | Pis → relay do seu servidor | **regra de entrada nos 2 Windows** |
-| **UDP 6001–6004** | V1 (0..1) | relay → TouchDesigner, em `127.0.0.1` | localhost, sem regra |
-| **UDP 7500** | OSC `/touch/N` | relay → Max/MSP | regra só se o Max estiver em outra máquina |
+| **UDP 5555** | V2 (mm) | Pis → fleet_bridge/relay | **regra de entrada no Windows** (o installer cria) |
+| **UDP 7000** | OSC `pN_*` | fleet_bridge → TouchDesigner | regra de entrada na máquina do TD (o installer cria) |
+| **UDP 7500** | OSC `/touch/N` | fleet_bridge/relay → Max/MSP | regra só se o Max estiver em outra máquina |
+| UDP 6001–6004 | V1 (0..1) | relay → TD, em `127.0.0.1` | só no modo relay+V1; localhost, sem regra |
 
 Banda por nó: ~16 kB/s a 30 Hz. Uma porta de entrada por servidor; o demux é
 por `panel_id` dentro do pacote, **não** por porta.
 
-> No server-b os painéis são 5–8, mas as portas de saída continuam **6001–6004**
-> (o TD #2 é um espelho do TD #1). O mapeamento vive em
-> [server/config_server.yaml](../server/config_server.yaml) — ver
-> [INSTALACAO_SERVIDOR.md](INSTALACAO_SERVIDOR.md) §5.
+> A spec previa 2 servidores (`10.10.0.10/.11`, painéis 1–4 e 5–8). A
+> instalação real usa **1 servidor com o fleet_bridge**; o modo com 2 relays
+> continua possível (o demux por `panel_id` não depende de um servidor só).
 
 ---
 
@@ -178,32 +178,25 @@ com o link do passo correspondente.
 
 ## 6. Operação diária (resumo)
 
-Nos servidores, antes de abrir o TouchDesigner:
+O modo normal do evento é o **fleet_bridge** — no servidor Windows:
 
 ```
-deploy\start_relay.bat
+start_fleet.bat
 ```
 
-Deixe a janela do relay aberta — o status de 1×/s é o monitor de saúde do
-sistema:
-
-```
-p1[C] in=30 out=30 drop=0 down=2 age= 0.0s   p2[C] in=30 out=30 drop=0 down=0 age= 0.0s   ...
-```
-
-- `[C]` = painel calibrado (repassando); `[-]` = **sem calibração, não repassa nada**
-- `in` = pacotes V2 recebidos do Pi · `out` = pacotes V1 enviados ao TD
-- `drop` = pontos descartados por caírem fora de `0..1` (ROI ou calibração ruins)
-- `down` = total de `/touch/N` disparados · `age` = tempo desde o último pacote daquele nó
+Critério: 8 cartões verdes com `in=30/s`. Teclas, contratos OSC, baseline e
+recalibração: [MANUAL_DE_CAMPO.md §3–§4](MANUAL_DE_CAMPO.md). Rotina de
+ligar/desligar do evento: [OPERACAO_EVENTO_WINDOWS.md §5](OPERACAO_EVENTO_WINDOWS.md).
 
 Os Pis sobem sozinhos no boot (systemd) — não precisa fazer nada neles.
+**Refazer o fundo de um nó** (alguém ficou parado na frente durante o
+baseline): `ssh pi@<hostname> sudo systemctl restart lidarmapper` com a área
+livre, ou `deploy\baseline.ps1 <painel>` do Windows.
 
-**Refazer o fundo de um nó** (alguém ficou parado na frente do painel durante o
-baseline):
-
-```bash
-ssh pi@lidar-0N sudo systemctl restart lidarmapper
-```
+No modo alternativo relay+V1 (`deploy\start_relay.bat`), o monitor é o status
+1×/s do relay: `p1[C] in=30 out=30 drop=0 down=2 age= 0.0s` — `[C]` =
+calibrado; `[-]` = sem calibração, não repassa; `drop` = pontos fora de
+`0..1`; `age` = tempo desde o último pacote do nó.
 
 Acesso aos nós: usuário `pi`, senha `pi123`, igual nos 8 — ver
 [INSTALACAO_PI.md §1](INSTALACAO_PI.md#1-imagem-e-primeiro-boot).
@@ -212,8 +205,10 @@ Acesso aos nós: usuário `pi`, senha `pi123`, igual nos 8 — ver
 
 ## 7. Documentos relacionados
 
-- [PROVISIONAMENTO_FROTA.md](PROVISIONAMENTO_FROTA.md) — **plano em execução**: levar os 8 nós de "cartão gravado" a "publicando V2", via SSH
-- [GUIA_LIDARMAPPER_DISTRIBUIDO_1.md](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) — a spec (fonte de verdade)
+- [MANUAL_DE_CAMPO.md](MANUAL_DE_CAMPO.md) — operação, runbooks e troubleshooting do sistema instalado
+- [OPERACAO_EVENTO_WINDOWS.md](OPERACAO_EVENTO_WINDOWS.md) — operar tudo a partir do servidor Windows
+- [PROVISIONAMENTO_FROTA.md](PROVISIONAMENTO_FROTA.md) — stub histórico (provisionamento concluído; conteúdo migrado)
+- [GUIA_LIDARMAPPER_DISTRIBUIDO_1.md](../GUIA_LIDARMAPPER_DISTRIBUIDO_1.md) — a spec original (§3 normativo)
 - [node/VALIDACAO.md](../node/VALIDACAO.md) — roteiro de validação do nó (W1)
 - [server/VALIDACAO.md](../server/VALIDACAO.md) — roteiro de validação do servidor (W2)
 - [shared/protocol.py](../shared/protocol.py) — os formatos V1/V2, único lugar do repo com `struct`

@@ -1,5 +1,10 @@
 # Kickoff Claude Code — LidarMapper Distribuído v3
 
+> **HISTÓRICO.** Prompts das sessões de construção W0/W1/W2 (concluídas em
+> 08/2026). O `CLAUDE.md` embutido abaixo é a versão da época e diverge do
+> real. Nada aqui é operacional — para o sistema instalado, ver
+> [../MANUAL_DE_CAMPO.md](../MANUAL_DE_CAMPO.md).
+
 Quatro blocos: (0) preparação manual, (1) o `CLAUDE.md` pronto pra colar,
 (2) o prompt da **Sessão W0 — reconstrução do legado** (nova, obrigatória,
 primeira), (3) o prompt da Sessão W2, (4) o prompt da Sessão W1.
